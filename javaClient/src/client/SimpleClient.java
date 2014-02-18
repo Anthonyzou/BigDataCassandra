@@ -23,8 +23,9 @@ public class SimpleClient {
 	}
 
 	public static void main(String[] args) throws UnknownHostException {
+		System.out.println(InetAddress.getLocalHost());
 		SimpleClient client = new SimpleClient();
-		Session s = client.connect(InetAddress.getByAddress("uofa391-instance-2", new byte[] {10,0,0,38}));
+		Session s = client.connect(InetAddress.getByAddress("group3@uofa391-instance-2",new byte[] {10,0,0,38}));
 		s.getCluster();
 		ResultSet rs = s.execute("SELECT keyspace_name, columnfamily_name FROM schema_columnfamilies");
 		for(Row r : rs){
