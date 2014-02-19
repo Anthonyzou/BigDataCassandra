@@ -25,8 +25,7 @@ public class SimpleClient {
 
 	public static void main(String[] args) throws UnknownHostException {
 		SimpleClient client = new SimpleClient();
-		Session s = client.connect("192.168.0.106", 
-									"prereading.dlinkddns.com", 
+		Session s = client.connect( "prereading.dlinkddns.com", 
 									"10.0.0.31", 
 									"10.0.0.38");
 		s.getCluster();
