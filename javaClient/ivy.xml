@@ -26,6 +26,6 @@
 	</info>
 	<dependencies>
 	<dependency org="com.datastax.cassandra" name="cassandra-driver-core" rev="2.0.0-rc2"/>
-            
+	<dependency org="ch.qos.logback" name="logback-classic" rev="1.1.1"/>
 	</dependencies>
 </ivy-module>

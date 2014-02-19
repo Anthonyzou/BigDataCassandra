@@ -11,9 +11,10 @@ import com.datastax.driver.core.Session;
 public class SimpleClient {
 	private Cluster cluster;
 
-	public Session connect(InetAddress ... node) {
+	public Session connect(String ... node) {
 		cluster = Cluster.builder()
 						.addContactPoints(node)
+						.withPort(9042)
 						.build();
 		return cluster.connect("system");	
 	}
@@ -23,9 +24,11 @@ public class SimpleClient {
 	}
 
 	public static void main(String[] args) throws UnknownHostException {
-		System.out.println(InetAddress.getLocalHost());
 		SimpleClient client = new SimpleClient();
-		Session s = client.connect(InetAddress.getByAddress("group3@uofa391-instance-2",new byte[] {10,0,0,38}));
+		Session s = client.connect("192.168.0.106", 
+									"prereading.dlinkddns.com", 
+									"10.0.0.31", 
+									"10.0.0.38");
 		s.getCluster();
 		ResultSet rs = s.execute("SELECT keyspace_name, columnfamily_name FROM schema_columnfamilies");
 		for(Row r : rs){
