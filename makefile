@@ -1,6 +1,6 @@
 java:
-	ant
-	scp -i NebulaLaunchKey.pem javaClient/bin/client.jar group3@199.116.235.57:/home/group3
+	-ant
+	scp -i NebulaLaunchKey.pem client.jar group3@199.116.235.57:/home/group3
 python:
 	scp -i NebulaLaunchKey.pem pythonClient/client.py group3@199.116.235.57:/home/group3
 ruby:
