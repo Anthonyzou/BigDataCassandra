@@ -1,11 +1,16 @@
-CMPUT391
+CMPUT391-Big Data project
 ========
 
-Big Data
+Populaing a call data record table with terrabytes of data and querying these records.
 
-Using eclipse mostly
+## Using 
 
-##Plugins required:
+**apache-cassandra-2.0.5**
+
+
+##required for development:
+
+**eclipse**
 
 **Apache IvyDE Repository** - http://www.apache.org/dist/ant/ivyde/updatesite
 
