@@ -9,7 +9,9 @@ Populaing a call data record table with terrabytes of data and querying these re
 ## Using 
 
 **apache-cassandra-2.0.5**
+
 **oracle java 7**
+
 **python**
 
 
