@@ -107,10 +107,10 @@ partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 data_file_directories:
-    - /var/lib/cassandra/data
+    - /home/group3/cassandra/data
 
 # commit log
-commitlog_directory: /var/lib/cassandra/commitlog
+commitlog_directory: /home/group3/cassandra/commitlog
 
 # policy for data disk failures:
 # stop: shut down gossip and Thrift, leaving the node effectively dead, but
@@ -185,7 +185,7 @@ row_cache_save_period: 0
 # memory_allocator: NativeAllocator
 
 # saved caches
-saved_caches_directory: /var/lib/cassandra/saved_caches
+saved_caches_directory: /home/group3/cassandra/saved_caches
 
 # commitlog_sync may be either "periodic" or "batch." 
 # When in batch mode, Cassandra won't ack writes until the commit log
@@ -228,7 +228,7 @@ seed_provider:
       parameters:
           # seeds is actually a comma-delimited list of addresses.
           # Ex: "<ip1>,<ip2>,<ip3>"
-          - seeds: "127.0.0.1"
+          - seeds: "127.0.0.1,10.0.0.31,10.0.0.38"
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from
@@ -302,7 +302,7 @@ listen_address: localhost
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-# broadcast_address: 1.2.3.4
+broadcast_address: 
 
 # Internode authentication backend, implementing IInternodeAuthenticator;
 # used to allow/disallow connections from peer nodes.
@@ -360,7 +360,7 @@ rpc_keepalive: true
 #
 # Alternatively,  can provide your own RPC server by providing the fully-qualified class name
 # of an o.a.c.t.TServerFactory that can create an instance of it.
-rpc_server_type: sync
+rpc_server_type: hsha
 
 # Uncomment rpc_min|max_thread to set request pool size limits.
 #
@@ -392,7 +392,7 @@ rpc_server_type: sync
 # internode_recv_buff_size_in_bytes:
 
 # Frame size for thrift (maximum message length).
-thrift_framed_transport_size_in_mb: 15
+thrift_framed_transport_size_in_mb: 1500
 
 # Set to true to have Cassandra create a hard link to each sstable
 # flushed or streamed locally in a backups/ subdirectory of the
@@ -456,7 +456,7 @@ in_memory_compaction_limit_in_mb: 64
 # This is usually only useful for SSD-based hardware: otherwise, 
 # your concern is usually to get compaction to do LESS i/o (see:
 # compaction_throughput_mb_per_sec), not more.
-multithreaded_compaction: false
+multithreaded_compaction: true
 
 # Throttles compaction to the given total throughput across the entire
 # system. The faster you insert data, the faster you need to compact in
