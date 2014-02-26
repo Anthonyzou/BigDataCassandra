@@ -29,7 +29,8 @@ public class SimpleClient {
 		Session s = client.connect(
 									"127.0.0.1"
 									,"10.0.0.31",
-									"10.0.0.38",
+									"10.0.0.38"
+									,
 									"199.116.235.57"
 									);
 		s.getCluster();
