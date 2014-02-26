@@ -3,3 +3,4 @@
 *.class
 javaClient/bin
 javaClient/target
+.*
