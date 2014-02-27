@@ -5,7 +5,7 @@ from xmlrpclib import MAXINT, MININT
 import ast
 
 start_time = time.clock()
-    
+
 cluster = Cluster(['199.116.235.57',
                    '10.0.0.31',
                    '10.0.0.38',
@@ -27,8 +27,7 @@ except:
 # read table stuffs from sample table schema
 with open("tablestuffs.txt") as tables_freq:
     (labels, counts) = tables_freq
-
-labels = ast.literal_eval(labels)
+labels = ast.literal_eval(labels) #turn input into list correctly
 
 query = "INSERT INTO call_details_record ("
 # build columns
@@ -52,4 +51,4 @@ for y in range(1):
     bound = prepared.bind(build)
     session.execute_async(bound)
 
-print str(time.clock() - start_time)[:7], "seconds elapsed"
+print str((time.clock() - start_time)/60)[:7], "minutes elapsed"
