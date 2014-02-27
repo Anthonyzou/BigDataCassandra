@@ -4,6 +4,8 @@ from random import randint
 from xmlrpclib import MAXINT, MININT
 import ast
 
+start_time = time.clock()
+    
 cluster = Cluster(['199.116.235.57',
                    '10.0.0.31',
                    '10.0.0.38',
@@ -49,3 +51,5 @@ for y in range(1):
         build.append(str(to_insert))
     bound = prepared.bind(build)
     session.execute_async(bound)
+
+print str(time.clock() - start_time)[:7], "seconds elapsed"
