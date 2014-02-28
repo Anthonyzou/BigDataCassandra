@@ -2,6 +2,7 @@ from cassandra.cluster import Cluster
 import time, ast, random
 from random import randint
 from xmlrpclib import MAXINT, MININT
+import cassandra
 
 start_time = time.clock()
 
@@ -13,6 +14,8 @@ cluster = Cluster(['199.116.235.57',
 
 session = cluster.connect('group3')  # keyspace should be our own
 print cluster.metadata.cluster_name  # should make sure this is group3
+
+print cassandra.__version__
 
 random.seed(3333)
 
@@ -34,17 +37,14 @@ query = "INSERT INTO call_details_record ("
 for i in labels:
     query += i[0]+","
     types.append(i[1])
-    
-# remove last char
-query = query[:-1]
-# build question marks for binding
-query += ") VALUES (" + ("?, " * (len(labels)-1)) +  "? )"
 
-prepared = session.prepare(query)
+# remove last char 
+# build question marks for binding
+prepared = session.prepare(query[:-1] + ") VALUES (" + ("?, " * (len(labels)-1)) +  "? )")
 print "query built and prepared"
 
 # example async insert into table
-for y in range(1000000000,1000000010):
+for y in range(0,100):
     build = []
     for x in range(len(labels)):
         if types[x] == 'bigint':
@@ -52,9 +52,9 @@ for y in range(1000000000,1000000010):
         elif types[x] not in ['int', 'float']:
             build.append(None)
         else:
-            to_insert = randint(1, MAXINT) \
-            if (randint(1, 1000) < counts[x]) else None
-            build.append(to_insert)
+            build.append(randint(1, MAXINT)) \
+            if (randint(0, 1000) < counts[x]) else build.append(None)
+            
     bound = prepared.bind(build)
     session.execute_async(bound)
 
