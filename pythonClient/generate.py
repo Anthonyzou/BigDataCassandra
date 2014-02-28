@@ -14,7 +14,6 @@ cluster = Cluster(['199.116.235.57',
 
 session = cluster.connect('group3')  # keyspace should be our own
 print cluster.metadata.cluster_name  # should make sure this is group3
-
 print cassandra.__version__
 
 random.seed(3333)
@@ -44,7 +43,7 @@ prepared = session.prepare(query[:-1] + ") VALUES (" + ("?, " * (len(labels)-1))
 print "query built and prepared"
 
 # example async insert into table
-for y in range(0,100):
+for y in range(0,10000):
     build = []
     for x in range(len(labels)):
         if types[x] == 'bigint':
