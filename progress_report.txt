@@ -1,0 +1,22 @@
+********************************************************************************
+*               Big Data Project - Progress Report No. 1                       *
+********************************************************************************
+*   Authors:    Shenwei Liao, Anthony Ou, Jacqueline Terlaan                   *
+*   Class:      CMPUT 391                                                      *
+*   Term:       Winter 2014                                                    *
+********************************************************************************
+
+1.) Which system did you decide to use?
+        -Cassandra (Apache Project), version _____.
+
+2.) How did you choose it, by making simple simple experiments or reading some
+    documents?
+        -The initial decision to explore the possibilty of utilizing 
+         Apache Projects Cassandra was initially based upon knowledge of its
+         utility in many popular online content aggregators, such as Reddit.
+         Because of its efficient implementation of map-reduce algorithms and
+         ease of use with respect to configuration of clusters, as well as its
+         maintenance capabilities (automated cleaning and organizing of 
+         storage space in nodes), we chose it as our system.
+
+Sources:
