@@ -87,27 +87,58 @@ Authors:	Shenwei Liao, Anthony Ou, Jacqueline Terlaan
 
 */
 
-/* Queries which satisfy strategies A and F. 							*/
+/* 				Queries which satisfy strategies A and F. 					*/
 
-/* Query 1:  */
-/* Should meet requirements: 1, 3.	*/
-/* Meets requirements: None so far.	*/
-
-/* Query 2:  */
-/* Should meet requirements: 1, 3.	*/
-/* Meets requirements: None so far.	*/
-
-/* Query 3:  */
-/* Should meet requirements: 1, 4.	*/
-/* Meets requirements: None so far.	*/
-
-/* Query 4:  */
-/* Should meet requirements: 1, 4.	*/
-/* Meets requirements: None so far.	*/
-
-/* Query 5:  */
-/* Should meet requirements: 2, 4.	*/
+/* Query 1: Sections taken from queries   */
+/* Should meet requirements: 1, 3. (All nodes + GROUP BY and ORDER for col-wise. */
 /* Meets requirements: None so far.	*/
 
 
-/* Queries which satisfy other strategies. 								*/
+/* Query 2: Sections taken from queries  */
+/* Should meet requirements: 1, 3. (All nodes + GROUP BY and ORDER for col-wise. */
+/* Meets requirements: None so far.	*/
+
+
+/* Query 3: Sections taken from queries 1.1,  */
+/* Should meet requirements: 1, 4. (All nodes + range for col-wise partition). */
+/* Meets requirements: 4, and possibly 1 (depending on partition).	*/
+/* Problems: VERY slow, lots of information selected!
+	TODO: When deciding how to partition the table vertically, 
+	must determine specific columns from each node to select, as
+	opposed to select *.
+	It might also be too trivial.
+*/
+select *
+from   call_details_record 
+where  starttime >= to_date('2013-01-15')
+       and starttime < to_date('2013-03-16')
+       and ini_cell_user_label = '10-1-0-63-2';
+
+
+/* Query 4: Sections taken from queries 2.2,*/
+/* Should meet requirements: 1, 4. (All nodes + range for column-wise partition). */
+/* Meets requirements: 4, and possibly 1 (depending on partition).	*/
+/* Problems: There is no way to know if this will access all of the nodes in
+   the cluster. (It all depends on how we partition the data.)
+   Also, it is still a bit trivial. It is basically an exact copy of query 2.2!
+*/
+SELECT callingpartynumber, originalcalledpartynumber, finalcalledpartynumber, 
+       datetimeconnect, datetimedisconnect, duration, origdevicename, 
+	   destdevicename
+FROM   cdr
+WHERE  datetimeconnect>1293930000 AND 
+       datetimeconnect<1293930100 AND 
+       duration>300 AND 
+       duration<900 AND 
+       cdrrecordtype=2;
+
+/* Query 5: Sections taken from queries  */
+/* Should meet requirements: 2, 4. (>=10 atomic conditions in WHERE + range. */
+/* Meets requirements: None so far.	*/
+SELECT 	callingpartynumber
+FROM 	cdr
+WHERE	
+
+
+
+/* 			Queries which satisfy other strategies. 						*/
