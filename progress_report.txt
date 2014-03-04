@@ -4,6 +4,7 @@
 *   Authors:    Shenwei Liao, Anthony Ou, Jacqueline Terlaan                   *
 *   Class:      CMPUT 391                                                      *
 *   Term:       Winter 2014                                                    *
+*   NOTE: OOPS -- Please look at README.md for the main version.               *
 ********************************************************************************
 
 1.) Which system did you decide to use?
