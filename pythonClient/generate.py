@@ -39,7 +39,7 @@ for i in labels:
 
 # remove last char 
 # build question marks for binding
-prepared = session.prepare(query[:-1] + ") VALUES (" + ("?, " * (len(labels)-1)) +  "? )")
+prepared = session.prepare(query[:-1] + ") VALUES (" + ("?," * (len(labels)-1)) +  "?)")
 print "query built and prepared"
 
 # example async insert into table
