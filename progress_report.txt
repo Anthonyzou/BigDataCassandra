@@ -4,11 +4,10 @@
 *   Authors:    Shenwei Liao, Anthony Ou, Jacqueline Terlaan                   *
 *   Class:      CMPUT 391                                                      *
 *   Term:       Winter 2014                                                    *
-*   NOTE: OOPS -- Please look at README.md for the main version.               *
 ********************************************************************************
 
 1.) Which system did you decide to use?
-        -Cassandra (Apache Project), version _____.
+        -Apache Cassandra version 2.0.5.
 
 2.) How did you choose it, by making simple simple experiments or reading some
     documents?
@@ -18,6 +17,68 @@
          Because of its efficient implementation of map-reduce algorithms and
          ease of use with respect to configuration of clusters, as well as its
          maintenance capabilities (automated cleaning and organizing of 
-         storage space in nodes), we chose it as our system.
+         storage space in nodes -- see "The Write Path to Compaction"), we 
+         chose it as our "system". 
+         Other advantages of using Cassandra include:
+            -Relatively small size of installation on disk for core components;
+            -Simple, straightforward and well documented configuration: most
+             of the setup can be done quickly and easily via any GNU+Linux,
+             UNIX or UNIX-Like OS implementation of a bash command interpreter;
+            -Cassandra includes a fully functioning shell (interpreter) of its
+             own;
+            -The Apache Cassandra development community supports integration of
+             many different programming languages into both the code base of
+             Cassandra itself, and into independent projects, such as this
+             one;
+            -Besides running without any issues on most GNU+Linux distributions
+             and UNIX-Like OSes, Apache Cassandra has also been successfully
+             ported to most (modern) Microsoft Windows operating systems.
+             This is especially well-suited to meet the needs of our team for
+             this project, due to our differing levels of experience with
+             different families of operating systems, and/or GNU+Linux
+             distributions (RHEL v.s. Debian Linux, GNU+Linux v.s. Windows, etc);
+            -Cassandra is licenced as FOSS (Free and Open Source Software),
+             and while copies of it can be sold, potentially for profit to
+             its developers or the Apache Foundation, viewing or modification
+             of its source code is neither forbidden nor discouraged. This
+             creates an excellent opportunity for our team to further explore
+             how its core functionality is implemented with no risk of any
+             legal rammifications.
+        -Our choice of Cassandra was mostly based upon some initial experiments
+         coupled with curiosity about the high-level approach to managing the
+         "problem of Big Data". We needed to find a convenient and especially
+         portable mechanism for implementing, testing and demonstrating our
+         project without incurring any financial losses, or losing too much
+         time trying to implement complex Map-Reduce algorithms incorrectly
+         or inefficiently. Instead, it is now possible to gather experimental
+         data about the efficiency of certain queries in the context of our
+         Big Data application in an accurate and reliable manner. 
+         
+         To sum up: By choosing to use Cassandra, our team can focus on how 
+         to best utilize all of the nodes of our cluster in a more general 
+         fashion to measure how to most effectively organize and query large 
+         collections of information.
 
-Sources:
+
+Sources Used:
+
+The Apache Software Foundation (2004), "The Apache Licence, Version 2.0".
+    Available at: http://www.apache.org/licences/LICENCE-2.0
+    (Accessed 7 March, 2014).
+
+DataStax Documentation (2014), "The cassandra.yaml Configuration File".
+    Available at:
+        http://www.datastax.com/documentation/cassandra/2.0/cassandra/configuration/configCassandra_yaml_r.html
+        (Accessed 7 March, 2014).
+
+DataStax Documentation (2014), "Cassandra Storage Basics".
+    Available at: 
+        http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/manage_dml_intro_c.html
+        (Accessed 7 March, 2014).
+
+DataStax Documentation (2014), "The Write Path to Compaction".
+    Available at:
+        http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/dml_write_path_c.html
+        (Accessed 7 March, 2014).
+
+
