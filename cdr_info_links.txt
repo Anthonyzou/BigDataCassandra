@@ -1,0 +1,9 @@
+Some references used for gaining a qualitative understanding of the call 
+detail record format. This might (have to) be used for the second progress 
+report/the final report (to avoid accidental plaigiarism)?
+
+References Used: (Urgh long lines...)
+
+Agilent Technologies, Inc (28 October, 2014) "Mobile Station Reported Pilot Information".
+    Available at: http://wireless.agilent.com/rfcomms/refdocs/cdma2k/c2kla_gen_ms_pilot_meas_report.html
+    (Last) Accessed: 10 March 2014.
