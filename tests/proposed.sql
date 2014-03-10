@@ -70,8 +70,6 @@ Authors:	Shenwei Liao, Anthony Ou, Jacqueline Terlaan
 	E)	Make queries which are to meet requirement 2 relatively simple,
 		removing any unnecesary nesting.
 
-			Duh.
-
 	F) 	Make one query which meets requirement 2 also meet requirement 4.
 		i.e., kill two birds with one stone. Making a range query with
 		TONS of other atomic conditions in the WHERE clause should be
@@ -89,15 +87,79 @@ Authors:	Shenwei Liao, Anthony Ou, Jacqueline Terlaan
 
 /* 				Queries which satisfy strategies A and F. 					*/
 
-/* Query 1: Sections taken from queries   */
+/* Query 1: Sections taken from queries, 1.5 */
 /* Should meet requirements: 1, 3. (All nodes + GROUP BY and ORDER for col-wise. */
-/* Meets requirements: None so far.	*/
-
+/* Meets requirements: 1, maybe 3. */
+/* Explanation of what this query does: Selects call data records based on 
+ pilot strengths such that at least one pilot strength on the band RD1 or
+ RD2 is at least below -12 dB (when scaled appropriately by units of -0.5).
+ Groups the results by the city that the calls were made from, and orders
+ them by their timestamps.
+*/
+-- 
+/* Note: pilot strengths are measured in units of -0.5 db. (See Agilent
+   Technologies Inc. citation).
+   TODO: Make this query more interesting and/or valueable. For instance, why
+   do we want all of these pilot strengths...?
+   One answer - maybe the data is more meaningful if we group it by city and
+   order the data by what time the calls were made?
+*/
+SELECT CITY_ID,
+	   REPORT_TIME,
+	   RD1_NOREF_PLT1_PN_STR,
+	   RD1_NOREF_PLT2_PN_STR,
+	   RD1_NOREF_PLT3_PN_STR,
+	   RD1_NOREF_PLT4_PN_STR,
+	   RD1_NOREF_PLT5_PN_STR,
+	   RD2_NOREF_PLT1_PN_STR,
+	   RD2_NOREF_PLT2_PN_STR,
+	   RD2_NOREF_PLT3_PN_STR,
+	   RD2_NOREF_PLT4_PN_STR,
+	   RD2_NOREF_PLT5_PN_STR
+FROM   CALL_DETAILS_RECORD
+WHERE  ((RD1_NOREF_PLT1_PN_STR * -0.5) < -12 OR
+       (RD1_NOREF_PLT2_PN_STR * -0.5) < -12 OR
+       (RD1_NOREF_PLT3_PN_STR * -0.5) < -12 OR
+       (RD1_NOREF_PLT4_PN_STR * -0.5) < -12 OR
+       (RD1_NOREF_PLT5_PN_STR * -0.5) < -12 OR
+       (RD2_NOREF_PLT1_PN_STR * -0.5) < -12 OR
+       (RD2_NOREF_PLT2_PN_STR * -0.5) < -12 OR
+       (RD2_NOREF_PLT3_PN_STR * -0.5) < -12 OR
+       (RD2_NOREF_PLT4_PN_STR * -0.5) < -12 OR
+       (RD2_NOREF_PLT5_PN_STR * -0.5) < -12) 
+       /* Old leftover stuff from sample query 1.5. */
+       /*
+       (LAST_PSMM_PILOTSSTRENGTH * -0.5) < -12 OR
+       (LAST_PSMM_NONREF_PILOTSTR1 * -0.5) < -12 OR
+       (LAST_PSMM_NONREF_PILOTSTR2 * -0.5) < -12 OR
+       (LAST_PSMM_NONREF_PILOTSTR3 * -0.5) < -12 OR
+       (LAST_PSMM_NONREF_PILOTSTR4 * -0.5) < -12 OR
+       (LAST_PSMM_NONREF_PILOTSTR5 * -0.5) < -12 OR
+       (FIRST_PSMM_PILOTSTR * -0.5) < -12)
+       AND (FIRST_PSMM_NONREF_RTD1 - 32) * 0.244 / 2 < 0.5
+       AND (FIRST_PSMM_NONREF_RTD2 - 32) * 0.244 / 2 < 0.5
+       AND (FIRST_PSMM_NONREF_RTD3 - 32) * 0.244 / 2 < 0.5
+       AND (FIRST_PSMM_NONREF_RTD4 - 32) * 0.244 / 2 < 0.5
+       AND (FIRST_PSMM_NONREF_RTD5 - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_RTD - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_NONREF_RTD1 - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_NONREF_RTD2 - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_NONREF_RTD3 - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_NONREF_RTD4 - 32) * 0.244 / 2 < 0.5
+       AND (LAST_PSMM_NONREF_RTD5 - 32) * 0.244 / 2 < 0.5
+       AND (FIRST_PSMM_RTD - 32) * 0.244 / 2 < 0.5
+       */
+GROUP BY CITY_ID 
+ORDER BY REPORT_TIME;
 
 /* Query 2: Sections taken from queries  */
 /* Should meet requirements: 1, 3. (All nodes + GROUP BY and ORDER for col-wise. */
 /* Meets requirements: None so far.	*/
-
+SELECT
+FROM   CALL_DETAILS_RECORD 
+WHERE
+GROUP BY
+ORDER BY 
 
 /* Query 3: Sections taken from queries 1.1,  */
 /* Should meet requirements: 1, 4. (All nodes + range for col-wise partition). */
@@ -108,11 +170,13 @@ Authors:	Shenwei Liao, Anthony Ou, Jacqueline Terlaan
 	opposed to select *.
 	It might also be too trivial.
 */
-select *
-from   call_details_record 
-where  starttime >= to_date('2013-01-15')
+
+-- TODO: Fix the column names to match the big_data_setup.sql file!!!
+SELECT *
+FROM   call_details_record 
+WHERE  starttime >= to_date('2013-01-15')	-- TODO: Find to_date analogue!!!
        and starttime < to_date('2013-03-16')
-       and ini_cell_user_label = '10-1-0-63-2';
+       and ini_cell_user_label = '10-1-0-63-2'; -- TODO: ini_cell_user_label!
 
 
 /* Query 4: Sections taken from queries 2.2,*/
