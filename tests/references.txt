@@ -1,11 +1,20 @@
 ****(Query) References**** 
 
 
-Apache, DataStax, Cassandra 2.0 and CQL 3.x.x References:
+References on Apache, DataStax, Cassandra 2.0 and CQL 3.x.x:
 
 The Apache Software Foundation (10 March 2014), "Cassandra Query Language (CQL) v3.1.5".
     Available at: http://cassandra.apache.org/doc/cql3/CQL.html
     (Last) Accessed: 10 March 2014.
+
+Maxim Grinev (9 July 2010), "A Quick Introduction to the Cassandra Data Model".
+    Available at: http://maxgrinev.com/2010/07/09/a-quick-introduction-to-the-cassandra-data-model/
+    (Last) Accessed: 10 March 2014.
+
+Maxim Grinev (12 July 2010), "Do You Really Need SQL to Do It All in Cassandra?".
+    Available at:  http://maxgrinev.com/2010/07/12/do-you-really-need-sql-to-do-it-all-in-cassandra/
+    (Last) Accessed: 10 March 2014.
+
 
 
 "Oh-Crap-I-Used-The-Wrong-Documentation-Again" References:
@@ -25,6 +34,7 @@ Oracle Inc. (Copyright 1996-2005), "SYSTIMESTAMP".
 Oracle Inc. (Copyright 1996-2005), "TO_DATE".
     Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions183.htm
     (Last) Accessed: 10 March 2014.
+
 
 
 ****TODO: Remove this at the end/Do not include in final list of references****
