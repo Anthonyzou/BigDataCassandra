@@ -1,0 +1,7 @@
+Oracle Inc. (2005), "SYSDATE".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions172.htm
+    (Last) Accessed: 10 March 2014.
+
+Oracle Inc. (2005), "SYSTIMESTAMP".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions173.htm
+    (Last) Accessed: 10 March 2014.
