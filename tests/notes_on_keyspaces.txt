@@ -1,0 +1,54 @@
+********************************************************************************
+* Notes on Cassandra Keyspaces                                                 *
+********************************************************************************
+* Authors:                                                                     *
+* Class:                                                                       *
+* Term:                                                                        *
+*                                                                              *
+********************************************************************************
+
+[NOTE: cassandra-cli is DEPRECATED! It is will be
+removed by Cassandra 3.0. Avoid it at all costs!]
+
+Keyspaces store system storage configurations (DataStax 2014). There are four
+attributes for each keyspace:
+    1)  name (required)
+    2)  placement_strategy (required). Can be either SimpleStrategy, 
+        or NetworkTopologyStrategy (requires a "snitch")
+    3)  strategy_options
+    4)  durable_writes
+
+
+Question: Do keyspaces necessarily influence the schema of data in each node?
+TODO: Find an answer... I have no clue (for now).
+
+-"Cassandra is based on a key-value model" (Grinev)
+    -Key == Column name; key-value pair == column + value pair. (Grinev)
+    -"Supercolumn" == group of columns. (Grinev)
+    -
+
+Idea 1: Use an artificial supercolumn, whose *name* will be used to store the
+        value that we wish to "group by". So... We can do a nested query,
+        such that:
+            -The inner query returns the items we want sorted by the supercol
+            "name", (which would typically be the group-by attribute)
+                -NO DO NOT DO THIS THIS IS BAD!
+            -The outer query then sorts the supercolumns
+
+Idea 2: Repeat the nested query again and again until we have gotten enough
+        "relations" returned...
+
+
+
+********************************************************************************
+References used:
+
+DataStax Documentation (2014), "What's new in Cassandra 2.0".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/features/features_key_c.html
+    (Last) Accessed: 10 March 2014.
+
+DataStax Documentation (2014), "CLI keyspace and table storage configuration".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/reference/referenceStorage_r.html
+    (Last) Accessed: 10 March 2014.
+
+********************************************************************************
