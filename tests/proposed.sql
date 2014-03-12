@@ -114,10 +114,82 @@ WHERE   ((starttime >=  to_date('2010-01-01'))
         AND (report_time < SYSTIMESTAMP) 
         )
 /* NOTE: GROUP BY aggregration is NOT _directly_ supported in CQL 3.1.5!
- One solution: (See Grinev's blog).
+ One solution: (See Grinev's blog), and notes_on_keyspaces.txt.
+    - Could we use a subquery (like a nested loop, O(n^2) urgh that
+      loops over all of the 
+    - No... 
  */
 -- GROUP BY 
 ORDER BY
+
+/*
+-- Inner query:
+SELECT      attr_0-1, attr_0-2, ..., attr_0-m
+FROM        big_table AS b0
+WHERE       [EXPRESSION]
+ORDER BY    [fake_group-by_attr] -- replaces group by attribute
+
+-- Alternate inner query:
+SELECT      fake_group-by_attr -- only need one(?)
+FROM        big_table AS b0
+WHERE       [EXPRESSION]
+ORDER BY    [fake_group-by_attr] -- replaces group by attribute
+
+-- Outer query:
+SELECT      attr_1-1, arrt_1-2, ..., attr_0-n
+FROM        b0  -- Results from inner query
+WHERE       [EXPRESSION]
+ORDER BY    [order-by_attr]
+
+-- Alternate inner query 1: Returns all fake_group-by_attrs
+SELECT      DISTINCT(fake_group-by_attr) AS fgr -- only need one(?)
+FROM        big_table AS b0
+WHERE       [EXPRESSION]
+ORDER BY    [fgr] -- replaces group by attribute
+
+-- Alternative outer query 1:
+SELECT      attr_1-1, attr_1-2, ..., attr_0-n
+FROM        b0  -- Results from inner query
+WHERE       [EXPRESSION]
+ORDER BY    fgr
+
+-- Alternate inner query 2: Uses a new column to "aggregate".
+SELECT 
+FROM
+WHERE
+ORDER BY
+
+-- Alternative outer query 2:
+SELECT 
+FROM
+WHERE
+ORDER BY
+
+-- Why not only search b0 by one "aggregated" section at a time?
+
+-- How to calculate the time and space complexity...?
+
+*/
+
+/* NOTE: Trying to write what is essentially an ad-hoc query involving
+   a makeshift "group-by" or "join" of any kind is misinformed at best!
+
+   Cassandra is better suited to utilizing supercolumns as a way to
+   make pre-determined queries (i.e., things you KNOW will be done
+   many times on large amounts of data), as opposed to "ad-hoc" queries,
+   (i.e., some day after the DB is set up you decide that you want
+   to do some new kind of query that you did not design the schema to
+   be able to be searched for quickly/efficiently with supercolumns),
+   (see Grinev), also (see Stonebraker, Madden, Abadi and Harizopolous).
+
+   Therefore, decide upon the query's results before creating the DB
+   schema + supercolumn families, and then you will have a much nicer
+   time executing "aggregate" queries.
+*/
+
+-- Inner query no. 1
+SELECT
+
 
 
 /* Old proposed query no. 1. To make it simpler, we can use only the first
