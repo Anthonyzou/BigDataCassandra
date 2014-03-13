@@ -105,22 +105,37 @@ ASS_CELL_ID_FOR_CONN_L text
 TODO: In the future, maybe make a slight margin of error where we can instead 
  measure from one year ago to 00:00 today so that it is less "arbitrary"? 
  Then again, this whole idea is pretty arbitrary, so... */
-/* TODO: In the process of making this query CQL 3.1.5 compatible. (Oops!) */
-SELECT  city_id, msc_code 
+SELECT  CITY_ID,
+        MSC_CODE,
+        STARTTIME,
+        CONNEC_REQUEST_TIME,
+        REPORT_TIME,
+        SEIZ_CELL_NUM_L,
+        SEIZ_SEC_NUM_L,
+        LAST_DRC_CELL_L,
+        LAST_DRC_SEC_L,
+        ASS_CELL_ID_FOR_CONN_L
 FROM    call_details_record
-WHERE   ((starttime >=  to_date('2010-01-01'))
-        AND (starttime <= SYSTIMESTAMP) 
-        AND (report_time >= to_date('2010-01-01'))
-        AND (report_time < SYSTIMESTAMP) 
+WHERE   (
+            (((STARTTIME >=  to_date('2010-01-01'))
+                AND (STARTTIME <= SYSTIMESTAMP))
+            OR ((CONNEC_REQUEST_TIME >= to_date('2010-01-01'))
+                AND (CONNEC_REQUEST_TIME < SYSTIMESTAMP))
+            OR ((REPORT_TIME >= to_date('2010-01-01'))
+                AND (REPORT_TIME < SYSTIMESTAMP)))
+        AND 
+            (OR (SEIZ_CELL_NUM_L <> '')
+            OR (SEIZ_SEC_NUM_L <> '')
+            OR (LAST_DRC_CELL_L <> '')
+            OR (LAST_DRC_SEC_L <> '')
+            OR (ASS_CELL_ID_FOR_CONN_L <> ''))
         )
-/* NOTE: GROUP BY aggregration is NOT _directly_ supported in CQL 3.1.5!
- One solution: (See Grinev's blog), and notes_on_keyspaces.txt.
-    - Could we use a subquery (like a nested loop, O(n^2) urgh that
-      loops over all of the 
-    - No... 
- */
+-- NOTE: GROUP BY aggregration is NOT _directly_ supported in CQL 3.1.5!
 -- GROUP BY 
-ORDER BY
+ORDER BY CITY_ID;
+
+/* NOTE: We can simplify the above query in the following way? */
+
 
 /*
 -- Inner query:
@@ -187,10 +202,6 @@ ORDER BY
    time executing "aggregate" queries.
 */
 
--- Inner query no. 1
-SELECT
-
-
 
 /* Old proposed query no. 1. To make it simpler, we can use only the first
    10 or so columns of the table.
@@ -226,17 +237,16 @@ SELECT CITY_ID,
        RD2_NOREF_PLT4_PN_STR,
        RD2_NOREF_PLT5_PN_STR
 FROM   CALL_DETAILS_RECORD
-WHERE  ((RD1_NOREF_PLT1_PN_STR * -0.5) < -12 OR
-       (RD1_NOREF_PLT2_PN_STR * -0.5) < -12 OR
-       (RD1_NOREF_PLT3_PN_STR * -0.5) < -12 OR
-       (RD1_NOREF_PLT4_PN_STR * -0.5) < -12 OR
-       (RD1_NOREF_PLT5_PN_STR * -0.5) < -12 OR
-       (RD2_NOREF_PLT1_PN_STR * -0.5) < -12 OR
-       (RD2_NOREF_PLT2_PN_STR * -0.5) < -12 OR
-       (RD2_NOREF_PLT3_PN_STR * -0.5) < -12 OR
-       (RD2_NOREF_PLT4_PN_STR * -0.5) < -12 OR
-       (RD2_NOREF_PLT5_PN_STR * -0.5) < -12) 
-GROUP BY CITY_ID 
+WHERE  (((RD1_NOREF_PLT1_PN_STR * -0.5) < -12)
+       OR ((RD1_NOREF_PLT2_PN_STR * -0.5) < -12)
+       OR ((RD1_NOREF_PLT3_PN_STR * -0.5) < -12)
+       OR ((RD1_NOREF_PLT4_PN_STR * -0.5) < -12)
+       OR ((RD1_NOREF_PLT5_PN_STR * -0.5) < -12)
+       OR ((RD2_NOREF_PLT1_PN_STR * -0.5) < -12)
+       OR ((RD2_NOREF_PLT2_PN_STR * -0.5) < -12)
+       OR ((RD2_NOREF_PLT3_PN_STR * -0.5) < -12)
+       OR ((RD2_NOREF_PLT4_PN_STR * -0.5) < -12)
+       OR (RD2_NOREF_PLT5_PN_STR * -0.5) < -12)
 ORDER BY REPORT_TIME;
 */
 
