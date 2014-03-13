@@ -7,3 +7,56 @@
 *   Date:       10 March, 2014                                                 *
 ********************************************************************************
 
+********************************************************************************
+* Basic recap of the email from Dr. Wu:                                        *
+********************************************************************************
+
+-----------------------------------------------
+4 Instances:
+-----------------------------------------------
+Internal IP     Hard-Disk       Hard-Disk Size
+10.0.0.31       /bigvolumn1     250 G
+10.0.0.38       /bigvolumn1     250 G
+10.0.0.53       /bigvolumn1     250 G
+10.0.0.159      /bigvolumn1     1   T
+-----------------------------------------------
+
+"In the following week, you are going to manipulate small data on a small
+cluster, which is the preparation for your final test on big data. Basically,
+you should try to finish the following tasks:
+
+    1)  The experimental cluster setup, such as the configuration of the
+        distributed system (including 3 or 4 instances at least).
+
+    2)  Prepare the draft specification of the data set and queries you will
+        use for your test. The "Query Evaluation" section in the project
+        webpafe provides some instructions, and you can also add more based
+        on your experiments.
+        This is a draft, which means you can still modify them when running
+        your final big data test.
+
+    3)  Manipulate a small size of data according to the schema prepared in (2),
+        and try node-partition, column-partition on the cluster established
+        in (1).
+
+For these tasks, probably you don't need to care too much about the
+performance, but you should get familiar with all the operations and codes
+you will need for conducting the final big data test.
+
+As I mentioned in the meeting, you'd better keep a record or log for each
+step you have done in case Cybera may crash accidentally. For the progress
+report, you only need to send me the record or log, and tell me which phase
+you are in. In mid-March, all resources will be released and you can start
+to do the real big data test."
+
+********************************************************************************
+* End of recap of the email from Dr. Wu                                        *
+********************************************************************************
+
+********************************************************************************
+* Append all log messages to this area?                                        *
+********************************************************************************
+
+********************************************************************************
+* End of all log messages                                                      *
+********************************************************************************
