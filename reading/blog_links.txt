@@ -3,6 +3,7 @@ Links to Blogs, Slideshows, etc.
 
 Links Related to Data Modelling in Cassandra:
 
+
 Patrick McFadin, (13 November 2012), "Cassandra Data Modeling Talk".
     Available at: http://www.slideshare.net/patrickmcfadin/data-modeling-talk
     (Last) Accessed: 13 March 2014.
@@ -13,6 +14,14 @@ Patrick McFadin, (3 May 2013), "The Data Model is Dead, Long Live the Data Model
 
 Patrick McFadin, (16 May 2013), "Become a Super Modeler".
     Available at: http://www.slideshare.net/patrickmcfadin/become-a-super-modeler
+    (Last) Accessed: 13 March 2014.
+
+Patrick McFadin, (24 June 2013), "The World's Next Top Data Model".
+    Available at: http://www.slideshare.net/patrickmcfadin/the-worlds-next-top-data-model
+    (Last) Accessed: 13 March 2014.
+
+Patrick McFadin, (17 February 2014), "Time Series with Apache Cassandra".
+    Available at: http://www.slideshare.net/patrickmcfadin/time-series-with-apache-cassandra-strata
     (Last) Accessed: 13 March 2014.
 
 
