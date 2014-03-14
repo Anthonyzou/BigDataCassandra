@@ -7,6 +7,14 @@ The Apache Software Foundation (10 March 2014), "Cassandra Query Language (CQL) 
     Available at: http://cassandra.apache.org/doc/cql3/CQL.html
     (Last) Accessed: 10 March 2014.
 
+The Apache Software Foundation (15 November 2013), "UUID".
+    Available at: http://wiki.apache.org/cassandra/UUID
+    (Last) Accessed: 13 March 2014.
+
+DataStax Inc. (2014), "UUID and timeuuid".
+    Available at: http://www.datastax.com/documentation/cql/3.0/cql/cql_reference/uuid_type_r.html
+    (Last) Accessed: 13 March 2014.
+
 Maxim Grinev (9 July 2010), "A Quick Introduction to the Cassandra Data Model".
     Available at: http://maxgrinev.com/2010/07/09/a-quick-introduction-to-the-cassandra-data-model/
     (Last) Accessed: 10 March 2014.
