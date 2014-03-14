@@ -3,7 +3,6 @@ Links to Blogs, Slideshows, etc.
 
 Links Related to Data Modelling in Cassandra:
 
-
 Patrick McFadin, (13 November 2012), "Cassandra Data Modeling Talk".
     Available at: http://www.slideshare.net/patrickmcfadin/data-modeling-talk
     (Last) Accessed: 13 March 2014.
@@ -23,6 +22,19 @@ Patrick McFadin, (24 June 2013), "The World's Next Top Data Model".
 Patrick McFadin, (17 February 2014), "Time Series with Apache Cassandra".
     Available at: http://www.slideshare.net/patrickmcfadin/time-series-with-apache-cassandra-strata
     (Last) Accessed: 13 March 2014.
+
+
+
+Links Related to General NoSQL Concepts:
+
+Martin Fowler, (9 January 2012), "NosqlDefinition".
+    Available at: http://martinfowler.com/bliki/NosqlDefinition.html
+    (Last) Accessed: 13 March 2014.
+
+Martin Fowler, (7 January 2013), "Schemaless Data Structures".
+    Available at: http://martinfowler.com/tags/noSQL.html
+    (Last) Accessed: 13 March 2014.
+
 
 
 
