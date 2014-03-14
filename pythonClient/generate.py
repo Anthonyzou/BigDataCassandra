@@ -6,8 +6,7 @@ from xmlrpclib import MAXINT
 
 import cassandra
 from cassandra.cluster import Cluster
-
-
+    
 def generate(element_type, frequency):
     """ Generate an element value to insert. of arbitrary type, which is a null
     value (1000-frequency)/1000 of the time
@@ -36,11 +35,19 @@ print cassandra.__version__
 random.seed(3333)
 
 try:
-    with open("../misc/bigdata_setup1.sql") as tables_setup:
-        session.execute(tables_setup.read())
+    with open("cdr_table.sql") as tables_setup:
+        session.execute("create table call_details_record(" + tables_setup.read() +")")# + ")WITH CLUSTERING ORDER BY (insertion_time DESC);")
+        #session.execute("create table call_details_record1(" + tables_setup.read()+ ")WITH CLUSTERING ORDER BY (insertion_time DESC);")
+        #session.execute("create table call_details_record2(" + tables_setup.read()+ ")WITH CLUSTERING ORDER BY (insertion_time DESC);")
+        #session.execute("create table call_details_record3(" + tables_setup.read()+ ")WITH CLUSTERING ORDER BY (insertion_time DESC);")
+        #session.execute("create table call_details_record4(" + tables_setup.read()+ ")WITH CLUSTERING ORDER BY (insertion_time DESC);")
 except:
     # remove table informations if it already exists
     session.execute("truncate call_details_record")
+    #session.execute("truncate call_details_record1")
+    #session.execute("truncate call_details_record2")
+    #session.execute("truncate call_details_record3")
+    #session.execute("truncate call_details_record4")
 
 # read table stuffs from sample table schema
 with open("tablestuffs.txt") as tables_freq:
