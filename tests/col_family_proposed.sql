@@ -12,8 +12,7 @@ CREATE TABLE fake_group_by_1 (
     FAKE_THINGY06       text,
     FAKE_THINGY07       text,
     PRIMARY KEY (CITY_CODE, CITY_MSC)   -- TODO: Is this the right idea?
-    TABLE_UUID          uuid,       -- TODO: Is this a good attr name?
-);
+); -- Put an ordering clause here???
 
 -- Here's a test table.
 CREATE TABLE main_thingy (

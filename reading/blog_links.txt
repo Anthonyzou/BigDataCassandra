@@ -9,20 +9,27 @@ Patrick McFadin, (13 November 2012), "Cassandra Data Modeling Talk".
 
 Patrick McFadin, (3 May 2013), "The Data Model is Dead, Long Live the Data Model!".
     Available at: http://www.slideshare.net/patrickmcfadin/the-data-model-is-dead-long-live-the-data-model
-    (Last) Accessed: 13 March 2014.
+    (Last) Accessed: 14 March 2014.
 
 Patrick McFadin, (16 May 2013), "Become a Super Modeler".
     Available at: http://www.slideshare.net/patrickmcfadin/become-a-super-modeler
-    (Last) Accessed: 13 March 2014.
+    (Last) Accessed: 14 March 2014.
 
 Patrick McFadin, (24 June 2013), "The World's Next Top Data Model".
     Available at: http://www.slideshare.net/patrickmcfadin/the-worlds-next-top-data-model
-    (Last) Accessed: 13 March 2014.
+    (Last) Accessed: 14 March 2014.
+
+Patrick McFadin, (11 October 2013), "Cassandra 2.0: Better, Stronger Faster".
+    Available at: http://blog.imaginea.com/consistency-tuning-in-cassandra/
+    (Last) Accessed: 14 March 2014.
 
 Patrick McFadin, (17 February 2014), "Time Series with Apache Cassandra".
     Available at: http://www.slideshare.net/patrickmcfadin/time-series-with-apache-cassandra-strata
     (Last) Accessed: 13 March 2014.
 
+Shiti Saxena, (4 September 2013), "Consistency Tuning In Cassandra".
+    Available at: http://blog.imaginea.com/consistency-tuning-in-cassandra/
+    (Last) Accessed: 14 March 2014.
 
 
 Links Related to General NoSQL Concepts:
@@ -33,7 +40,7 @@ Martin Fowler, (9 January 2012), "NosqlDefinition".
 
 Martin Fowler, (7 January 2013), "Schemaless Data Structures".
     Available at: http://martinfowler.com/tags/noSQL.html
-    (Last) Accessed: 13 March 2014.
+    (Last) Accessed: 14 March 2014.
 
 
 
