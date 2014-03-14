@@ -2,7 +2,7 @@
  *  A sample table struecture for storing the CDR
  *
  */
-create table call_details_record(
+
 CITY_ID int,
 MSC_CODE int,
 STARTTIME timestamp,
@@ -473,4 +473,5 @@ FD8_FFC int,
 FD8_FLOW_CFC_QUAL int,
 FD8_FLOW_CPFAIL_VAL int,
 FD8_SPARE_FLOW1 int,
-);
+
+
