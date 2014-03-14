@@ -53,5 +53,9 @@ CREATE TABLE main_thingy (
 */
 SELECT  m.CITY_CODE, m.MSC_CODE
 FROM    main_thingy m, fake_group_by_1 f
-WHERE   (m.CITY_CODE = f.CITY_CODE)
-        AND (
+WHERE   (m.CITY_CODE = f.CITY_CODE);
+
+/******************************************************************************/
+
+CREATE TABLE has_partition_key (
+        ATTR_1      int,
