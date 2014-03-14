@@ -169,7 +169,8 @@ WHERE       [EXPRESSION]
 ORDER BY    fgr
 
 -- Alternate inner query 2: Uses a new column to "aggregate".
-SELECT 
+SELECT file:///home/azou/git/CMPUT391/tests/queries1.sql
+
 FROM
 WHERE
 ORDER BY
