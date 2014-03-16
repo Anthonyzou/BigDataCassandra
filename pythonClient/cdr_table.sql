@@ -1,8 +1,3 @@
-/*
- *  A sample table struecture for storing the CDR
- *
- */
-
 CITY_ID int,
 MSC_CODE int,
 STARTTIME timestamp,
@@ -23,7 +18,7 @@ LAST_LATITUDE  float,
 LAST_GRID_ID_100 text,
 LAST_GRID_ID_1000 text,
 PCMD_VER  int,
-SEQ_NUM bigint primary key,
+SEQ_NUM bigint,
 MONTH_DAY int,
 DUP_SEQ_NUM int,
 MOBILE_ID_TYPE int,
@@ -473,5 +468,3 @@ FD8_FFC int,
 FD8_FLOW_CFC_QUAL int,
 FD8_FLOW_CPFAIL_VAL int,
 FD8_SPARE_FLOW1 int,
-
-
