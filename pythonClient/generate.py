@@ -41,6 +41,7 @@ try:
         #session.execute("CREATE TABLE query3("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
         #session.execute("CREATE TABLE query4("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
         #session.execute("CREATE TABLE query5("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
+        #session.execute("CREATE TABLE query6("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
 except Exception as error:
     print error
     #exit()
@@ -50,6 +51,7 @@ try:
     session.execute("truncate query3")
     session.execute("truncate query4")
     session.execute("truncate query5")
+    session.execute("truncate query6")
 except Exception as error :
     print error
 

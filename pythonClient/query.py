@@ -17,16 +17,18 @@ query = """
             SELECT count (SEQ_NUM) 
             FROM query1_2 
             WHERE 
-            CITY_ID                 > 100 
-            MSC_CODE                > 100
-            STARTTIME               > 100
-            CONNEC_REQUEST_TIME     > 100 
-            REPORT_TIME             > 100
-            SEIZ_CELL_NUM_L         > 100
-            SEIZ_SEC_NUM_L          > 100
-            LAST_DRC_CELL_L         > 100
-            LAST_DRC_SEC_L          > 100
-            ASS_CELL_ID_FOR_CONN_L  > 100
+            CITY_ID                       > 100 AND
+            MSC_CODE                      > 100 AND
+            SESS_REQ_TYPE                 > 100 AND
+            SESS_SFC                      > 100 AND
+            SESS_OR_CONN_CPFAIL           > 100 AND
+            SESS_SET_OR_TRA_REQ_TIME      > 100 AND
+            SESS_SET_OR_TRA_COMP_TIME     > 100 AND
+            CONN_REQ_TIME                 > 100 AND
+            CONN_EST_TIME                 > 100 AND
+            A12_RAN_AUTH_TIME             > 100 AND
+            A10_LINK_EST_TIME             > 100 AND
+            CONN_DUR                      > 100 AND
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -39,8 +41,8 @@ query = """
             SELECT count (*) 
             FROM query1_2 
             WHERE
-            CITY_ID          > 100 
-            CITY_id          > 100
+            CITY_ID          > 100 AND
+            CITY_ID          < 1000
         """       
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -53,9 +55,8 @@ query = """
             SELECT count (*) 
             FROM query3 
             WHERE 
-            CITY_ID           > 100 
-            MSC_CODE          > 100
-            STARTTIME         > 100
+            MSC_CODE           > 100 AND
+            MSC_CODE          < 1000
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -68,9 +69,8 @@ query = """
             SELECT count (*) 
             FROM query4 
             WHERE 
-            CITY_ID           > 100 
-            MSC_CODE          > 100
-            STARTTIME         > 100
+            SEQ_NUM           > 100 AND
+            SEQ_NUM           < 1000
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -83,9 +83,23 @@ query = """
             SELECT count (*) 
             FROM query5 
             WHERE 
-            CITY_ID           > 100 
-            MSC_CODE          > 100
-            STARTTIME         > 100
+            CITY_ID           > 100 AND
+            MSC_CODE          > 100 
+        """
+    
+session.execute(query)
+print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
+
+#======================================================================
+# QUERY 6
+#======================================================================
+start_time = time.clock()
+query = """
+            SELECT count (*) 
+            FROM query6 
+            WHERE 
+            CITY_ID           > 100 AND
+            MSC_CODE          > 100 
         """
     
 session.execute(query)
