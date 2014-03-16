@@ -23,7 +23,7 @@ WHERE
 < (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
 ALLOW FILTERING
         """
-session.execute(query)
+print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
@@ -37,7 +37,7 @@ WHERE
 (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
 ALLOW FILTERING
         """       
-session.execute(query)
+print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
@@ -51,7 +51,7 @@ WHERE
 msc_code = 3 and (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
 ALLOW FILTERING
         """
-session.execute(query)
+print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
@@ -63,10 +63,10 @@ prepared = session.prepare("""
                 SELECT count (*) 
                 FROM cdr 
                 where msc_code = ?
-                ORDER BY 
+                ORDER BY city_id
                 """)
 for x in range(0,7):
-    session.execute(prepared.bind([x]))
+    print session.execute(prepared.bind([x]))[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
@@ -81,8 +81,7 @@ prepared = session.prepare("""
                 ORDER BY city_id
                 """)
 for x in range(0,7):
-    session.execute(prepared.bind([x]))
+    print session.execute(prepared.bind([x]))[0]
     
-session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
