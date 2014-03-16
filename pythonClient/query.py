@@ -14,22 +14,14 @@ print cassandra.__version__
 #======================================================================
 start_time = time.clock()
 query = """
-            SELECT count (*) 
-            FROM query1_2 
-            WHERE 
-            CITY_ID                       > 100 AND 200 > CITY_ID  AND 
-            MSC_CODE                      > 100 AND 200 > MSC_CODE AND 
-            SEQ_NUM                       > 100 AND 200 > SEQ_NUM AND 
-            SESS_SFC                      > 100 AND 200 > SESS_SFC AND 
-            SESS_OR_CONN_CPFAIL           > 100 AND 200 > SESS_OR_CONN_CPFAIL AND 
-            SESS_SET_OR_TRA_REQ_TIME      > 100 AND 200 > SESS_SET_OR_TRA_REQ_TIME AND 
-            SESS_SET_OR_TRA_COMP_TIME     > 100 AND 200 > SESS_SET_OR_TRA_COMP_TIME AND  
-            CONN_REQ_TIME                 > 100 AND 200 > CONN_REQ_TIME AND 
-            CONN_EST_TIME                 > 100 AND 200 > CONN_EST_TIME AND 
-            A12_RAN_AUTH_TIME             > 100 AND 200 > A12_RAN_AUTH_TIME AND  
-            A10_LINK_EST_TIME             > 100 AND 200 > A10_LINK_EST_TIME AND 
-            CONN_DUR                      > 100 AND 200 > CONN_DUR
-            ALLOW FILTERING
+SELECT count (*) 
+FROM query1_2_3 
+WHERE
+(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC)
+> (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND
+(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC)
+< (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
+ALLOW FILTERING
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -39,12 +31,11 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """ 
-            SELECT count (*) 
-            FROM query1_2 
-            WHERE
-            CITY_ID          > 100 AND
-            CITY_ID          < 1000
-            ALLOW FILTERING
+SELECT count (*) 
+FROM query1_2_3
+WHERE
+(CITY_ID) > (5000) AND (CITY_ID ) < (70000)
+ALLOW FILTERING
         """       
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -54,12 +45,11 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """
-            SELECT count (*) 
-            FROM query3 
-            WHERE 
-            MSC_CODE           > 100 AND
-            MSC_CODE          < 1000
-            ALLOW FILTERING
+SELECT count (*) 
+FROM query1_2_3
+WHERE 
+msc_code = 3 and (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
+ALLOW FILTERING
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -69,9 +59,9 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """
-            SELECT count (*) 
-            FROM query4 
-            ORDER BY 
+SELECT count (*) 
+FROM query4 
+ORDER BY 
         """
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -81,9 +71,9 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """
-            SELECT count (*) 
-            FROM query5 
-            ORDER BY  
+SELECT count (*) 
+FROM query5 
+ORDER BY  
         """
     
 session.execute(query)
