@@ -15,7 +15,7 @@ print cassandra.__version__
 start_time = time.clock()
 query = """
 SELECT count (*) 
-FROM query1_2_3 
+FROM cdr 
 WHERE
 (CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC)
 > (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND
@@ -32,7 +32,7 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 start_time = time.clock()
 query = """ 
 SELECT count (*) 
-FROM query1_2_3
+FROM cdr
 WHERE
 (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
 ALLOW FILTERING
@@ -46,7 +46,7 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 start_time = time.clock()
 query = """
 SELECT count (*) 
-FROM query1_2_3
+FROM cdr
 WHERE 
 msc_code = 3 and (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
 ALLOW FILTERING
@@ -58,23 +58,30 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 # QUERY 4
 #======================================================================
 start_time = time.clock()
-query = """
-SELECT count (*) 
-FROM query4 
-ORDER BY 
-        """
-session.execute(query)
+
+prepared = session.prepare("""
+                SELECT count (*) 
+                FROM cdr 
+                where msc_code = ?
+                ORDER BY 
+                """)
+for x in range(0,7):
+    session.execute(prepared.bind([x]))
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
 # QUERY 5
 #======================================================================
 start_time = time.clock()
-query = """
-SELECT count (*) 
-FROM query5 
-ORDER BY  
-        """
+
+prepared = session.prepare("""
+                SELECT count (*) 
+                FROM cdr 
+                where msc_code = ?
+                ORDER BY city_id
+                """)
+for x in range(0,7):
+    session.execute(prepared.bind([x]))
     
 session.execute(query)
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"

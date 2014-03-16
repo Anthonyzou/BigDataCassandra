@@ -39,7 +39,7 @@ random.seed(3333)
 try:
     with open("cdr_table.sql") as tables_setup:
         cols = tables_setup.read()
-        session.execute("CREATE TABLE query1_2_3(" + cols + """primary key((MSC_CODE) ,CITY_ID,
+        session.execute("CREATE TABLE cdr(" + cols + """primary key((MSC_CODE) ,CITY_ID,
                          PCMD_VER  ,
                          SEQ_NUM ,
                          MONTH_DAY ,
@@ -53,7 +53,7 @@ except Exception as error:
     #exit()
     # remove table informations if it already exists
 try:
-    session.execute("truncate query1_2_3")
+    session.execute("truncate cdr")
 except Exception as error :
     print error
 
