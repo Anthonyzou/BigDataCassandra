@@ -5,7 +5,6 @@ from datetime import date
 import random
 import time
 
-
 def generate(label,element_type, frequency):
     """ Generate an element value to insert. of arbitrary type, which is a null
     value (1000-frequency)/1000 of the time
@@ -28,7 +27,7 @@ def generate(label,element_type, frequency):
 
 start_time = time.clock()
 
-cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'])
+cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'],port=9233)
 
 session = cluster.connect('group3')  # keyspace should be our own
 # CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }
@@ -63,7 +62,7 @@ with open("tablestuffs.txt") as tables_freq:
 labels = ast.literal_eval(labels)  # turn input into list correctly
 types = []
 
-query = "INSERT INTO query1_2_3 ("
+query = "INSERT INTO cdr ("
 # build columns
 for i in labels:
     query += i[0] + ","
