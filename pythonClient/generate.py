@@ -37,21 +37,19 @@ random.seed(3333)
 try:
     with open("cdr_table.sql") as tables_setup:
         cols = tables_setup.read()
-        session.execute("CREATE TABLE query1_2(" + cols + " primary key(SEQ_NUM, city_id)) with clustering order by (city_id desc) ")
+        session.execute("CREATE TABLE query1_2(" + cols + " primary key(SEQ_NUM, city_id)) ")
         #session.execute("CREATE TABLE query3("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
         #session.execute("CREATE TABLE query4("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
         #session.execute("CREATE TABLE query5("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
-        #session.execute("CREATE TABLE query6("  +  cols + " primary key(SEQ_NUM,CITY_ID)) WITH CLUSTERING ORDER BY (CITY_ID DESC)")
 except Exception as error:
     print error
     #exit()
     # remove table informations if it already exists
 try:
     session.execute("truncate query1_2")
-    session.execute("truncate query3")
-    session.execute("truncate query4")
-    session.execute("truncate query5")
-    session.execute("truncate query6")
+#     session.execute("truncate query3")
+#     session.execute("truncate query4")
+#     session.execute("truncate query5")
 except Exception as error :
     print error
 
