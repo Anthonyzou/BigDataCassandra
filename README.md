@@ -12,9 +12,9 @@ Populaing a call data record table with terrabytes of data and querying these re
 
 ## Using:
 
-**apache-cassandra-2.0.5**
+**apache-cassandra-2.0.6**
 
-**python**
+**python 2**
 
 
 ## Useful for development:
