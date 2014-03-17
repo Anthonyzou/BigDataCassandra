@@ -14,14 +14,12 @@ print cassandra.__version__
 #======================================================================
 start_time = time.clock()
 query = """
-SELECT count (*) 
-FROM cdr 
-WHERE
-(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC)
-> (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND
-(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC)
-< (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
-ALLOW FILTERING
+        SELECT count (*) 
+        FROM cdr 
+        WHERE
+        (CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) > (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND
+        (CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) < (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
+        ALLOW FILTERING
         """
 print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -31,11 +29,11 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """ 
-SELECT count (*) 
-FROM cdr
-WHERE
-(CITY_ID) > (5000) AND (CITY_ID ) < (70000)
-ALLOW FILTERING
+        SELECT count (*) 
+        FROM cdr
+        WHERE
+        (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
+        ALLOW FILTERING
         """       
 print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -45,11 +43,11 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 start_time = time.clock()
 query = """
-SELECT count (*) 
-FROM cdr
-WHERE 
-msc_code = 3 and (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
-ALLOW FILTERING
+        SELECT count (*) 
+        FROM cdr
+        WHERE 
+        msc_code = 3 and (CITY_ID) > (5000) AND (CITY_ID ) < (70000)
+        ALLOW FILTERING
         """
 print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
