@@ -13,18 +13,16 @@ print cassandra.__version__
 # QUERY 1
 #======================================================================
 start_time = time.clock()
-query = (
-        "SELECT count (*) " 
-        "FROM cdr "
-        "WHERE "
-        "(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) " 
-        "> (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND "
-        "(CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) "
-        "< (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000) "
-        "LIMIT 40000000 "
-        "ALLOW FILTERING "
-        )
-print "query 1 running \n\n"
+query = """
+        SELECT count (*) 
+        FROM cdr 
+        WHERE
+        (CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) 
+        > (5000,5000,5000,5000,5000,5000,5000,5000,5000,5000) AND
+        (CITY_ID,PCMD_VER  ,SEQ_NUM ,MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SESS_REQ_TYPE ,SESS_SFC ,SESS_OR_CONN_CPFAIL ,CFC) <
+         (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
+        ALLOW FILTERING
+        """
 print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
@@ -32,29 +30,27 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 # QUERY 2
 #======================================================================
 start_time = time.clock()
-query = (
-        "SELECT count (*) " 
-        "FROM cdr "
-        "WHERE "
-        "CITY_ID > 5000 AND CITY_ID < 70000 "
-        "LIMIT 40000000"
-        "ALLOW FILTERING"
-        )       
-
+query = """ 
+        SELECT count (*) 
+        FROM cdr
+        WHERE
+        CITY_ID > 5000 AND CITY_ID < 70000
+        ALLOW FILTERING
+        """       
+print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
 #======================================================================
 # QUERY 3
 #======================================================================
 start_time = time.clock()
-query = (
-        "SELECT count (*) " 
-        "FROM cdr "
-        "WHERE "
-        "msc_code = 3 and CITY_ID > 5000 AND CITY_ID < 70000 "
-        "LIMIT 40000000 "
-        "ALLOW FILTERING"
-        )
+query = """
+        SELECT count (*) 
+        FROM cdr
+        WHERE 
+        msc_code = 3 and CITY_ID > 5000 AND CITY_ID < 70000
+        ALLOW FILTERING
+        """
 print session.execute(query)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 
@@ -62,14 +58,13 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 # QUERY 4
 #======================================================================
 start_time = time.clock()
-query = (
-          "SELECT count (*)" 
-          "FROM cdr "
-          "where msc_code = ? "
-          "ORDER BY city_id "
-          "LIMIT 40000000"
-         )
-prepared = session.prepare(query)
+
+prepared = session.prepare("""
+                SELECT count (*) 
+                FROM cdr 
+                where msc_code = ?
+                ORDER BY city_id
+                """)
 for x in range(0,7):
     print session.execute(prepared.bind([x]))[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
@@ -77,16 +72,14 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
 #======================================================================
 # QUERY 5
 #======================================================================
-
 start_time = time.clock()
-query = (
-          "SELECT count (*) " 
-          "FROM cdr "
-          "where msc_code = ? "
-          "ORDER BY city_id "
-          "LIMIT 40000000"
-        )
-prepared = session.prepare(query)
+
+prepared = session.prepare("""
+                SELECT count (*) 
+                FROM cdr 
+                where msc_code = ?
+                ORDER BY city_id
+                """)
 for x in range(0,7):
     print session.execute(prepared.bind([x]))[0]
     
