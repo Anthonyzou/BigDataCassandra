@@ -167,7 +167,7 @@ row_cache_size_in_mb: 100
 # has limited use.
 #
 # Default is 0 to disable saving the row cache.
-row_cache_save_period: 0
+row_cache_save_period: 10
 
 # Number of keys from the row cache to save
 # Disabled by default, meaning all keys are going to be saved
@@ -195,7 +195,7 @@ row_cache_save_period: 0
 # performing the sync.
 #
 commitlog_sync: batch
-commitlog_sync_batch_window_in_ms: 500
+commitlog_sync_batch_window_in_ms: 5000
 #
 # the other option is "periodic" where writes may be acked immediately
 # and the CommitLog is simply synced every commitlog_sync_period_in_ms
@@ -669,7 +669,7 @@ client_encryption_options:
 # can be:  all  - all traffic is compressed
 #          dc   - traffic between different datacenters is compressed
 #          none - nothing is compressed.
-internode_compression: none
+internode_compression: all
 
 # Enable or disable tcp_nodelay for inter-dc communication.
 # Disabling it will result in larger (but fewer) network packets being sent,
