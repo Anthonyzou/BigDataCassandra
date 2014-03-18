@@ -32,8 +32,10 @@ print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
 #======================================================================
 start_time = time.clock()
 query = """ 
-SELECT  FIRST 3 REVERSED 'CITY_ID5000'..'CITY_ID70000'
+SELECT count (*) as range_city_id
 FROM cdr
+WHERE
+CITY_ID > 5000 AND CITY_ID < 70000
 LIMIT 40000000
 ALLOW FILTERING
 """       
