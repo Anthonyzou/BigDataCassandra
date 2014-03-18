@@ -12,11 +12,13 @@ def generate(label,element_type, frequency):
     value (1000-frequency)/1000 of the time
     """
     if (random.randint(0, 1000) < frequency):
-        if (element_type == "float"):
-            result = None #random.random()
-        elif(label[0] == "MSC_CODE"):#pretend this is partition by cluster
+        if(label[0] == "MSC_CODE"):#pretend this is partition by cluster
             result = acluster%8
             acluster+=1
+        elif(label[0] == "MONTH_DAY"):
+            result = random.randint(1,31)
+        elif (element_type == "float"):
+            result = None #random.random()
         elif (element_type == "text"):
             result = None #"\"I'm a string\""
         elif (element_type == "timestamp"):
@@ -37,6 +39,10 @@ if __name__ == '__main__':
     
     random.seed(3333)
     try:
+        session.execute("drop table cdr")
+    except:
+        pass
+    try:
         with open("cdr_table.sql") as tables_setup:
             cols = tables_setup.read()
             session.execute("CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,
@@ -48,14 +54,11 @@ if __name__ == '__main__':
                              SESS_REQ_TYPE ,
                              SESS_SFC ,
                              SESS_OR_CONN_CPFAIL ,CFC)) with clustering order by (city_id asc)""")
+            session.execute("CREATE INDEX seq_num_index ON cdr (MONTH_DAY)")
     except Exception as error:
         print error
         #exit()
         # remove table informations if it already exists
-    try:
-        session.execute("truncate cdr")
-    except Exception as error :
-        print error
     
     # read table stuffs from sample table schema
     with open("tablestuffs.txt") as tables_freq:
@@ -75,7 +78,7 @@ if __name__ == '__main__':
     print "query built and prepared"
     
     # example async insert into table
-    for y in range(30000):
+    for y in range(300):
         build = []
         for x in range(len(labels)):
             thing = generate(labels[x], types[x], counts[x])
