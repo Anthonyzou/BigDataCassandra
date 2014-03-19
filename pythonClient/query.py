@@ -2,7 +2,8 @@ import cassandra
 from cassandra.cluster import Cluster
 import time
 
-cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'],port=9233)
+cluster = Cluster(
+    ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
 
 session = cluster.connect('group3')  # keyspace should be our own
 print cluster.metadata.cluster_name  # should make sure this is group3
@@ -24,7 +25,7 @@ AND (CITY_ID,PCMD_VER,SEQ_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SESS_REQ_TYPE
 LIMIT 40000000
 ALLOW FILTERING 
 """
-print session.execute(query,timeout=None)[0]
+print session.execute(query, timeout=None)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
@@ -38,8 +39,8 @@ WHERE
 CITY_ID > 5000 AND CITY_ID < 70000
 LIMIT 40000000
 ALLOW FILTERING
-"""       
-print session.execute(query,timeout=None)[0]
+"""
+print session.execute(query, timeout=None)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
@@ -54,7 +55,7 @@ CITY_ID > 5000 AND CITY_ID < 70000
 LIMIT 40000000
 ALLOW FILTERING
 """
-print session.execute(query,timeout=None)[0]
+print session.execute(query, timeout=None)[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
@@ -71,7 +72,8 @@ LIMIT 40000000
 """
 future = []
 for x in range(8):
-    future.append(session.execute_async(session.prepare(query.replace("??", str(x))).bind([x])))
+    future.append(session.execute_async(
+        session.prepare(query.replace("??", str(x))).bind([x])))
 for query in future:
     print query.result()[0]
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
@@ -88,8 +90,9 @@ where month_day = ?
 LIMIT 40000000
 """
 future = []
-for x in range(1,32):
-    future.append(session.execute_async(session.prepare(query.replace("??", str(x))).bind([x])))   
+for x in range(1, 32):
+    future.append(session.execute_async(
+        session.prepare(query.replace("??", str(x))).bind([x])))
 for query in future:
     print (query.result()[0])
 print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
