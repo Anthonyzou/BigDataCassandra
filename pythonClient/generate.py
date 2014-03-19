@@ -25,9 +25,9 @@ def generate(label, element_type, frequency):
             acluster += 1
         elif (label == "MONTH_DAY"):
             result = random.randint(1, 31)
-        elif ("LONGITUDE" in label):
+        elif (label == "LONGITUDE" or label == "LAST_LONGITUDE"):
             result = random.random() * 360 - 180
-        elif ("LATITUDE" in label):
+        elif (label == "LATITUDE" or label == "LAST_LATITUDE"):
             result = random.random() * 180 - 90
         # type-specific fallback data
         elif (element_type == "float"):
@@ -35,10 +35,8 @@ def generate(label, element_type, frequency):
         elif (element_type == "text"):
             result = randword(16)
         elif (element_type == "timestamp"):
-#             MAXTIME = time.time()
-#             timeresult = date.fromtimestamp(random.randint(0, MAXTIME))
-#             result = timeresult.isoformat()
-            result = None
+            MAXTIME = int(time.time())
+            result = random.randint(0, MAXTIME)
         else:
             result = random.randint(0, 100000)
     else:
@@ -66,14 +64,15 @@ if __name__ == '__main__':
             cols = tables_setup.read()
             session.execute(
                 "CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,
-                             PCMD_VER  ,
-                             SEQ_NUM ,
-                             MONTH_DAY ,
-                             DUP_SEQ_NUM ,
-                             MOBILE_ID_TYPE ,
-                             SESS_REQ_TYPE ,
-                             SESS_SFC ,
-                             SESS_OR_CONN_CPFAIL ,CFC)) with clustering order by (city_id asc)""")
+                PCMD_VER  ,
+                SEQ_NUM ,
+                MONTH_DAY ,
+                DUP_SEQ_NUM ,
+                MOBILE_ID_TYPE ,
+                SESS_REQ_TYPE ,
+                SESS_SFC ,
+                SESS_OR_CONN_CPFAIL ,
+                CFC)) with clustering order by (city_id asc)""")
             session.execute("CREATE INDEX seq_num_index ON cdr (MONTH_DAY)")
     except Exception as error:
         print error
