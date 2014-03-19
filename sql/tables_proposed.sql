@@ -1,3 +1,43 @@
+/* 
+   Create a table to support "group by msc_code" such 
+   that city_id can be selected. We order by msc_code, and have a simple
+   primary key.
+*/
+CREATE TABLE group_by_msc_code (
+    msc_code        int,
+    city_code       int,
+
+    -- Add other applicable values in here, if desired.
+
+    PRIMARY KEY(msc_code, city_code)
+
+) CLUSTERING ORDER msc_code;
+
+-- TODO: Do we want to order by day of month, or timestamp? (depends on query?)
+/*
+   Create a table to support "group by day_of_month", such that
+   we can order by day_of_month. This will probably be used by queries
+   which will specify a given month, but only want a few days.
+   Question: Why not just order by timestamp though?
+   Potential Answer: Maybe we just want to know which days have the most
+   calls, regardless of the month? (Suppose we have a spike in calls every
+   time the 13th of the month rolls around for some weird reason, and wanted
+   to know more about that?)
+*/
+
+CREATE TABLE group_by_day_of_month (
+    month_day       int
+
+    -- TODO: Add more attributes in here.
+
+    PRIMARY KEY(month_day)
+
+) CLUSTERING ORDER month_day;
+
+/******************************************************************************/
+/*  Below is a bunch of testing code. Don't actually use any of it!           */
+/******************************************************************************/
+
 -- Column family (table) used to aggregate results for query 1.
 CREATE TABLE fake_group_by_1 (
     CITY_CODE           int,
@@ -11,10 +51,9 @@ CREATE TABLE fake_group_by_1 (
     FAKE_THINGY05       text,
     FAKE_THINGY06       text,
     FAKE_THINGY07       text,
-    PRIMARY KEY (CITY_CODE, CITY_MSC)   -- TODO: Is this the right idea?
+    PRIMARY KEY (CITY_CODE, CITY_MSC)
 ); -- Put an ordering clause here???
 
--- Here's a test table.
 CREATE TABLE main_thingy (
     CITY_CODE           int,
     MSC_CODE            int,
@@ -44,7 +83,7 @@ CREATE TABLE main_thingy (
     RANDOM_THINGY14     text,
     RANDOM_THINGY15     text,
     PRIMARY KEY (CITY_CODE, MSC_CODE),  -- TODO: Can we have PK and UUID...
-    TABLE_UUID          uuid    -- TODO: Is this a good attr name?
+    TABLE_UUID          uuid
 );
 
 /*
@@ -56,6 +95,8 @@ FROM    main_thingy m, fake_group_by_1 f
 WHERE   (m.CITY_CODE = f.CITY_CODE);
 
 /******************************************************************************/
-
+/*
 CREATE TABLE has_partition_key (
         ATTR_1      int,
+*/
+/******************************************************************************/
