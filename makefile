@@ -6,3 +6,5 @@ query:
 	cat  pythonClient/query.py | ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "python "
 instance1:
 	ssh -x -i NebulaLaunchKey.pem group3@199.116.235.57
+status:
+	 ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "apache-cassandra-2.0.6/bin/nodetool status"

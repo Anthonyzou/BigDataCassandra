@@ -4,7 +4,7 @@ from cassandra.cluster import Cluster
 from datetime import date
 import random
 import string
-import time
+import timeit
 
 acluster = 0
 
@@ -12,9 +12,10 @@ acluster = 0
 def randword(length):
     return ''.join(random.choice(string.lowercase) for i in range(length))
 
-
+session = None
 def generate(label, element_type, frequency):
     global acluster
+    global session
     """ Generate an element value to insert. of arbitrary type, which is a null
     value (1000-frequency)/1000 of the time
     """
@@ -25,6 +26,7 @@ def generate(label, element_type, frequency):
             acluster += 1
         elif (label == "MONTH_DAY"):
             result = random.randint(1, 31)
+            session.execute_async(session.prepare("update group_by_month set count = count + 1  where MONTH_DAY = ?").bind([result]))
         elif (label == "LONGITUDE" or label == "LAST_LONGITUDE"):
             result = random.random() * 360 - 180
         elif (label == "LATITUDE" or label == "LAST_LATITUDE"):
@@ -44,7 +46,7 @@ def generate(label, element_type, frequency):
 
 
 if __name__ == '__main__':
-    start_time = time.clock()
+    start_time = timeit.default_timer()
     cluster = Cluster(
         ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect('group3')  # keyspace should be our own
@@ -54,10 +56,10 @@ if __name__ == '__main__':
     print cassandra.__version__
 
     random.seed(3333)
-    try:
-        session.execute("drop table cdr")
-    except:
-        pass
+    
+    session.execute("drop table IF EXISTS cdr")
+    session.execute("drop table IF EXISTS group_by_month")
+
     try:
         with open("cdr_table.sql") as tables_setup:
             cols = tables_setup.read()
@@ -72,7 +74,13 @@ if __name__ == '__main__':
                 SESS_SFC ,
                 SESS_OR_CONN_CPFAIL ,
                 CFC)) with clustering order by (city_id asc)""")
-            session.execute("CREATE INDEX seq_num_index ON cdr (MONTH_DAY)")
+            session.execute("Create table group_by_month (MONTH_DAY int, count counter, primary key (month_day))")
+            session.execute("CREATE INDEX ON cdr (MOBILE_ID_TYPE)")
+            session.execute("CREATE INDEX ON cdr (LONGITUDE)")
+            session.execute("CREATE INDEX ON cdr (LATITUDE)")
+            session.execute("CREATE INDEX ON cdr (LAST_LONGITUDE)")
+            session.execute("CREATE INDEX ON cdr (LAST_LATITUDE)")
+            
     except Exception as error:
         print error
         # exit()
@@ -98,7 +106,7 @@ if __name__ == '__main__':
     print "query built and prepared"
 
     # example async insert into table
-    for y in range(30000):
+    for y in range(3000):
         build = []
         for x in range(len(labels)):
             #print("counts: " + str(counts[x]))
@@ -107,4 +115,4 @@ if __name__ == '__main__':
         bound = prepared.bind(build)
         session.execute_async(bound)
 
-    print str((time.clock() - start_time) / 60)[:7], "minutes elapsed"
+    print str((timeit.default_timer() - start_time)/60)[:7], "seconds elapsed"

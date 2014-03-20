@@ -1,6 +1,7 @@
 import cassandra
 from cassandra.cluster import Cluster
 import timeit
+from _socket import timeout
 
 cluster = Cluster(
     ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
@@ -26,7 +27,7 @@ LIMIT 40000000
 ALLOW FILTERING 
 """
 print session.execute(query, timeout=None)[0]
-print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) )[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 2
@@ -41,7 +42,7 @@ LIMIT 40000000
 ALLOW FILTERING
 """
 print session.execute(query, timeout=None)[0]
-print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 3
@@ -56,7 +57,7 @@ LIMIT 40000000
 ALLOW FILTERING
 """
 print session.execute(query, timeout=None)[0]
-print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) )[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 4
@@ -70,13 +71,9 @@ where msc_code = ?
 ORDER BY city_id
 LIMIT 40000000
 """
-future = []
 for x in range(8):
-    future.append(session.execute_async(
-        session.prepare(query.replace("??", str(x))).bind([x])))
-for query in future:
-    print query.result()[0]
-print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
+    print (session.execute(session.prepare(query.replace("??", str(x))).bind([x]), timeout=None))
+print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 5
@@ -89,11 +86,8 @@ FROM cdr
 where month_day = ?
 LIMIT 40000000
 """
-future = []
 for x in range(1, 32):
-    future.append(session.execute_async(
-        session.prepare(query.replace("??", str(x))).bind([x])))
-for query in future:
-    print (query.result()[0])
-print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
-print str((timeit.default_timer() - program_st) / 60)[:7], "minutes elapsed"
+    print (session.execute(session.prepare(query.replace("??", str(x))).bind([x]),timeout=None))
+
+print str((timeit.default_timer() - start_time)/60 )[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - program_st)/60)[:7], "minutes elapsed"
