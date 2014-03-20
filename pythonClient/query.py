@@ -1,6 +1,6 @@
 import cassandra
 from cassandra.cluster import Cluster
-import time
+import timeit
 
 cluster = Cluster(
     ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
@@ -9,11 +9,11 @@ session = cluster.connect('group3')  # keyspace should be our own
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__
 print ""
-program_st = time.clock()
+program_st = timeit.default_timer()
 #======================================================================
 # QUERY 1
 #======================================================================
-start_time = time.clock()
+start_time = timeit.default_timer()
 query = """
 SELECT count (*) as ten_atomic
 FROM cdr 
@@ -26,12 +26,12 @@ LIMIT 40000000
 ALLOW FILTERING 
 """
 print session.execute(query, timeout=None)[0]
-print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 2
 #======================================================================
-start_time = time.clock()
+start_time = timeit.default_timer()
 query = """ 
 SELECT count (*) as range_city_id
 FROM cdr
@@ -41,12 +41,12 @@ LIMIT 40000000
 ALLOW FILTERING
 """
 print session.execute(query, timeout=None)[0]
-print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 3
 #======================================================================
-start_time = time.clock()
+start_time = timeit.default_timer()
 query = """
 SELECT count (*) as range_msc_code
 FROM cdr
@@ -56,12 +56,12 @@ LIMIT 40000000
 ALLOW FILTERING
 """
 print session.execute(query, timeout=None)[0]
-print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 4
 #======================================================================
-start_time = time.clock()
+start_time = timeit.default_timer()
 
 query = """
 SELECT count (*) as group_by_msc_code_??
@@ -76,12 +76,12 @@ for x in range(8):
         session.prepare(query.replace("??", str(x))).bind([x])))
 for query in future:
     print query.result()[0]
-print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 5
 #======================================================================
-start_time = time.clock()
+start_time = timeit.default_timer()
 
 query = """
 SELECT count (*) as group_by_day_of_month_??
@@ -95,5 +95,5 @@ for x in range(1, 32):
         session.prepare(query.replace("??", str(x))).bind([x])))
 for query in future:
     print (query.result()[0])
-print str((time.clock() - start_time) / 60)[:7], "minutes elapsed\n"
-print str((time.clock() - program_st) / 60)[:7], "minutes elapsed"
+print str((timeit.default_timer() - start_time) / 60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - program_st) / 60)[:7], "minutes elapsed"

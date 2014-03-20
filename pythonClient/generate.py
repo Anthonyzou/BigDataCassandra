@@ -35,10 +35,9 @@ def generate(label, element_type, frequency):
         elif (element_type == "text"):
             result = randword(16)
         elif (element_type == "timestamp"):
-            MAXTIME = int(time.time())
-            result = random.randint(0, MAXTIME)
+            result = random.randint(1385305327, 1395305327)
         else:
-            result = random.randint(0, 100000)
+            result = random.randint(0, 1000000)
     else:
         result = None
     return result
@@ -99,10 +98,10 @@ if __name__ == '__main__':
     print "query built and prepared"
 
     # example async insert into table
-    for y in range(300):
+    for y in range(30000):
         build = []
         for x in range(len(labels)):
-            print("counts: " + str(counts[x]))
+            #print("counts: " + str(counts[x]))
             thing = generate(labels[x][0], types[x], counts[x])
             build.append(thing)
         bound = prepared.bind(build)
