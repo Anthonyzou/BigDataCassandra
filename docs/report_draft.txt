@@ -22,14 +22,38 @@ Section 0: Introduction to Cassandra
                 -Could be slow.
                     -Processing power would not grow as fast as storage size.
             -Better solution: use multiple smaller servers.
-                -Introduces need for NoSQL.
+                -Introduces the need for a NoSQL alternative.
 
     -What is NoSQL?
         -"Not Only SQL". But what does this mean?
             -Any database system which does not strictly conform to the
              relational database model. We may have any one of the following:
                 -Does not meet all "ACID" properties.
-                -
+                    -Atomicity - Operations on the database are either 
+                                 completely committed or discarded. 
+                                 There are no "partially completed"
+                                 transactions.
+                    -Consistency - If two fields are to store the same value
+                                   at all times, this will never change.
+                                   i.e., there are no violations on foreign 
+                                   key constraints.
+                    -Isolation - No two transactions will affect each others'
+                                 outcome, no matter which order they are
+                                 scheduled in, and no two transactions can
+                                 interfere with each others ability to
+                                 be completed if they are requested within
+                                 a very short time-interval.
+                                 i.e., there will be no race-conditions,
+                                 deadlocks or starving.
+                    -Durability - All data-definition and data-manipulation
+                                  transactions are permanent and irreversible
+                                  once they are committed. 
+                -May store data in a fashion other than a strictly
+                 relational set of tables.
+                    -Old example: the "network" model. Widely used before
+                     Edgar Codd's implementation of relational databases.
+                    -Newer examples:
+                        -
 
     -Why NoSQL?
         -We have some BIG data to deal with (several TB), and growing!
@@ -61,30 +85,66 @@ Section 0: Introduction to Cassandra
         -Cassandra is especially well-suited to storing logs.
         -Widely used and relatively bug-free, especially for such "new" 
          software.
-        -Handles map-reduce and ugly details of storage process for nodes,
+        -Handles map-reduce and low-level details of storage process for nodes,
          as well as performing maintenance (as specified by DB admin), such
          as compaction.
-        -Very low chance of data loss (except if the DBA makes a mistake).
+        -Very low chance of data loss (except if the DBA makes a mistake),
+         even when upgrading Cassandra.
 
-        -Other niceties:
-            -FOSS/FLOSS compliant ("free speech"/"libre"), see Apache Licence.
-            -No monetary cost ("free beer"/"gratis")
-            -"Easy" to use!
+        -Other Niceties:
+            -FOSS/FLOSS compliant ("libre"); see also: the Apache Licence.
+            -No monetary cost ("gratis").
+            -Relatively easy to use!
 
     -Why Not Use Cassandra Everywhere?
         -Eventual consistency, so not suited to mission-critical applications.
         -Can lose efficiency over time if you do not perform regular
-         maintenance.
+         maintenance such as compaction.
         -You have to design your DB schema around your queries, which is
          the opposite of the traditional process.
         -Impossible to implement aggregation after your tables have been
          generated, which is a consequence of the above.
+        -Might not be as efficient or polished as an Oracle Inc. alternative.
+         If you have the money, this might be the best option for you.
+        -NoSQL systems require some experience with relational SQL systems,
+         as they have a SQL-like interface and behavior, the are still
+         declarative, and are usually less well-documented and
+         "beginner-friendly" as the older SQL systems.
 
     -What is the Apache Project? [Optional]
 
 Section 1: Goals and Objectives
+    -To successfully implement a distributed database system which will
+     reliably store at least 16TB of random data consisting of random
+     numeric and string-like data types organized into large tables with
+     many columns (attributes).
+    -To distribute the data in the above tables across 8 "nodes" (servers), 
+     which form our "cluster".
+    -To generate additional tables distributed throughout the cluster to
+     be optimally configured for the queries to meet their own requirements
+     (see below).
+     
+    -To query the above tables such that all of the following requirements
+     are met by five queries.
+        1)
+        2)
+        3)
+        4)
+        5)
 
-Section 2: Methodology and Tools Used
+    -To record the execution time of each query.
+
+Section 2: Methodology, Tools and Equipment Used
+    -8 server instances, each with:
+        -4CPU cores, (Intel) x86_64 architecture, 1 thread/core, 1999 MHz.
+        -32GB main memory.
+        -4TB secondary storage (hard-disk space).
+        
+        -GNU/Linux (Ubuntu) version ???
+        
+        -This gives us a total upper bound on storage of 32TB over the entire
+         cluster.
+
 
 Section 3: Theoretical Description
 
