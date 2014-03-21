@@ -24,19 +24,30 @@ Section 1: Hardware Requirements
 
 Section 2: System Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    -Any reasonably current UNIX, UNIX-variant operating system or 
-     GNU+Linux distribution. 
-    -Apache Cassandra ver. 2.0.6 (or later).
+    -Any reasonably current version of at least one of the following: 
+     UNIX, UNIX-variant operating system or GNU+Linux distribution; 
+     Microsoft Windows 7 or 8; Mac OSX.
+
+    -Apache Cassandra ver. 2.0.6 (or later). Installation instructions below.
+    -Apache cql ver. 3.1.5 (or later). Installation instructions below.
 
 Section 3: Installation Instructions 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+***[Most important]*** Python Driver:
+    -python pip install driver
+
+*** Getting our source:
+    -git clone 
+
+
+
 Subsection 3.1: Getting Cassandra
     On Debian-Based GNU+Linux:
-        `sudo apt-get install cassandra-xx.xx.yourarch`
+        $> sudo apt-get install cassandra-2.0.6.yourarch
 
     On RHEL/CentOS/Fedora GNU+Linux:
-        `su yum install cassandra-xx.xx.yourarch`
+        $> su yum install cassandra-2.0.6.yourarch
 
     On Arch Linux:
         ???? pacman?
@@ -62,9 +73,50 @@ Subsection 3.1: Getting Cassandra
 
     
 Subsection 3.2: Getting cql
+
 Subsection 3.3: Configuring Cassandra with the .yaml File
+    Utilize our .yaml file.
+    Change the listen_address to 10.0.0.xx
+
 Subsection 3.4: Running Cassandra for the First Time
+    Two Options:
+        1) At a shell prompt (assuming Bash):
+            $> sudo cassandra &
+                . [cqlsh or Cassandra]
+                . [activity takes place]
+                . [at this time]
+            $> sudo pkill cassandra
+
+            In the shell you call Cassandra from, unless you specify
+            a quiet option you will probably see a lot of startup 
+            information printed in the terminal.
+
+        2) Create your own alias(es) in your .bash or equivalent shell
+           configuration file for the above commands, such as `startcass`
+           and `stopcass`, etc., whatever you please.
+
 Subsection 3.5: Running cqlsh for the First Time
+    Move to the folder containing cassandra, OR the folder containing
+    Cassandra to your $PATH variable.
+    ./cassandra
+
+    While Cassandra is already running (see above subsection):
+        $> cqlsh
+    
+    This will run the cql interpreter. You should have Cassandra running
+    for this to do anything with the cluster you have set up.
+
+    To exit cqlsh:
+        !> exit
+
+    Make sure to kill any running instances of Cassandra before you
+    exit your user session on the server. In general, if you are not
+    pressed for time, exit Cassandra whenever you are about to leave the
+    workstation or terminate your remote session, lock your session, etc.,
+    so that you do not (accidentally) choke the system's resources, or
+    leave processes running when you are gone.
+
+Subsection 3.6: Getting 
 
 Section 4: Getting Started
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,6 +130,7 @@ Section 5: Maintenance
 
 Subsection 5.1: How Cassandra Stores Data
 Subsection 5.2: When to Compact
+Subsection 5.3: When Not to Compact
 
 Section 6: Upgrading 
 ~~~~~~~~~~~~~~~~~~~~
@@ -88,8 +141,60 @@ Subsection 6.2: Keeping cql Up-to-Date
 Section 7: Uninstalling
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Subsection 7.1:
+Subsection 7.1: What to Do Before Uninstalling
+Subsection 7.2: Removing Data Properly
 
 Section 8: Troubleshooting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-Subsection 8.1: Common Problems
+
+Subsection 8.1: Connection Problems
+    -Cassandra will not start:
+        -Make sure that you have the privileges required to run Cassandra.
+            -Are you in the sudoers file (or your system's equivalent)?
+             This guide assumes that you have some level of elevated privilege
+             close to that of sysadmin.
+            -Did you invoke Cassandra while your sysadmin privileges are
+             enabled? i.e., did you forget to start cassandra with `su' or
+             `sudo', or your system's equivalent?
+            -Are you invoking an executable file of Cassandra from a folder
+             where you have the applicable privileges?
+
+        -Make sure that Cassandra is properly configured. If you are worried
+         that your system's cassandra.yaml has been broken in some way, you
+         can always copy the .yaml from this projects source into your
+         /etc/cassandra/default.conf/ directory to replace the old
+         cassandra.yaml file.
+
+        -Make sure that if you are trying to run Cassandra on the local
+         machine that it is willing to accept requests from the local host,
+         which will almost always be 127.0.0.1.
+         Open your cassandra.yaml file in /etc/cassandra/default.conf in your
+         favorite text editor. (Note: you will need sysadmin privileges to
+         write any changes) Then search for the section beginning with
+         `seed_provider:'. Below the indented `- class_name:' line there will 
+         be another line at a deeper indentation called `- seeds:'. In the
+         double-quoted string there should be at least one shortened IP
+         address that is exactly `127.0.0.1' (the local 'loopback' address).
+         If that address is not listed, add it and separate it from any 
+         other IP addresses by a comma if necessary. This will not be necessary
+         if it is the only address between the double-quotes.
+         Save your change and immediately close the file. Depening on your 
+         system, you might need to do a soft-reset, but only try that if trying
+         to start Cassandra results in the same error.
+
+        -If none of the above steps work, make sure that Cassandra's storage
+         is properly set up.
+
+    -cqlsh will not start:
+        -Cassandra may not be configured to accept connections from
+         the localhost (127.0.0.1). 
+         See the configuration file: /etc/cassandra/default.conf/cassandra.yaml
+
+    -You cannot connect to your server remotely.
+        -Check your known hosts file: ~/.ssh/known_hosts
+        -Make sure that you have configured you ssh keys.
+Section 9: Known Bugs
+~~~~~~~~~~~~~~~~~~~~~
+
+Subsection 9.1: Documented Cassandra Issues
+Subsection 9.2: Documented cqlsh Issues
