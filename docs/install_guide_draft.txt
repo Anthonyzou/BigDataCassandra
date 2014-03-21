@@ -1,0 +1,95 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Installation and Configuration Guide
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Authors:    Shenwei Liao, Anthony Ou, Jacqueline Terlaan
+Class:      CMPUT 391
+Term:       Winter 2014
+
+Section 0: Warnings
+~~~~~~~~~~~~~~~~~~~
+    -Do not try to configure a cluster unless you have been authorized by
+     your local system administrator.
+    -Do not configure a cluster on a system that is intended to do many
+     other things.
+    -Do not authorize untrustworthy third parties to modify data on your
+     cluster.
+    -Do not attempt to follow this guide with older versions of the
+     software mentioned, as major configuration and operation details can
+     vary significantly between releases, no matter how minor.
+
+Section 1: Hardware Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    -
+
+Section 2: System Requirements
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    -Any reasonably current UNIX, UNIX-variant operating system or 
+     GNU+Linux distribution. 
+    -Apache Cassandra ver. 2.0.6 (or later).
+
+Section 3: Installation Instructions 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Subsection 3.1: Getting Cassandra
+    On Debian-Based GNU+Linux:
+        `sudo apt-get install cassandra-xx.xx.yourarch`
+
+    On RHEL/CentOS/Fedora GNU+Linux:
+        `su yum install cassandra-xx.xx.yourarch`
+
+    On Arch Linux:
+        ???? pacman?
+
+    From Source (UNIX-Like):
+        -Option 1) Use your package manager to install Apache Cassandra
+                   for you. If Cassandra 2.0.6 is not available, or if
+                   you do not have a package manager, then go to option 2.
+        -Option 2) Install from source:
+            -Download source from Apache Project's Cassandra repository.
+            -Save source files in the directory which you wish to install
+             them in. This wil probably require superuser privileges.
+            -Follow the `make` instructions in the README.
+
+    On Microsoft Windows 8:
+        ????
+
+    On Microsoft Windows 7:
+        ????
+
+    On Microsoft Windows (Prior to Win7):
+        ????
+
+    
+Subsection 3.2: Getting cql
+Subsection 3.3: Configuring Cassandra with the .yaml File
+Subsection 3.4: Running Cassandra for the First Time
+Subsection 3.5: Running cqlsh for the First Time
+
+Section 4: Getting Started
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Subsection 4.1: Configuring the Cluster with the .yaml File
+Subsection 4.2: Populating a Cluster with Data
+Subsection 4.3: Running Cass
+
+Section 5: Maintenance 
+~~~~~~~~~~~~~~~~~~~~~~
+
+Subsection 5.1: How Cassandra Stores Data
+Subsection 5.2: When to Compact
+
+Section 6: Upgrading 
+~~~~~~~~~~~~~~~~~~~~
+
+Subsection 6.1: Keeping Cassandra Up-to-Date
+Subsection 6.2: Keeping cql Up-to-Date
+
+Section 7: Uninstalling
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Subsection 7.1:
+
+Section 8: Troubleshooting
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Subsection 8.1: Common Problems
