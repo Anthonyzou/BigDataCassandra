@@ -1,0 +1,101 @@
+Big Data Project Report 
+
+Authors:    Shenwei Liao, Anthony Ou, Jacqueline Terlaan
+Class:      CMPUT 391
+Term:       Winter 2014
+
+Section 0: Introduction to Cassandra 
+    -What is "Big Data" (and why should you care)?
+        -Example: flickr
+            -Many TB of information and it must be queried and manipulated 
+             "on the fly"?
+            -Naive solution: use one monolithic server with an oversized
+             storage capability.
+                -We have just increased our risk of colossal system failure!
+                -Might need its own special custom architecture
+                    -Expensive.
+                    -Hard to maintain, not standard.
+                    -Maintenance could cause the entire system to go down
+                     temporarily, or even permanently (see first point).
+                -Might be way too big to even exist
+                    -Even a large server has an "upper bound" on its size. 
+                -Could be slow.
+                    -Processing power would not grow as fast as storage size.
+            -Better solution: use multiple smaller servers.
+                -Introduces need for NoSQL.
+
+    -What is NoSQL?
+        -"Not Only SQL". But what does this mean?
+            -Any database system which does not strictly conform to the
+             relational database model. We may have any one of the following:
+                -Does not meet all "ACID" properties.
+                -
+
+    -Why NoSQL?
+        -We have some BIG data to deal with (several TB), and growing!
+        -Big Data implies distribution;
+        -Distribution implies CAP theorem;
+        -CAP theorem implies compromises!
+
+    -What is Apache Project's Cassandra? [Most important section]
+        -NoSQL DBMS, meant to be highly scalable.
+        -FOSS/FLOSS alternative to proprietary (and expensive) Oracle
+         NoSQL systems.
+
+        Features:
+            -Available, Partition-tolerant
+            -Eventually consistent
+            -High scalability!
+            -"Schemaless" (implicit schema)
+            -Has its own query language: Apache cql
+            -Data compaction
+        -
+
+    -Why Cassandra? [Most important section]
+        -Partition-tolerant (essential for clustered systems).
+        -Available: mirrors "real-world" constraints on call-detail record
+         systems.
+        -Eventual consistency is an acceptable compromise; we are not
+         running a mission-critical system (like a bank), and most of our
+         data insertion is similar to logging data.
+        -Cassandra is especially well-suited to storing logs.
+        -Widely used and relatively bug-free, especially for such "new" 
+         software.
+        -Handles map-reduce and ugly details of storage process for nodes,
+         as well as performing maintenance (as specified by DB admin), such
+         as compaction.
+        -Very low chance of data loss (except if the DBA makes a mistake).
+
+        -Other niceties:
+            -FOSS/FLOSS compliant ("free speech"/"libre"), see Apache Licence.
+            -No monetary cost ("free beer"/"gratis")
+            -"Easy" to use!
+
+    -Why Not Use Cassandra Everywhere?
+        -Eventual consistency, so not suited to mission-critical applications.
+        -Can lose efficiency over time if you do not perform regular
+         maintenance.
+        -You have to design your DB schema around your queries, which is
+         the opposite of the traditional process.
+        -Impossible to implement aggregation after your tables have been
+         generated, which is a consequence of the above.
+
+    -What is the Apache Project? [Optional]
+
+Section 1: Goals and Objectives
+
+Section 2: Methodology and Tools Used
+
+Section 3: Theoretical Description
+
+Section 4: Experimental Results
+
+Section 5: Conclusions
+
+Section 6: Notes on Possible Improvements
+
+Section 7: References Used
+
+Section 8: Illustration Credits
+
+Section 9: Special Thanks [Optional]
