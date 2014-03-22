@@ -5,3 +5,4 @@ javaClient/bin
 javaClient/target
 .*
 *~
+*.tgz

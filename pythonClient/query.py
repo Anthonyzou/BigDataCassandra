@@ -24,7 +24,7 @@ WHERE
 AND (CITY_ID,PCMD_VER,SEQ_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SESS_REQ_TYPE,SESS_SFC,SESS_OR_CONN_CPFAIL,CFC) 
 < (70000,70000,70000,70000,70000,70000,70000,70000,70000,70000)
 LIMIT 40000000
-ALLOW FILTERING 
+ALLOW FILTERING ;
 """
 print session.execute(query, timeout=None)[0]
 print str((timeit.default_timer() - start_time) )[:7], "minutes elapsed\n"
@@ -39,10 +39,10 @@ FROM cdr
 WHERE
 CITY_ID > 5000 AND CITY_ID < 70000
 LIMIT 40000000
-ALLOW FILTERING
+ALLOW FILTERING;
 """
 print session.execute(query, timeout=None)[0]
-print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time))[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 3
@@ -50,11 +50,11 @@ print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
 start_time = timeit.default_timer()
 query = """
 SELECT count (*) as range_msc_code
-FROM cdr
+FROM query3
 WHERE 
-CITY_ID > 5000 AND CITY_ID < 70000
+SEQ_NUM > 5000 AND SEQ_NUM < 70000
 LIMIT 40000000
-ALLOW FILTERING
+ALLOW FILTERING;
 """
 print session.execute(query, timeout=None)[0]
 print str((timeit.default_timer() - start_time) )[:7], "minutes elapsed\n"
@@ -69,11 +69,11 @@ SELECT count (*) as group_by_msc_code_??
 FROM cdr 
 where msc_code = ?
 ORDER BY city_id
-LIMIT 40000000
+LIMIT 40000000;
 """
 for x in range(8):
     print (session.execute(session.prepare(query.replace("??", str(x))).bind([x]), timeout=None))
-print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - start_time))[:7], "minutes elapsed\n"
 
 #======================================================================
 # QUERY 5
@@ -81,13 +81,11 @@ print str((timeit.default_timer() - start_time)/60)[:7], "minutes elapsed\n"
 start_time = timeit.default_timer()
 
 query = """
-SELECT count (*) as group_by_day_of_month_??
-FROM cdr 
-where month_day = ?
-LIMIT 40000000
+SELECT * FROM group_by_month
 """
-for x in range(1, 32):
-    print (session.execute(session.prepare(query.replace("??", str(x))).bind([x]),timeout=None))
+rows =  (session.execute(query,timeout=None))
+for row in rows:
+    print row
 
-print str((timeit.default_timer() - start_time)/60 )[:7], "minutes elapsed\n"
-print str((timeit.default_timer() - program_st)/60)[:7], "minutes elapsed"
+print str((timeit.default_timer() - start_time) )[:7], "minutes elapsed\n"
+print str((timeit.default_timer() - program_st))[:7], "minutes elapsed"
