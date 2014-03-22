@@ -1,0 +1,17 @@
+Configuring the cluster:
+
+	Cluster name must be "group3"
+
+	listen_address must be set appropriately
+
+	Must use cassandra 2.0.6 and above
+
+Python driver needed:
+	
+	sudo pip install cassandra-driver
+
+
+Running our program:
+	Our program is made to ideally mean to be put on a machine that is part our cluster
+	and run locally. 
+

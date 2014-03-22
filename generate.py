@@ -49,14 +49,18 @@ def generate(label, element_type, frequency):
 
 
 if __name__ == '__main__':
+    outputlog = open('generate.txt', 'w')
+    
     start_time = timeit.default_timer()
     cluster = Cluster(
         ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect('group3')  # keyspace should be our own
     # CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy',
     # 'replication_factor' : 1 }
-    print cluster.metadata.cluster_name  # should make sure this is group3
-    print cassandra.__version__
+    print cluster.metadata.cluster_name
+    outputlog.write(cluster.metadata.cluster_name)  # should make sure this is group3
+    print  cassandra.__version__
+    outputlog.write( cassandra.__version__)
 
     random.seed(3333)
     
@@ -78,7 +82,7 @@ if __name__ == '__main__':
             session.execute("Create table group_by_month (MONTH_DAY int, count counter, primary key (month_day))")
             
     except Exception as error:
-        print error
+        outputlog.write( error)
         # exit()
         # remove table informations if it already exists
 
@@ -99,7 +103,7 @@ if __name__ == '__main__':
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
-    print "query built and prepared"
+    outputlog.write( "query built and prepared")
 
     # example async insert into table
     try:
@@ -114,6 +118,7 @@ if __name__ == '__main__':
                 session.execute_async( prepared.bind(build))
                 session.execute_async( prepared2.bind(build))
     except Exception as error:
-        print entry, error
+        outputlog.write( entry, error)
 
-    print str((timeit.default_timer() - start_time)/60)[:7], "seconds elapsed"
+    print str((timeit.default_timer() - start_time)/60)[:7], " seconds elapsed"
+    outputlog.write( str((timeit.default_timer() - start_time)/60)[:7]+ " seconds elapsed")
