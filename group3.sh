@@ -11,25 +11,25 @@ echo '	 	make zip :	7'
 echo
 
 generate(){
-	nohup python -W ignore pythonClient/generate.py > generation data.txt &
+	nohup python -W ignore generate.py > misc/generation_data.txt &
 }
 
 remote_generate(){
 	echo
 	echo 'default group3@199.116.235.57'
-	scp  -i NebulaLaunchKey.pem pythonClient/cdr_table.sql group3@199.116.235.57:/home/group3
-	scp -i NebulaLaunchKey.pem pythonClient/tablestuffs.txt group3@199.116.235.57:/home/group3
-	cat pythonClient/generate.py | ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "python -W ignore"
+	scp  -i NebulaLaunchKey.pem cdr_table.sql group3@199.116.235.57:/home/group3
+	scp -i NebulaLaunchKey.pem tablestuffs.txt group3@199.116.235.57:/home/group3
+	cat generate.py | ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "python -W ignore"
 }
 
 query(){
-	nohup python -W ignore pythonClient/query.py > query data.txt &
+	nohup python -W ignore query.py > misc/query_data.txt &
 }
 
 remote_query(){
 	echo
 	echo 'default group3@199.116.235.57'
-	cat  pythonClient/query.py | ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "python -W ignore"
+	cat  query.py | ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "python -W ignore"
 }
 
 instance1(){
@@ -41,7 +41,7 @@ status(){
 }
 
 zip(){
-	tar -cv docs query.py generate.py cdr_table.sql tablestuffs.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
+	tar -cv docs query.py misc generate.py cdr_table.sql tablestuffs.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
 }
 
 chmod 600 NebulaLaunchKey.pem
