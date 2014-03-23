@@ -52,14 +52,17 @@ def generate(label, element_type, frequency):
 
 if __name__ == '__main__':
     start_time = timeit.default_timer()
-    cluster = Cluster(
-        ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
-    session = cluster.connect('group3')  # keyspace should be our own
-    # CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }
+    cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+    session = cluster.connect()  # keyspace should be our own
+
+    try: session.execute("use group3")
+    except: session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
+    
     print cluster.metadata.cluster_name
     print cassandra.__version__ +"\n"
-
+    
     random.seed(3333)
+    
     with open("cdr_table.sql") as tables_setup:
         cols = tables_setup.read()
         for truncate in ["truncate cdr",  "truncate query3",  "truncate group_by_month",  "truncate group_by_MOBILE_ID_TYPE"
@@ -95,7 +98,7 @@ if __name__ == '__main__':
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
     print( "query built and prepared")
     
-    days = 30
+    days = 1
     entriesPerDay = 300
     optimize = False
     try:
