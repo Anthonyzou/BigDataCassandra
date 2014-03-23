@@ -6,6 +6,9 @@ Configuring the cluster:
 
 	Must use cassandra 2.0.6 and above
 
+	run cqlsh in cassandra/bin and run:
+			CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }
+
 Python driver needed:
 	
 	sudo pip install cassandra-driver

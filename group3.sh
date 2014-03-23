@@ -1,17 +1,31 @@
 #!/bin/sh
 echo
 echo
-echo 'generate data locally : 	1'
+echo 'generate test data locally : 	1'
 echo 'generate data remotely : 	2 for development only'
 echo '	query locally : 	3'
 echo '	query remotely : 	4 for development only'
 echo '		status :	5'
 echo '  ssh into instance 1 :		6'
 echo '	 	make zip :	7'
-echo
+echo 'generate test data optimized : 8'
+echo 'generate 16TB locally : 9'
+echo 'generate 16TB locally optmized : 10'
 
 generate(){
-	nohup python -W ignore generate.py > misc/generation_data.txt &
+	nohup python -W ignore generate.py 20 > misc/generation_data.txt &
+}
+
+generate_optimized(){
+	nohup python -W ignore generate.py 20 true > misc/generation_data.txt &
+}
+
+generate_big(){
+	nohup python -W ignore generate.py 100 > misc/generation_data.txt &
+}
+
+generate_big_optimized(){
+	nohup python -W ignore generate.py 100 true > misc/generation_data.txt &
 }
 
 remote_generate(){
@@ -54,6 +68,9 @@ case $input in
 	5) status;;
 	6) instance1;;
 	7) zip;;
+	8) generate_optimized;;
+	9) generate_big;;
+	10) generate_big_optimized;;
 
 	*) echo "invalid";;
 esac
