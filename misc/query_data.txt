@@ -1,0 +1,57 @@
+group3
+1.0.2.post
+
+Row(ten_atomic=0)
+0.0362749099731 seconds elapsed for query 1
+
+Row(range_city_id=1)
+0.0156011581421 seconds elapsed for query 2
+
+Row(mobile_id_type=73)
+0.0858170986176 seconds elapsed for query 3
+
+[Row(group_by_msc_code_0=0)]
+[Row(group_by_msc_code_1=0)]
+[Row(group_by_msc_code_2=0)]
+[Row(group_by_msc_code_3=0)]
+[Row(group_by_msc_code_4=0)]
+[Row(group_by_msc_code_5=0)]
+[Row(group_by_msc_code_6=0)]
+[Row(group_by_msc_code_7=0)]
+0.0762231349945 seconds elapsed for query 4
+
+Row(month_day=23, count=13)
+Row(month_day=5, count=9)
+Row(month_day=28, count=3)
+Row(month_day=10, count=1)
+Row(month_day=16, count=4)
+Row(month_day=13, count=6)
+Row(month_day=30, count=3)
+Row(month_day=11, count=9)
+Row(month_day=1, count=6)
+Row(month_day=19, count=6)
+Row(month_day=8, count=4)
+Row(month_day=2, count=5)
+Row(month_day=4, count=3)
+Row(month_day=18, count=4)
+Row(month_day=15, count=6)
+Row(month_day=22, count=6)
+Row(month_day=27, count=5)
+Row(month_day=20, count=2)
+Row(month_day=7, count=5)
+Row(month_day=6, count=3)
+Row(month_day=29, count=2)
+Row(month_day=9, count=1)
+Row(month_day=14, count=3)
+Row(month_day=26, count=7)
+Row(month_day=21, count=4)
+Row(month_day=17, count=4)
+Row(month_day=31, count=5)
+Row(month_day=24, count=6)
+Row(month_day=25, count=2)
+Row(month_day=12, count=10)
+Row(month_day=3, count=3)
+0.0328621864319 seconds elapsed for query 5
+
+0.24688911438 seconds elapsed for program
+
