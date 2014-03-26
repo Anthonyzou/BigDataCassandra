@@ -20,6 +20,9 @@ Section 0: Warnings
 
 Section 1: Hardware Requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    -32TB of readable and writable disk space, spread over at least 8 
+     separate servers with a minimum of 4TB of disk space each. These will
+     form the "nodes" of the cluster.
     -
 
 Section 2: System Requirements
@@ -31,18 +34,13 @@ Section 2: System Requirements
     -Apache Cassandra ver. 2.0.6 (or later). Installation instructions below.
     -Apache cql ver. 3.1.5 (or later). Installation instructions below.
 
-Section 3: Installation Instructions 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Section 3: Installation Instructions (Using Cassandra 2.06)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-***[Most important]*** Python Driver:
-    -python pip install driver
+Installing the Python Driver:
+    sudo pip install cassandra-driver
 
-*** Getting our source:
-    -git clone 
-
-
-
-Subsection 3.1: Getting Cassandra
+Getting Cassandra
     On Debian-Based GNU+Linux:
         $> sudo apt-get install cassandra-2.0.6.yourarch
 
@@ -72,15 +70,38 @@ Subsection 3.1: Getting Cassandra
         ????
 
     
-Subsection 3.2: Getting cql
+Getting cql 3.1.1:
+    On Debian-Based GNU+Linux:
+        $> sudo apt-get install cassandra-2.0.6.yourarch
 
-Subsection 3.3: Configuring Cassandra with the .yaml File
-    Utilize our .yaml file.
+    On RHEL/CentOS/Fedora GNU+Linux:
+        $> su yum install cassandra-2.0.6.yourarch
+
+
+Configuring Cassandra with the .yaml File
+    First go into our projects source directory,
+        $> cd /some/path/.../CMPUT391/misc
+    Then overwrite the default configuration file for cassandra with ours:
+        $> sudo cp ./cassandra.yaml /etc/cassandra/default.conf/cassandra.yaml
     Change the listen_address to 10.0.0.xx
+
+Configuring the Cluster:
+    -The cluster name must be "group3".
+    -The listen_adress must be set appropriately.
+    -In the source directory of Cassandra: cassandra/bin
+        $> cd /some/path/name/.../cassandra/bin
+        $> cqlsh
+        !> CREATE KEYSPACE group3 
+        ... WITH REPLICATION = 
+        ... { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+        !> exit
+
+Getting our source:
+    -git clone 
 
 Subsection 3.4: Running Cassandra for the First Time
     Two Options:
-        1) At a shell prompt (assuming Bash):
+        1) At a shell prompt:
             $> sudo cassandra &
                 . [cqlsh or Cassandra]
                 . [activity takes place]
@@ -91,9 +112,9 @@ Subsection 3.4: Running Cassandra for the First Time
             a quiet option you will probably see a lot of startup 
             information printed in the terminal.
 
-        2) Create your own alias(es) in your .bash or equivalent shell
+        2) Optional: create your own alias(es) in your .bash or equivalent shell
            configuration file for the above commands, such as `startcass`
-           and `stopcass`, etc., whatever you please.
+           and `stopcass`, etc., or whatever you like.
 
 Subsection 3.5: Running cqlsh for the First Time
     Move to the folder containing cassandra, OR the folder containing
@@ -115,8 +136,6 @@ Subsection 3.5: Running cqlsh for the First Time
     workstation or terminate your remote session, lock your session, etc.,
     so that you do not (accidentally) choke the system's resources, or
     leave processes running when you are gone.
-
-Subsection 3.6: Getting 
 
 Section 4: Getting Started
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -193,6 +212,7 @@ Subsection 8.1: Connection Problems
     -You cannot connect to your server remotely.
         -Check your known hosts file: ~/.ssh/known_hosts
         -Make sure that you have configured you ssh keys.
+
 Section 9: Known Bugs
 ~~~~~~~~~~~~~~~~~~~~~
 

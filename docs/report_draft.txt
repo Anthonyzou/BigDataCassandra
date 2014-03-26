@@ -126,11 +126,21 @@ Section 1: Goals and Objectives
      
     -To query the above tables such that all of the following requirements
      are met by five queries.
-        1)
-        2)
-        3)
-        4)
-        5)
+        1) Four of five queries must retrieve data across from all of the
+           distributed nodes.
+        2) At least one of the queries must contain at least ten atomic
+           conditions (formulas) in the WHERE clause.
+        3) At least two of the queries must utilize both the GROUP BY and
+           ORDER BY clauses. Since Cassandra does not yet support GROUP BY
+           aggregation, the same functionality must be acheived in another
+           way.
+        4) At least three of the five queries must be range queries which
+           specify an upper and lower bound on some ordered attribute that
+           is used for the purposes of querying.
+        5) None of the five queries can be trivial. That is, there can be
+           no simple key searches or anything that is of little practical
+           interest for measuring how a database system can deal with
+           challenging or expensive requests.
 
     -To record the execution time of each query.
 
@@ -139,11 +149,10 @@ Section 2: Methodology, Tools and Equipment Used
         -4CPU cores, (Intel) x86_64 architecture, 1 thread/core, 1999 MHz.
         -32GB main memory.
         -4TB secondary storage (hard-disk space).
-        
         -GNU/Linux (Ubuntu) version ???
         
-        -This gives us a total upper bound on storage of 32TB over the entire
-         cluster.
+    -This gives us a total upper bound on storage of 32TB over the entire
+     cluster.
 
 
 Section 3: Theoretical Description
