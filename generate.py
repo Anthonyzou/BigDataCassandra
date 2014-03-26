@@ -24,13 +24,13 @@ def generate(label, element_type, frequency):
         if (label == "MOBILE_ID_TYPE"):  # pretend this is partition by cluster
             result = acluster % 8
             session.execute_async(
-                    session.prepare("update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ?")
+                    session.prepare("update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1")
                     .bind([result]))
             acluster += 1
         elif (label == "MONTH_DAY"):
             result = random.randint(1, 31)
             session.execute_async(
-                    session.prepare("update group_by_month set count = count + 1  where MONTH_DAY = ?")
+                    session.prepare("update group_by_month set count = count + 1  where MONTH_DAY = ? and id = 1")
                     .bind([result]))
         elif (label == "LONGITUDE" or label == "LAST_LONGITUDE"):
             result = random.random() * 360 - 180
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect()  # keyspace should be our own
 
+    session.execute("drop keyspace if exists group3", timeout=None)
     try: session.execute("use group3")
     except: session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
     
@@ -65,20 +66,20 @@ if __name__ == '__main__':
     
     with open("cdr_table.sql") as tables_setup:
         cols = tables_setup.read()
-        for truncate in ["truncate cdr",  "truncate query3",  "truncate group_by_month",  "truncate group_by_MOBILE_ID_TYPE"
+        for setupcmd in ["drop table cdr","drop table query3","drop table group_by_month"," truncate group_by_mobile_id_type",
+                         "truncate cdr",  "truncate query3",  "truncate group_by_month",  "truncate group_by_MOBILE_ID_TYPE"
                          ,"CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                             MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                             CON_OHM_NUM)) with clustering order by (city_id asc)"""
                          ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,MOBILE_ID_TYPE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                             MONTH_DAY ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                             CON_OHM_NUM)) with clustering order by (MOBILE_ID_TYPE asc)"""
-                          ,"Create table group_by_month (MONTH_DAY int, count counter, primary key (month_day))"
-                          ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, count counter, primary key (MOBILE_ID_TYPE))"]:
+                          ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
+                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"]:
             try:
-                session.execute(truncate, timeout=None)
+                session.execute(setupcmd, timeout=None)
             except Exception as error:
                 pass
-
     # read table stuffs from sample table schema
     with open("tablestuffs.txt") as tables_freq:
         (labels, counts) = tables_freq
@@ -99,16 +100,11 @@ if __name__ == '__main__':
     print( "query built and prepared")
     
     days = 1
-    entriesPerDay = 300
-    optimize = False
+    entriesPerDay = 1000
+    optimize = True
     try:
         if int(sys.argv[1]) >= 1:
             days = int(sys.argv[1])
-    except:
-        pass
-    try:
-        if sys.argv[2] > 1:
-            optimize = True
     except:
         pass
     # example async insert into table

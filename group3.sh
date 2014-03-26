@@ -13,19 +13,19 @@ echo 'generate 16TB locally : 9'
 echo 'generate 16TB locally optmized : 10'
 
 generate(){
-	nohup python -W ignore generate.py 20 > misc/generation_data.txt &
+	nohup python -W ignore generate.py 1 > misc/generation_data.txt &
 }
 
 generate_optimized(){
-	nohup python -W ignore generate.py 20 true > misc/generation_data.txt &
+	nohup python -W ignore generate.py 1 true > misc/generation_data.txt &
 }
 
 generate_big(){
-	nohup python -W ignore generate.py 100 > misc/generation_data.txt &
+	nohup python -W ignore generate.py 10000 > misc/generation_data.txt &
 }
 
 generate_big_optimized(){
-	nohup python -W ignore generate.py 100 true > misc/generation_data.txt &
+	nohup python -W ignore generate.py 10000 true > misc/generation_data.txt &
 }
 
 remote_generate(){

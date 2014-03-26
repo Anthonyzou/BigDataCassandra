@@ -54,9 +54,9 @@ SELECT count (*) as range_MOBILE_ID_TYPE
 FROM cdr
 WHERE 
 (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE)
->(0,0,0,0,0,30000) AND
+>(0,0,0,0,0,5000) AND
 (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE)
-<(4000000,4000000,4000000,4000000,4000000,50000)
+<(4000000,4000000,4000000,4000000,4000000,90000)
 LIMIT 40000000
 ALLOW FILTERING;
 """
@@ -64,6 +64,21 @@ temp = session.execute(query, timeout=None)[0]
 print temp
 
 print str((timeit.default_timer() - start_time) /60), " minutes elapsed for query 3\n"
+#======================================================================
+# QUERY 3 optimized
+#======================================================================
+start_time = timeit.default_timer()
+query = """
+SELECT count (*) as range_MOBILE_ID_TYPE
+FROM query3
+WHERE (MOBILE_ID_TYPE) > (5000) AND (MOBILE_ID_TYPE) < (90000)
+LIMIT 40000000
+ALLOW FILTERING;
+"""
+temp = session.execute(query, timeout=None)[0]
+print temp
+
+print str((timeit.default_timer() - start_time) /60), " minutes elapsed for optimized query 3\n"
 #======================================================================
 # QUERY 4
 #======================================================================
