@@ -5,24 +5,58 @@ Class:      CMPUT 391
 Term:       Winter 2014
 
 Section 0: Introduction to Cassandra 
-    -What is "Big Data" (and why should you care)?
-        -Example: flickr
+    -What is "Big Data" (and why should people care)?
+        -Example(s): Reddit comment system organization.
+            -We have easily millions of comments generated. Each one has
+             an author, text string, community rating, number of upvotes
+             and downvotes, which thread it is in, when it was posted,
+             if and when it was edited, etc.
+            -How do we store them all such that we can both update them
+             when they are added, edited, deleted, 'upvoted'/'downvoted',
+             marked as 'gold', flagged, or even whether they contain
+             certain phrases of interest, such as 'mountain dew', 'fedora',
+             'doritoes', 'neckbeard', 'god is not real', 'le', 'N64',
+             'epic maymay', 'TIL', 'cats', 'lol u mad', 'arrow to the knee' 
+             etc? (Basically, anything that was sort of funny over 5 years
+             ago and should not be spoken about if you leave your basement
+             ever.)
+
+        -How would we best implement this?
             -Many TB of information and it must be queried and manipulated 
-             "on the fly"?
+             "on the fly"!
+            -Although, we don't have too many types of queries...
             -Naive solution: use one monolithic server with an oversized
              storage capability.
                 -We have just increased our risk of colossal system failure!
-                -Might need its own special custom architecture
+                -Might need its own special custom architecture:
                     -Expensive.
-                    -Hard to maintain, not standard.
+                    -Hard to maintain, not standard/highly specialized.
                     -Maintenance could cause the entire system to go down
                      temporarily, or even permanently (see first point).
-                -Might be way too big to even exist
+                -Might be way too big to even exist!
                     -Even a large server has an "upper bound" on its size. 
+                        -For example, where will it get its power from?
+                         It is possible to have a server that has such a 
+                         high a power requirement that it would be totally
+                         infeasible to build because it would need a huge
+                         power-plant to feed it.
                 -Could be slow.
-                    -Processing power would not grow as fast as storage size.
+                    -Processing power might not grow as fast as storage size.
             -Better solution: use multiple smaller servers.
-                -Introduces the need for a NoSQL alternative.
+                -Easier to maintain.
+                -If one node fails, it is unlikely to cause system-wide
+                 failure if all servers are connected (dense graph).
+                    -Corollary: We can do 'rotational' maintenance on servers.
+                -Less need for highly specialized architecture, except for
+                 wanting something that is efficient for servers.
+                -Given high-speed network connections and higher signal
+                 bandwidth, we can have separate data-centers.
+                    -Across the building...
+                    -Across the street...
+                    -Across the city...
+                    -Across the country/world!
+
+            -However: this introduces the need for a NoSQL alternative.
 
     -What is NoSQL?
         -"Not Only SQL". But what does this mean?
@@ -156,15 +190,64 @@ Section 2: Methodology, Tools and Equipment Used
 
 
 Section 3: Theoretical Description
+    -Obviously, we are going to be "using" the CAP theorem.
+    -As explained above, Cassandra is high-availability, partition-tolerant
+     and eventually consistent.
+    
+    -To get the equivalent of a GROUP BY aggregation:
+        -Recall: a GROUP BY aggregation is basically a function which
+         gathers rows of data retrieved by a query and 'clusters' them
+         together based on the attribute that we are grouping by.
 
-Section 4: Experimental Results
+        -Suppose we have a table T on which we have columns C1,...,Cn,
+         with rows R1,...,Rm. Say that P(C1) is an atomic formula which
+         is satisfied for some C1 columns in R1,...,Rm.
 
-Section 5: Conclusions
+            SELECT C1, Ci
+            FROM T
+            WHERE P(C1)
+            GROUP BY Ci;    -- Where 1 <= i <= n
 
-Section 6: Notes on Possible Improvements
+        -The above query will return something like this:
+            
+            |   C1  |   Ci  |
+            +-------+-------+
 
-Section 7: References Used
+Section 4: Test Results
+    -Insertion of data for the first test query: 
+        -Amount of data written: 300k entries. 
+        -Time taken: approximately 35 minutes.
 
-Section 8: Illustration Credits
+    -The amount of time required to complete the creation of the table 
+     and insertion of data into that table for the first query took as long
+     as it did for two main reasons:
+        1) In traditional relational database systems aggregate functions
+           such as the 'GROUP BY' clause are explicitly supported.
+           While Cassandra does support certain aggregation clauses, such
+           as 'ORDER BY', there is no explicit 'GROUP BY' function supported
+           for use in (search) queries. Because of this, tables must be 
+           created with aggregation done beforehand.
+           Hence, anything that could be considered 'overhead' as a result of
+           using a GROUP BY clause in a traditional relational database query
+           is incurred in the generation and population of data tables in
+           Cassandra. Hence, it took longer to insert data as Cassandra was
+           essentially used to 'pre-proccess'/'pre-aggregate' it on insertion,
+           as opposed to performing the equivalent aggregation during the
+           execution of search queries where GROUP BY is desired.
+        2) Counter tables were also required. [LINEAR TIME?]
 
-Section 9: Special Thanks [Optional]
+Section 5: Experimental Results
+
+Section 6: Conclusions
+
+Section 7: Notes on Possible Improvements
+
+Section 8: References Used
+
+Section 9: Illustration Credits
+
+Section 10: Special Thanks [Where should this go?]
+    -We would like to thank: 
+        -Cybera for allowing us to use their servers.
+        -Dr. Yuan (University of Alberta) for the project idea.
+        -Lengdong Wu (University of Alberta) for help along the way.
