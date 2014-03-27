@@ -57,7 +57,9 @@ if __name__ == '__main__':
 
     session.execute("drop keyspace if exists group3", timeout=None)
     try: session.execute("use group3")
-    except: session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
+    except: 
+        session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
+        session.execute("use group3")
     
     print cluster.metadata.cluster_name
     print cassandra.__version__ +"\n"
