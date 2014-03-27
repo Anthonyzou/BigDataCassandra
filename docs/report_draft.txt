@@ -14,13 +14,7 @@ Section 0: Introduction to Cassandra
             -How do we store them all such that we can both update them
              when they are added, edited, deleted, 'upvoted'/'downvoted',
              marked as 'gold', flagged, or even whether they contain
-             certain phrases of interest, such as 'mountain dew', 'fedora',
-             'doritoes', 'neckbeard', 'god is not real', 'le', 'N64',
-             'epic maymay', 'TIL', 'cats', 'lol u mad', 'arrow to the knee' 
-             etc? (Basically, anything that was sort of funny over 5 years
-             ago and should not be spoken about if you leave your basement
-             ever.)
-
+             certain phrases of interest, and so on?
         -How would we best implement this?
             -Many TB of information and it must be queried and manipulated 
              "on the fly"!
