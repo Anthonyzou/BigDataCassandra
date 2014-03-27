@@ -15,9 +15,11 @@ generate(){
 	echo '		enter days to generate!'
 	read amount
 	nohup python -W ignore generate.py "$amount" > misc/generation_data.txt &
+	echo 'data goes to misc/generation_data.txt'
 }
 generate_big(){
 	nohup python -W ignore generate.py 10000 > misc/generation_data.txt &
+	echo 'data goes to misc/generation_data.txt'
 }
 remote_generate(){
 	echo
@@ -29,6 +31,7 @@ remote_generate(){
 
 query(){
 	nohup python -W ignore query.py > misc/query_data.txt &
+	echo 'data goes to misc/query_data.txt'
 }
 
 remote_query(){
