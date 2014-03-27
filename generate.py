@@ -75,7 +75,8 @@ if __name__ == '__main__':
                             MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                             CON_OHM_NUM)) with clustering order by (DUP_SEQ_NUM asc)"""
                           ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
-                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"]:
+                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
+                          , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
             try:
                 session.execute(setupcmd, timeout=None)
             except Exception as error:
