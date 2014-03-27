@@ -1,4 +1,0 @@
-group3
-1.0.2.post
-query built and prepared
-0.43600  seconds elapsed
