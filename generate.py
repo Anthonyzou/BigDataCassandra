@@ -68,20 +68,19 @@ if __name__ == '__main__':
     
     with open("cdr_table.sql") as tables_setup:
         cols = tables_setup.read()
-        for setupcmd in ["drop table cdr","drop table query3","drop table group_by_month"," truncate group_by_mobile_id_type",
-                         "truncate cdr",  "truncate query3",  "truncate group_by_month",  "truncate group_by_MOBILE_ID_TYPE"
-                         ,"CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
+        for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                             MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                             CON_OHM_NUM)) with clustering order by (city_id asc)"""
-                         ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,MOBILE_ID_TYPE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                            MONTH_DAY ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                            CON_OHM_NUM)) with clustering order by (MOBILE_ID_TYPE asc)"""
+                         ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
+                            MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
+                            CON_OHM_NUM)) with clustering order by (DUP_SEQ_NUM asc)"""
                           ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
-                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"]:
+                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
+                          , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
             try:
                 session.execute(setupcmd, timeout=None)
             except Exception as error:
-                pass
+                print error
     # read table stuffs from sample table schema
     with open("tablestuffs.txt") as tables_freq:
         (labels, counts) = tables_freq
@@ -101,8 +100,8 @@ if __name__ == '__main__':
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
     print( "query built and prepared")
     
-    days = 1
-    entriesPerDay = 1000
+    days = 10
+    entriesPerDay = 100
     optimize = True
     try:
         if int(sys.argv[1]) >= 1:

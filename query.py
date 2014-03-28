@@ -1,12 +1,12 @@
 import cassandra
 from cassandra.cluster import Cluster
 import timeit
-from _socket import timeout
 
-cluster = Cluster(
-    ['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
 
 session = cluster.connect('group3')  # keyspace should be our own
+
+loop = False #turn this to true when you want to do looping queries for group by
 
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__
@@ -15,7 +15,6 @@ program_st = timeit.default_timer()
 #======================================================================
 # QUERY 1
 #======================================================================
-start_time = timeit.default_timer()
 query = """
 SELECT count (*) as ten_atomic
 FROM cdr 
@@ -27,6 +26,7 @@ AND (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,S
 LIMIT 40000000
 ALLOW FILTERING ;
 """
+start_time = timeit.default_timer()
 result = session.execute(query, timeout=None)[0]
 print result
 
@@ -34,7 +34,6 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 #======================================================================
 # QUERY 2
 #======================================================================
-start_time = timeit.default_timer()
 query = """ 
 SELECT count (*) as range_city_id
 FROM cdr
@@ -43,23 +42,24 @@ CITY_ID > 5000 AND CITY_ID < 90000
 LIMIT 40000000
 ALLOW FILTERING;
 """
+start_time = timeit.default_timer()
 print session.execute(query, timeout=None)[0]
 print str((timeit.default_timer() - start_time)/60), " minutes elapsed for query 2\n"
 #======================================================================
 # QUERY 3
 #======================================================================
-start_time = timeit.default_timer()
 query = """
-SELECT count (*) as range_MOBILE_ID_TYPE
+SELECT DUP_SEQ_NUM as range_DUP_SEQ_NUM
 FROM cdr
 WHERE 
-(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE)
->(0,0,0,0,0,5000) AND
-(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE)
-<(4000000,4000000,4000000,4000000,4000000,90000)
+(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
+>(0,0,0,0,30000) AND
+(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
+<(9900000,9900000,9900000,9900000,300000)
 LIMIT 40000000
 ALLOW FILTERING;
 """
+start_time = timeit.default_timer()
 temp = session.execute(query, timeout=None)[0]
 print temp
 
@@ -67,14 +67,14 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 #======================================================================
 # QUERY 3 optimized
 #======================================================================
-start_time = timeit.default_timer()
 query = """
-SELECT count (*) as range_MOBILE_ID_TYPE
+SELECT count (*) as optimized_range_DUP_SEQ_NUM
 FROM query3
-WHERE (MOBILE_ID_TYPE) > (5000) AND (MOBILE_ID_TYPE) < (90000)
+WHERE (DUP_SEQ_NUM) > (30000) AND (DUP_SEQ_NUM) < (300000)
 LIMIT 40000000
 ALLOW FILTERING;
 """
+start_time = timeit.default_timer()
 temp = session.execute(query, timeout=None)[0]
 print temp
 
@@ -82,26 +82,35 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for opti
 #======================================================================
 # QUERY 4
 #======================================================================
-start_time = timeit.default_timer()
-
 query = """
 SELECT *
 from GROUP_BY_MOBILE_ID_TYPE
 """
+start_time = timeit.default_timer()
 for row in session.execute(query, timeout=None):
     print row
-    
-print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4\n"
+print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 table\n"
+
+if loop:
+    start_time = timeit.default_timer()
+    for i in range (8):
+        print session.execute(session.prepare("select count(*) from cdr where MOBILE_ID_TYPE = ?").bind([i]),timeout=None)
+    print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 loop\n"
 #======================================================================
 # QUERY 5
 #======================================================================
-start_time = timeit.default_timer()
-
 query = """
 SELECT * FROM group_by_month
 """
+start_time = timeit.default_timer()
 for row in (session.execute(query,timeout=None)):
     print row
-    
-print str((timeit.default_timer() - start_time))+ " seoncds elapsed for query 5\n"
+print str((timeit.default_timer() - start_time))+ " seoncds elapsed for query 5 table\n"
+
+if loop:
+    start_time = timeit.default_timer()
+    for i in range (1,31):
+        print session.execute(session.prepare("select count(*) from cdr where month_day = ?").bind([i]),timeout=None)
+    print str((timeit.default_timer() - start_time))+ " seoncds elapsed for query 5 loop\n"
+
 print str((timeit.default_timer() - program_st)/60)+ " minutes elapsed for program\n"
