@@ -19,11 +19,11 @@ generate(){
 	echo '		ENTER FILENAME for output'
 	read file
 	if [ -n "$seed" ]; then
-		nohup python -W ignore generate.py $amount $seed > misc/"$file" &
+		nohup python -W ignore generate.py $amount $seed > misc/$file &
 	else
-		nohup python -W ignore generate.py $amount > $file &
+		nohup python -W ignore generate.py $amount > misc/$file &
 	fi
-	echo "output goes to $file"
+	echo "output goes to misc/$file"
 }
 generate_big(){
 	nohup python -W ignore generate.py 100 > misc/generation_data.txt &
