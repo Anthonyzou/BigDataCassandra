@@ -57,14 +57,16 @@ if __name__ == '__main__':
     
     print cluster.metadata.cluster_name
     print cassandra.__version__ +"\n"
+    seed = 3333
     try:
-        random.seed(int(sys.argv[2]))
+        seed = int(sys.argv[2])
+        random.seed(seed)
         session.execute("use group3")
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
         session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }",timeout=None)
         session.execute("use group3",timeout=None)
-        random.seed(3333)
+        random.seed(seed)
         with open("cdr_table.sql") as tables_setup:
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
@@ -122,3 +124,4 @@ if __name__ == '__main__':
         print error
 
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
+    print seed, "seed used"

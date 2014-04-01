@@ -12,21 +12,21 @@ echo '	setup this machine :			9'
 echo '\n\n'
 
 generate(){
-	echo '		enter days to generate!'
+	echo '		ENETER DAYS to generate! 100000 entries are made per day'
 	read amount
-	echo '		ENTER SEED'
+	echo '		ENTER SEED or leave blank for default seed THIS WILL CLEAR THE SYSTEM'
 	read seed 
-	echo '		ENTER GENERATION DATA FILE'
+	echo '		ENTER FILENAME for output'
 	read file
 	if [ -n "$seed" ]; then
 		nohup python -W ignore generate.py "$amount" "$seed" > misc/"$file" &
 	else
-		nohup python -W ignore generate.py "$amount" > misc/"$file" &
+		nohup python -W ignore generate.py "$amount" > "$file" &
 	fi
-	echo 'data goes to misc/"$file"'
+	echo 'output goes to $file'
 }
 generate_big(){
-	nohup python -W ignore generate.py 10000 > misc/generation_data.txt &
+	nohup python -W ignore generate.py 100 > misc/generation_data.txt &
 	echo 'data goes to misc/generation_data.txt'
 }
 remote_generate(){
@@ -57,7 +57,7 @@ status(){
 }
 
 zip(){
-	tar -cv docs query.py misc generate.py cdr_table.sql tablestuffs.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
+	tar -cv docs query.py misc group3.sh generate.py cdr_table.sql tablestuffs.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
 }
 
 setup(){
