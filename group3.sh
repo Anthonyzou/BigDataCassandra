@@ -14,8 +14,16 @@ echo '\n\n'
 generate(){
 	echo '		enter days to generate!'
 	read amount
-	nohup python -W ignore generate.py "$amount" > misc/generation_data.txt &
-	echo 'data goes to misc/generation_data.txt'
+	echo '		ENTER SEED'
+	read seed 
+	echo '		ENTER GENERATION DATA FILE'
+	read file
+	if[[-x "$seed"]]; then
+		nohup python -W ignore generate.py "$amount" > misc/"$file" &
+	else
+		nohup python -W ignore generate.py "$amount" "$seed" > misc/"$file" &
+	fi
+	echo 'data goes to misc/"$file"'
 }
 generate_big(){
 	nohup python -W ignore generate.py 10000 > misc/generation_data.txt &
