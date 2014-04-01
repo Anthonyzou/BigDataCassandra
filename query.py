@@ -83,7 +83,7 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for opti
 # QUERY 4
 #======================================================================
 query = """
-SELECT *
+SELECT MOBILE_ID_TYPE,count
 from GROUP_BY_MOBILE_ID_TYPE
 """
 start_time = timeit.default_timer()
@@ -100,7 +100,7 @@ if loop:
 # QUERY 5
 #======================================================================
 query = """
-SELECT * FROM group_by_month
+SELECT month_day, count FROM group_by_month
 """
 start_time = timeit.default_timer()
 for row in (session.execute(query,timeout=None)):
