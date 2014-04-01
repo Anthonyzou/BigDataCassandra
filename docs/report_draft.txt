@@ -5,83 +5,14 @@ Class:      CMPUT 391
 Term:       Winter 2014
 
 Section 0: Introduction to Cassandra 
-    -What is "Big Data" (and why should people care)?
-        -Example(s): Reddit comment system organization.
-            -We have easily millions of comments generated. Each one has
-             an author, text string, community rating, number of upvotes
-             and downvotes, which thread it is in, when it was posted,
-             if and when it was edited, etc.
-            -How do we store them all such that we can both update them
-             when they are added, edited, deleted, 'upvoted'/'downvoted',
-             marked as 'gold', flagged, or even whether they contain
-             certain phrases of interest, and so on?
-        -How would we best implement this?
-            -Many TB of information and it must be queried and manipulated 
-             "on the fly"!
-            -Although, we don't have too many types of queries...
-            -Naive solution: use one monolithic server with an oversized
-             storage capability.
-                -We have just increased our risk of colossal system failure!
-                -Might need its own special custom architecture:
-                    -Expensive.
-                    -Hard to maintain, not standard/highly specialized.
-                    -Maintenance could cause the entire system to go down
-                     temporarily, or even permanently (see first point).
-                -Might be way too big to even exist!
-                    -Even a large server has an "upper bound" on its size. 
-                        -For example, where will it get its power from?
-                         It is possible to have a server that has such a 
-                         high a power requirement that it would be totally
-                         infeasible to build because it would need a huge
-                         power-plant to feed it.
-                -Could be slow.
-                    -Processing power might not grow as fast as storage size.
-            -Better solution: use multiple smaller servers.
-                -Easier to maintain.
-                -If one node fails, it is unlikely to cause system-wide
-                 failure if all servers are connected (dense graph).
-                    -Corollary: We can do 'rotational' maintenance on servers.
-                -Less need for highly specialized architecture, except for
-                 wanting something that is efficient for servers.
-                -Given high-speed network connections and higher signal
-                 bandwidth, we can have separate data-centers.
-                    -Across the building...
-                    -Across the street...
-                    -Across the city...
-                    -Across the country/world!
-
-            -However: this introduces the need for a NoSQL alternative.
 
     -What is NoSQL?
         -"Not Only SQL". But what does this mean?
             -Any database system which does not strictly conform to the
              relational database model. We may have any one of the following:
                 -Does not meet all "ACID" properties.
-                    -Atomicity - Operations on the database are either 
-                                 completely committed or discarded. 
-                                 There are no "partially completed"
-                                 transactions.
-                    -Consistency - If two fields are to store the same value
-                                   at all times, this will never change.
-                                   i.e., there are no violations on foreign 
-                                   key constraints.
-                    -Isolation - No two transactions will affect each others'
-                                 outcome, no matter which order they are
-                                 scheduled in, and no two transactions can
-                                 interfere with each others ability to
-                                 be completed if they are requested within
-                                 a very short time-interval.
-                                 i.e., there will be no race-conditions,
-                                 deadlocks or starving.
-                    -Durability - All data-definition and data-manipulation
-                                  transactions are permanent and irreversible
-                                  once they are committed. 
                 -May store data in a fashion other than a strictly
                  relational set of tables.
-                    -Old example: the "network" model. Widely used before
-                     Edgar Codd's implementation of relational databases.
-                    -Newer examples:
-                        -
 
     -Why NoSQL?
         -We have some BIG data to deal with (several TB), and growing!
@@ -89,7 +20,7 @@ Section 0: Introduction to Cassandra
         -Distribution implies CAP theorem;
         -CAP theorem implies compromises!
 
-    -What is Apache Project's Cassandra? [Most important section]
+    -What is Apache Project's Cassandra?
         -NoSQL DBMS, meant to be highly scalable.
         -FOSS/FLOSS alternative to proprietary (and expensive) Oracle
          NoSQL systems.
@@ -97,13 +28,12 @@ Section 0: Introduction to Cassandra
         Features:
             -Available, Partition-tolerant
             -Eventually consistent
-            -High scalability!
+            -High scalability
             -"Schemaless" (implicit schema)
             -Has its own query language: Apache cql
             -Data compaction
-        -
 
-    -Why Cassandra? [Most important section]
+    -Why Cassandra?
         -Partition-tolerant (essential for clustered systems).
         -Available: mirrors "real-world" constraints on call-detail record
          systems.
@@ -118,28 +48,6 @@ Section 0: Introduction to Cassandra
          as compaction.
         -Very low chance of data loss (except if the DBA makes a mistake),
          even when upgrading Cassandra.
-
-        -Other Niceties:
-            -FOSS/FLOSS compliant ("libre"); see also: the Apache Licence.
-            -No monetary cost ("gratis").
-            -Relatively easy to use!
-
-    -Why Not Use Cassandra Everywhere?
-        -Eventual consistency, so not suited to mission-critical applications.
-        -Can lose efficiency over time if you do not perform regular
-         maintenance such as compaction.
-        -You have to design your DB schema around your queries, which is
-         the opposite of the traditional process.
-        -Impossible to implement aggregation after your tables have been
-         generated, which is a consequence of the above.
-        -Might not be as efficient or polished as an Oracle Inc. alternative.
-         If you have the money, this might be the best option for you.
-        -NoSQL systems require some experience with relational SQL systems,
-         as they have a SQL-like interface and behavior, the are still
-         declarative, and are usually less well-documented and
-         "beginner-friendly" as the older SQL systems.
-
-    -What is the Apache Project? [Optional]
 
 Section 1: Goals and Objectives
     -To successfully implement a distributed database system which will
@@ -174,16 +82,123 @@ Section 1: Goals and Objectives
 
 Section 2: Methodology, Tools and Equipment Used
     -8 server instances, each with:
-        -4CPU cores, (Intel) x86_64 architecture, 1 thread/core, 1999 MHz.
-        -32GB main memory.
-        -4TB secondary storage (hard-disk space).
-        -GNU/Linux (Ubuntu) version ???
+        -32GB virtual memory.
+        -1TB secondary storage (hard-disk space) per node.
         
-    -This gives us a total upper bound on storage of 32TB over the entire
-     cluster.
+    -
 
+Section 3: Implementation
 
-Section 3: Theoretical Description
+Subsection 3.1: Data Generation
+    -Cluster name: 'group3'
+        -Only nodes with this name can join the cluser.
+
+    -Shell script
+        -To run: sh group3.sh
+        -Set up to be able to run multiple instances and then send the output
+         to an output file.
+        -To generate data:
+
+    -Table schema
+        -"CDR"
+            -Exactly 100 columns.
+            -Numbers range from 0 to 9.9 million for all integers.
+            -Has 10 column keys and 1 partition key.
+        -"QUERY3"
+            -Contains the same data, but the column keys are ordered MSC_CODE first in
+             an attempt to optimize for range-queries based on values of those column keys.
+        -"GROUP_BY_MONTH" 
+            -Keys are between 1 and 31.
+            -Reduces data to facilitate completion of a query equivalent to one
+             in SQL containing 'GROUP BY MONTH_DAY'.
+        -"GOUP_BY_MOBILE_ID_TYPE"
+            -Keys are between 0 and 7.
+            -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
+             is based on its insertion number modulo 8.
+
+    -Keyspaces
+        -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
+            -No backups or snapshots are automatically made by the server.
+
+    -Python 2.7 script
+        -generate.py
+            -Begins with attempting to establish a connection to the local machine which is part
+             of the cluster.
+            -Expects program arguments: 
+                -The number of days to generate data for. 
+                -Different seed values to prevent collisions of data insertions.
+                    -Cassandra has no support for primary keys; collisions result in overwriting data.
+                    -Allows for multiple concurrent instances of data generation.
+                -Without seed argument, the script will use its default seed value (typically used
+                 for consistency in generation of data) and will drop all of the data.
+
+Subsection 3.2: CQL Queries 
+
+    1)
+SELECT count (*) as ten_atomic
+FROM cdr 
+WHERE 
+(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SEIZ_CELL_NUM,FLOW_DATA_INC,SUB_HOME_INT_PRI,CON_OHM_NUM) 
+> (10000,10000,10000,3,10000,1,10000,10000,10000,10000)
+AND (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SEIZ_CELL_NUM,FLOW_DATA_INC,SUB_HOME_INT_PRI,CON_OHM_NUM) 
+< (150000,150000,150000,30,150000,8,150000,150000,150000,150000)
+LIMIT 40000000
+ALLOW FILTERING ;
+           Cluster-wide range query with 10 atomic formulas. Searches on every column key of the
+           CDR table, as this is the only conceivable way to properly execute a range query.
+           Returns results from each node, satisfies the range query requirement and has 10 atomic
+           formulas.
+
+           Potential uses: many 'outliers' are eliminated from the selection because they are above
+           and below the minimum and maximum values of all the columns respectively, by approximately
+           10%. In other words, any 'extreme' data points in the CDR table can be ignored for
+           statistical analysis.
+        2)
+SELECT count (*) as range_city_id
+FROM cdr
+WHERE
+CITY_ID > 5000 AND CITY_ID < 90000
+LIMIT 40000000
+ALLOW FILTERING;
+           Cluster-wide range query.
+        3)
+SELECT count(*) as range_DUP_SEQ_NUM
+FROM cdr
+WHERE 
+(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
+>(0,0,0,0,30000) AND
+(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
+<(9900000,9900000,9900000,9900000,300000)
+LIMIT 40000000
+ALLOW FILTERING;
+           Because we are trying to query by DUP_SEQ_NUM, we must allow filtering on the query.
+           In order to speed up execution
+        4)
+SELECT MOBILE_ID_TYPE,count
+from GROUP_BY_MOBILE_ID_TYPE
+
+           A table of counters aggregates the keys of the MOBILE_ID_TYPE columns with the 
+
+           Example:
+update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1
+
+           This is an atomic, yet seemingly asynchronous transaction
+
+           MOBILE_ID is the insertion number modulo 8 (or however many nodes), therefore
+           the rows of the MOBILE_ID table are evenly distributed throughout the cluster.
+           This means that we can easily use this query as a check for correctness of
+           the insertion process, as counting the number of rows in the MOBILE_ID_TYPE table
+           on each node should total up to the number of unique items in the database.
+
+        5) 
+SELECT month_day, count FROM group_by_month
+           The rows in GROUP_BY_MONTH are distributed in a pseudorandom fashion throughout the
+           cluster.
+
+    -Python data generation
+    -Logging software
+
+Section 4: Theoretical Description
     -Obviously, we are going to be "using" the CAP theorem.
     -As explained above, Cassandra is high-availability, partition-tolerant
      and eventually consistent.
@@ -208,11 +223,6 @@ Section 3: Theoretical Description
             |   C1  |   Ci  |
             +-------+-------+
 
-Section 4: Implementation Details
-    -Shell script
-    -Cassandra CQL scripts
-    -Python data generation
-    -Logging software
 
 Section 5: Test Results
     -Insertion of data for the first test query: 
@@ -235,20 +245,16 @@ Section 5: Test Results
            essentially used to 'pre-proccess'/'pre-aggregate' it on insertion,
            as opposed to performing the equivalent aggregation during the
            execution of search queries where GROUP BY is desired.
-        2) Counter tables were also required. [LINEAR TIME?]
+
+           However, it is much faster.
+
+        2) Counter tables were also required.
 
 Section 6: Experimental Results
+    -
 
 Section 7: Conclusions
 
 Section 8: Notes on Possible Improvements
 
 Section 9: References Used
-
-Section 10: Illustration Credits
-
-Section 11: Special Thanks [Where should this go?]
-    -We would like to thank: 
-        -Cybera for allowing us to use their servers.
-        -Dr. Yuan (University of Alberta) for the project idea.
-        -Lengdong Wu (University of Alberta) for help along the way.
