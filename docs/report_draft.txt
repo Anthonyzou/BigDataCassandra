@@ -76,16 +76,16 @@ Section 1: Goals and Objectives
         5) None of the five queries can be trivial. That is, there can be
            no simple key searches or anything that is of little practical
            interest for measuring how a database system can deal with
-           challenging or expensive requests.
+           computationally expensive requests.
 
     -To record the execution time of each query.
+
 
 Section 2: Methodology, Tools and Equipment Used
     -8 server instances, each with:
         -32GB virtual memory.
         -1TB secondary storage (hard-disk space) per node.
         
-    -
 
 Section 3: Implementation
 
@@ -97,7 +97,7 @@ Subsection 3.1: Data Generation
         -To run: sh group3.sh
         -Set up to be able to run multiple instances and then send the output
          to an output file.
-        -To generate data:
+        -To generate data: follow the prompts by entering option numbers.
 
     -Table schema
         -"CDR"
@@ -111,10 +111,17 @@ Subsection 3.1: Data Generation
             -Keys are between 1 and 31.
             -Reduces data to facilitate completion of a query equivalent to one
              in SQL containing 'GROUP BY MONTH_DAY'.
+            -Uses 'WITH CLUSTERING ORDER BY(MONTH_DAY)' to facilitate ordering the resulting
+             tables contents by the day of the month.
         -"GOUP_BY_MOBILE_ID_TYPE"
             -Keys are between 0 and 7.
             -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
              is based on its insertion number modulo 8.
+            -'CLUSTERING ORDER BY(MOBILE_ID_TYPE)' used to order the rows with respect to
+             MOBILE_ID_TYPE instead of the aggregate group MONTH.
+        -The role of the last two tables is to make the substitute aggregate queries both
+         possible (as Cassandra has no explicit support for GROUP BY aggregation) 
+         and efficient (pre-processing data to be optimal for queries).
 
     -Keyspaces
         -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
@@ -156,7 +163,7 @@ WHERE
 AND (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SEIZ_CELL_NUM,FLOW_DATA_INC,SUB_HOME_INT_PRI,CON_OHM_NUM) 
 < (150000,150000,150000,30,150000,8,150000,150000,150000,150000)
 LIMIT 40000000
-ALLOW FILTERING ;
+ALLOW FILTERING;
 
            Cluster-wide range query with 10 atomic formulas. Searches on every column key of the
            CDR table, as this is the only conceivable way to properly execute a range query.
@@ -215,7 +222,7 @@ ALLOW FILTERING;
 
         4)
 SELECT MOBILE_ID_TYPE,count
-from GROUP_BY_MOBILE_ID_TYPE
+from GROUP_BY_MOBILE_ID_TYPE;
 
            Satisfies two requirements: group-by + order-by clause, and cluster-wide query.
 
@@ -240,29 +247,33 @@ from GROUP_BY_MOBILE_ID_TYPE
 
            Updating counts is done in the following way:
 
-update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1
+update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1;
 
            Potential uses: Most likely for the generation of histograms, but other basic
            kinds of statistical analysis can be performed on these small MOBILE_ID_TYPE 
            'buckets' as well, such as calculating arithmetic averages, etc.
 
         5) 
-SELECT month_day, count FROM group_by_month
+SELECT month_day, count FROM group_by_month;
 
            Satisfies the group-by + order-by clause requirements. 
            'CLUSTERING ORDER BY (MONTH_DAY)' ensures that the GROUP_BY_MONTHs entries are ordered
-           by MONTH_DAY, and GROUP BY functionality is acheived via 
+           by MONTH_DAY, and GROUP BY functionality is acheived via aggregating the COUNT type
+           column 'COUNTER' into MONTH_DAY groupings. The resulting COUNTER column typically
+           contains values which are quite close in value, but with some differences between
+           them due to the pseudorandom generation and distribution of data.
 
-           The rows in GROUP_BY_MONTH are distributed in a pseudorandom fashion throughout the
-           cluster.
-
-           Potential uses:
-
+           Potential uses: finding out which day(s) of each month of the year have the highest
+           frequency of entries added to the CDR table can be of use for marketing to customers,
+           optimizing billing rates, and so on. Similar queries can be written for different
+           times of the day, months or weeks of the year, by aggregating CDR row counts into 
+           hourly, monthly or weekly groupings for more specific results which could be of use 
+           in billing plans with calls at different times incurring different costs.
 
 Section 4: Theoretical Description
-    -Obviously, we are going to be "using" the CAP theorem.
+    -Obviously, we are going to be constrained by the results of the CAP theorem.
     -As explained above, Cassandra is high-availability, partition-tolerant
-     and eventually consistent.
+     and eventually-consistent.
     
     -To get the equivalent of a GROUP BY aggregation:
         -Recall: a GROUP BY aggregation is basically a function which
@@ -273,49 +284,119 @@ Section 4: Theoretical Description
          with rows R1,...,Rm. Say that P(C1) is an atomic formula which
          is satisfied for some C1 columns in R1,...,Rm.
 
-            SELECT C1, Ci
+            SELECT Ci, C1
             FROM T
             WHERE P(C1)
             GROUP BY Ci;    -- Where 1 <= i <= n
 
-        -The above query will return something like this:
+        -The above query will return something like this: (where 1 <= j <= k <= m)
             
-             _______________
-            |   C1  |   Ci  |
-            +-------+-------+
+            |  Ci  |  C1  |
+            +------+------+
+            |Rj.Ci |Rj.C1 |
+            |  .   |  .   |
+            |  .   |  .   |
+            |  .   |  .   |
+            |Rk.Ci |Rk.C1 |
+            +------+------+
 
 
-Section 5: Test Results
-    -Insertion of data for the first test query: 
-        -Amount of data written: 300k entries. 
-        -Time taken: approximately 35 minutes.
+Section 5: Preliminary Test Results
 
-    -The amount of time required to complete the creation of the table 
-     and insertion of data into that table for the first query took as long
-     as it did for two main reasons:
-        1) In traditional relational database systems aggregate functions
-           such as the 'GROUP BY' clause are explicitly supported.
-           While Cassandra does support certain aggregation clauses, such
-           as 'ORDER BY', there is no explicit 'GROUP BY' function supported
-           for use in (search) queries. Because of this, tables must be 
-           created with aggregation done beforehand.
-           Hence, anything that could be considered 'overhead' as a result of
-           using a GROUP BY clause in a traditional relational database query
-           is incurred in the generation and population of data tables in
-           Cassandra. Hence, it took longer to insert data as Cassandra was
-           essentially used to 'pre-proccess'/'pre-aggregate' it on insertion,
-           as opposed to performing the equivalent aggregation during the
-           execution of search queries where GROUP BY is desired.
+    -Execution time for the data definition and data manipulation on the
+     test-sized cluster (~1.75 TB).
 
-           However, it is much faster.
+        -Insertion of data for the first test query: 
+            -Amount of data written: 300k entries. 
+            -Time taken: approximately 35 minutes.
 
-        2) Counter tables were also required.
+        -The amount of time required to complete the creation of the table 
+         and insertion of data into that table for the first query took as long
+         as it did for two main reasons:
+            1) In traditional relational database systems aggregate functions
+               such as the 'GROUP BY' clause are explicitly supported.
+               While Cassandra does support certain aggregation clauses, such
+               as 'ORDER BY', there is no explicit 'GROUP BY' function supported
+               for use in (search) queries. Because of this, tables must be 
+               created with aggregation done beforehand.
+               Hence, anything that could be considered 'overhead' as a result of
+               using a GROUP BY clause in a traditional relational database query
+               is incurred in the generation and population of data tables in
+               Cassandra. Hence, it took longer to insert data as Cassandra was
+               essentially used to 'pre-proccess'/'pre-aggregate' it on insertion,
+               as opposed to performing the equivalent aggregation during the
+               execution of search queries where GROUP BY is desired.
+
+               However, it is much faster.
+
+            2) Counter tables were also required.
+
+    -Execution times for queries on the test-sized cluster.
+
 
 Section 6: Experimental Results
-    -
+    -Execution time for the data definition and data manipulation on the
+     fully populated cluster (~8 TB):
 
-Section 7: Conclusions
 
-Section 8: Notes on Possible Improvements
+    -Execution time for queries on the fully populated cluster:
 
-Section 9: References Used
+
+Section 7: Analysis and Discussion
+
+    -Quantitative results: [Insert clean, organized tables in this section]
+        -Can use LaTeX to do this?
+
+    -Quantitative analysis of results:
+        -Most expensive query.
+        -Query with most results.
+        -Does this agree with a time-complexity analysis(?)
+
+    -Qualitative description of results:
+        -Insertion of data into nodes has a lower bound of the maximal write
+         speed of secondary storage, in this case hard-disk.
+        -Ahmdal's Law
+            -Maximum gains from parallelism come when there is the most even
+             distribution of work.
+            -Parallelism 'deteriorates' in efficiency when distribution is
+             very uneven.
+            -Maximal speedup is always a strict upper bound of 1/N.
+        -Impact of Cassandras lack of collision management:
+            -Many rows originally entered were overwritten with new rows, even 
+             given the pseudo-random generation of primary key elements.
+            -This may be due to: 
+                -Problems with pseudorandom number generation in Python 2.7
+                 which result in potentially biased distribution of numbers.
+                -Avoiding the use of lexical or time-based UUIDs as part of
+                 the primary key of the main CDR table in favour of faster
+                 data definition, manipulation and querying. UUIDs may have
+                 increased the uniqueness of each primary key and protected
+                 more rows from being overwritten in the case of collisions.
+
+Section 8: Conclusions
+    -Cassandra 
+
+
+Section 9: Notes on Possible Improvements
+
+    -For increased table population time efficiency:
+        -
+
+    -For increased query execution time efficiency:
+        -Increasing the number of smaller tables...? More data tables for the same
+         data set but with fewer columns in each to make optimizing for queries easier(?)
+        -
+
+    -For increased data protection:
+        -Potential use of UUIDs to increase uniqueness of primary keys so as
+         to dramatically decrease the odds of collisions.
+            -Comes with a computational cost for queries and especially for data definition
+             and modification. Generating one 128-bit UUID is not expensive in and of
+             itself, but multiplying that operation upward of one trillion times will
+             incur a greater cost compared to going without, or generating something
+             in constant time.
+
+
+Section 10: References Used
+
+
