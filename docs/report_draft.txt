@@ -132,10 +132,16 @@ Subsection 3.1: Data Generation
                 -Without seed argument, the script will use its default seed value (typically used
                  for consistency in generation of data) and will drop all of the data before completely
                  regenerating it.
-                -Depending on the results from stat.py
-        -stat.py
-            -Reads in the contents of "partial_data_table.txt" and counts the number of non-empty
-             columns for each row.
+                -Depending on the results from stat.py (see below), 
+            -Asynchronously executes the insertion statements to prevent blocking on the script.
+            -generate() function
+                -Allows for custom ranges on specified columns.
+                -Allows for custom data for specified data types.
+
+        -stat.py (mainly for testing)
+            -Reads in the contents of "partial_data_table.txt" and "cdr_table.txt", then 
+             counts the number of non-empty columns for each row.
+            -Prints the resulting number (frequency) of items for each column.
 
 
 
@@ -151,6 +157,7 @@ AND (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,S
 < (150000,150000,150000,30,150000,8,150000,150000,150000,150000)
 LIMIT 40000000
 ALLOW FILTERING ;
+
            Cluster-wide range query with 10 atomic formulas. Searches on every column key of the
            CDR table, as this is the only conceivable way to properly execute a range query.
            Returns results from each node, satisfies the range query requirement and has 10 atomic
@@ -160,6 +167,7 @@ ALLOW FILTERING ;
            and below the minimum and maximum values of all the columns respectively, by approximately
            10%. In other words, any 'extreme' data points in the CDR table can be ignored for
            statistical analysis.
+
         2)
 SELECT count (*) as range_city_id
 FROM cdr
@@ -167,8 +175,18 @@ WHERE
 CITY_ID > 5000 AND CITY_ID < 90000
 LIMIT 40000000
 ALLOW FILTERING;
-           Cluster-wide range query.
-        3)
+
+           Satisfies two requirements: cluster-wide and range query. Retrieves the number of
+           cdr entries for cities with IDs strictly greater than 5000 and strictly less than
+           90000. Limits the maximal number of elements counted to 40000000. Filtering of
+           results is enabled.
+
+           Potential uses: In some cases companies may wish to know how many calls were made
+           in a given range of cities, based on certain CITY_IDs. While those cities may not
+           have any major features in common, this query can be used in cases where only a small
+           sample of all cities is required.
+
+        3) 
 SELECT count(*) as range_DUP_SEQ_NUM
 FROM cdr
 WHERE 
@@ -178,18 +196,35 @@ WHERE
 <(9900000,9900000,9900000,9900000,300000)
 LIMIT 40000000
 ALLOW FILTERING;
-           Because we are trying to query by DUP_SEQ_NUM, we must allow filtering on the query.
-           In order to speed up execution
+
+           Satsifies two requirements: cluster-wide and range query. Counts the number of cdr
+           entries such that DUP_SEQ_NUM is strictly greater than 30000 and strictly less than
+           300000. All other atomic conditions in the range query are used to ensure that
+           all of the results fall within a valid range and have no null-valued entries for
+           CITY_ID, SERVICE_NODE_ID, and so on. Because we are trying to query mainly by 
+           DUP_SEQ_NUM, we allow filtering on the query in order to speed up execution.
+
+           Potential uses: Suppose that statistical data is to be generated for rows in the
+           CDR table for which there are no null-valued entries in the columns CITY_ID,
+           SERVICE_NODE_ID, RUM_DATA_NUM, MONTH_DAY and DUP_SEQ_NUM, and that DUP_SEQ_NUM
+           falls within a more specific range, that is 30000-300000 (not inclusive). The
+           records could then be analyzed and compared to data for which not all of the
+           attributes above are null, to compare behaviors of callers with different amounts
+           of privacy. This could address questions such as "do people with more privacy make
+           certain types of calls compared to people who do not?".
+
         4)
 SELECT MOBILE_ID_TYPE,count
 from GROUP_BY_MOBILE_ID_TYPE
 
+           Satisfies two requirements: group-by + order-by clause, and cluster-wide query.
+
            A table of counters aggregates the keys of the MOBILE_ID_TYPE columns with the 
-
-           Example:
-update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1
-
-           This is an atomic, yet seemingly asynchronous transaction
+           count of each number of rows in the CDR table with matchine MOBILE_ID_TYPE.
+           Ordering by mobile_id_type is acheived by using a the 'USE CLUSTERING ORDER' 
+           clause in the data definition statement in generate.py.
+           We then retrieve GROUP_BY_MOBILE_ID_TYPEs contents and the count of its rows
+           in order of appearance, i.e., the order in which the aggregated rows are sorted.
 
            MOBILE_ID is the insertion number modulo 8 (or however many nodes), therefore
            the rows of the MOBILE_ID table are evenly distributed throughout the cluster.
@@ -197,13 +232,32 @@ update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? a
            the insertion process, as counting the number of rows in the MOBILE_ID_TYPE table
            on each node should total up to the number of unique items in the database.
 
+           This is an atomic, yet seemingly asynchronous transaction. In other words, only
+           small critical sections of execution are protected for short amounts of time
+           to prevent collisions, but otherwise parallelism is fully exploited (with minimal
+           constraints of Ahmdal's Law) due to the very even distribution of data across all 
+           8 nodes. 
+
+           Updating counts is done in the following way:
+
+update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1
+
+           Potential uses: Most likely for the generation of histograms, but other basic
+           kinds of statistical analysis can be performed on these small MOBILE_ID_TYPE 
+           'buckets' as well, such as calculating arithmetic averages, etc.
+
         5) 
 SELECT month_day, count FROM group_by_month
+
+           Satisfies the group-by + order-by clause requirements. 
+           'CLUSTERING ORDER BY (MONTH_DAY)' ensures that the GROUP_BY_MONTHs entries are ordered
+           by MONTH_DAY, and GROUP BY functionality is acheived via 
+
            The rows in GROUP_BY_MONTH are distributed in a pseudorandom fashion throughout the
            cluster.
 
-    -Python data generation
-    -Logging software
+           Potential uses:
+
 
 Section 4: Theoretical Description
     -Obviously, we are going to be "using" the CAP theorem.
