@@ -120,7 +120,7 @@ Subsection 3.1: Data Generation
         -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
             -No backups or snapshots are automatically made by the server.
 
-    -Python 2.7 script
+    -Python 2.7 scripts
         -generate.py
             -Begins with attempting to establish a connection to the local machine which is part
              of the cluster.
@@ -130,7 +130,14 @@ Subsection 3.1: Data Generation
                     -Cassandra has no support for primary keys; collisions result in overwriting data.
                     -Allows for multiple concurrent instances of data generation.
                 -Without seed argument, the script will use its default seed value (typically used
-                 for consistency in generation of data) and will drop all of the data.
+                 for consistency in generation of data) and will drop all of the data before completely
+                 regenerating it.
+                -Depending on the results from stat.py
+        -stat.py
+            -Reads in the contents of "partial_data_table.txt" and counts the number of non-empty
+             columns for each row.
+
+
 
 Subsection 3.2: CQL Queries 
 
