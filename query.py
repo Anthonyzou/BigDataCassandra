@@ -49,7 +49,7 @@ print str((timeit.default_timer() - start_time)/60), " minutes elapsed for query
 # QUERY 3
 #======================================================================
 query = """
-SELECT DUP_SEQ_NUM as range_DUP_SEQ_NUM
+SELECT count(*) as range_DUP_SEQ_NUM
 FROM cdr
 WHERE 
 (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)

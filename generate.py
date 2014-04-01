@@ -54,33 +54,34 @@ if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect()  # keyspace should be our own
-
-    session.execute("drop keyspace if exists group3", timeout=None)
-    try: session.execute("use group3")
-    except: 
-        session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
-        session.execute("use group3")
     
     print cluster.metadata.cluster_name
     print cassandra.__version__ +"\n"
-    
-    random.seed(3333)
-    
-    with open("cdr_table.sql") as tables_setup:
-        cols = tables_setup.read()
-        for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                            MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                            CON_OHM_NUM)) with clustering order by (city_id asc)"""
-                         ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                            MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                            CON_OHM_NUM)) with clustering order by (DUP_SEQ_NUM asc)"""
-                          ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
-                          ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
-                          , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
-            try:
-                session.execute(setupcmd, timeout=None)
-            except Exception as error:
-                print error
+    try:
+        random.seed(int(sys.argv[2]))
+    except: 
+        session.execute("drop keyspace if exists group3", timeout=None)
+        try: session.execute("use group3")
+        except: 
+            session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
+            session.execute("use group3")
+        random.seed(3333)
+        with open("cdr_table.sql") as tables_setup:
+            cols = tables_setup.read()
+            for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
+                                MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
+                                CON_OHM_NUM)) with clustering order by (city_id asc)"""
+                             ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
+                                MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
+                                CON_OHM_NUM)) with clustering order by (DUP_SEQ_NUM asc)"""
+                              ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
+                              ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
+                              , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
+                try:
+                    session.execute(setupcmd, timeout=None)
+                except Exception as error:
+                    print error
+
     # read table stuffs from sample table schema
     with open("tablestuffs.txt") as tables_freq:
         (labels, counts) = tables_freq
@@ -100,9 +101,8 @@ if __name__ == '__main__':
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
     print( "query built and prepared")
     
-    days = 10
+    days = 1
     entriesPerDay = 100
-    optimize = True
     try:
         if int(sys.argv[1]) >= 1:
             days = int(sys.argv[1])
@@ -118,8 +118,7 @@ if __name__ == '__main__':
                 for x in range(len(labels)):
                     build.append(generate(labels[x][0], types[x], counts[x]))
                 session.execute_async( prepared.bind(build))
-                if optimize:
-                    session.execute_async( prepared2.bind(build))
+                session.execute_async( prepared2.bind(build))
     except Exception as error:
         print error
 
