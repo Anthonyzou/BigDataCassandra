@@ -345,12 +345,14 @@ Section 6: Experimental Results
 Section 7: Analysis and Discussion
 
     -Quantitative results: [Insert clean, organized tables in this section]
-        -Can use LaTeX to do this?
 
     -Quantitative analysis of results:
         -Most expensive query.
         -Query with most results.
         -Does this agree with a time-complexity analysis(?)
+        -The amount of time it takes to retrieve all of the data in the cluster
+         is very close to the amount of time it takes to insert all of the data
+         into the entire cluster.
 
     -Qualitative description of results:
         -Insertion of data into nodes has a lower bound of the maximal write
