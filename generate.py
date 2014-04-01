@@ -59,12 +59,11 @@ if __name__ == '__main__':
     print cassandra.__version__ +"\n"
     try:
         random.seed(int(sys.argv[2]))
+        session.execute("use group3")
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
-        try: session.execute("use group3")
-        except: 
-            session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }")
-            session.execute("use group3")
+        session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }",timeout=None)
+        session.execute("use group3",timeout=None)
         random.seed(3333)
         with open("cdr_table.sql") as tables_setup:
             cols = tables_setup.read()
