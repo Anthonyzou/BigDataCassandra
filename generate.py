@@ -101,7 +101,7 @@ if __name__ == '__main__':
     print( "query built and prepared")
     
     days = 1
-    entriesPerDay = 100
+    entriesPerDay = 100000
     try:
         if int(sys.argv[1]) >= 1:
             days = int(sys.argv[1])
