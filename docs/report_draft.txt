@@ -204,10 +204,17 @@ Section 3: Theoretical Description
 
         -The above query will return something like this:
             
+             _______________
             |   C1  |   Ci  |
             +-------+-------+
 
-Section 4: Test Results
+Section 4: Implementation Details
+    -Shell script
+    -Cassandra CQL scripts
+    -Python data generation
+    -Logging software
+
+Section 5: Test Results
     -Insertion of data for the first test query: 
         -Amount of data written: 300k entries. 
         -Time taken: approximately 35 minutes.
@@ -230,17 +237,17 @@ Section 4: Test Results
            execution of search queries where GROUP BY is desired.
         2) Counter tables were also required. [LINEAR TIME?]
 
-Section 5: Experimental Results
+Section 6: Experimental Results
 
-Section 6: Conclusions
+Section 7: Conclusions
 
-Section 7: Notes on Possible Improvements
+Section 8: Notes on Possible Improvements
 
-Section 8: References Used
+Section 9: References Used
 
-Section 9: Illustration Credits
+Section 10: Illustration Credits
 
-Section 10: Special Thanks [Where should this go?]
+Section 11: Special Thanks [Where should this go?]
     -We would like to thank: 
         -Cybera for allowing us to use their servers.
         -Dr. Yuan (University of Alberta) for the project idea.
