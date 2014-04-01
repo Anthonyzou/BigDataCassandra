@@ -18,7 +18,7 @@ generate(){
 	read seed 
 	echo '		ENTER GENERATION DATA FILE'
 	read file
-	if[[-x "$seed"]]; then
+	if [ -n "$seed" ]; then
 		nohup python -W ignore generate.py "$amount" > misc/"$file" &
 	else
 		nohup python -W ignore generate.py "$amount" "$seed" > misc/"$file" &
