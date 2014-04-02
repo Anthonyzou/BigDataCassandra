@@ -12,22 +12,22 @@ echo '	setup this machine :			9'
 echo '\n\n'
 
 generate(){
-	echo '		ENETER DAYS to generate! 100000 entries are made per day'
+	echo '		ENETER DAYS to generate! 1000000 entries are made per day'
 	read amount
 	echo '		ENTER SEED or leave blank for default seed THIS WILL CLEAR THE SYSTEM'
 	read seed 
 	echo '		ENTER FILENAME for output'
 	read file
 	if [ -n "$seed" ]; then
-		nohup python -W ignore generate.py $amount $seed > misc/$file &
+		nohup python -W ignore generate.py $amount $seed > $file &
 	else
-		nohup python -W ignore generate.py $amount > misc/$file &
+		nohup python -W ignore generate.py $amount > $file &
 	fi
-	echo "output goes to misc/$file"
+	echo "output goes to $file"
 }
 generate_big(){
-	nohup python -W ignore generate.py 100 > misc/generation_data.txt &
-	echo 'data goes to misc/generation_data.txt'
+	nohup python -W ignore generate.py 100 > generation_data.txt &
+	echo 'data goes to generation_data.txt'
 }
 remote_generate(){
 	echo
@@ -40,8 +40,8 @@ remote_generate(){
 query(){
 	echo 'ENTER some filename for query output'
 	read file
-	nohup python -W ignore query.py > misc/$file &
-	echo "data goes to misc/$file"
+	nohup python -W ignore query.py > $file &
+	echo "data goes to $file"
 }
 
 remote_query(){
