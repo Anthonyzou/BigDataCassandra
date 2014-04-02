@@ -2,7 +2,7 @@ import cassandra
 from cassandra.cluster import Cluster
 import timeit
 
-cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+cluster = Cluster(['10.0.0.70', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
 
 session = cluster.connect('group3')  # keyspace should be our own
 

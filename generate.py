@@ -4,7 +4,7 @@ from cassandra.cluster import Cluster
 import random, sys
 import string
 import timeit
-
+import uuid
 
 def randword(length):
     return ''.join(random.choice(string.lowercase) for i in range(length))
@@ -27,6 +27,8 @@ def generate(label, element_type, frequency):
                     session.prepare("update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1")
                     .bind([result]))
             acluster += 1
+        elif label == "SEIZ_CELL_NUM_L":
+            result = uuid.uuid4()
         elif (label == "MONTH_DAY"):
             result = random.randint(1, 31)
             session.execute_async(
@@ -67,14 +69,14 @@ if __name__ == '__main__':
         session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }",timeout=None)
         session.execute("use group3",timeout=None)
         random.seed(seed)
-        with open("cdr_table.sql") as tables_setup:
+        with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM)) with clustering order by (city_id asc)"""
+                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc)"""
                              ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM)) with clustering order by (DUP_SEQ_NUM asc)"""
+                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc)"""
                               ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
                               ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
                               , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
@@ -84,7 +86,7 @@ if __name__ == '__main__':
                     print error
 
     # read table stuffs from sample table schema
-    with open("tablestuffs.txt") as tables_freq:
+    with open("tableFrequency.txt") as tables_freq:
         (labels, counts) = tables_freq
     labels = ast.literal_eval(labels)  # turn input into list correctly
     counts = ast.literal_eval(counts)  # turn input into list correctly
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     print( "query built and prepared")
     
     days = 1
-    entriesPerDay = 100000
+    entriesPerDay = 100
     try:
         if int(sys.argv[1]) >= 1:
             days = int(sys.argv[1])
@@ -124,4 +126,4 @@ if __name__ == '__main__':
         print error
 
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
-    print seed, "seed used"
+    print seed, "seed used", days, 'days generated'
