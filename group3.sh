@@ -1,5 +1,4 @@
 #!/bin/sh
-echo '\n\n'
 echo '	generate test data locally : 		1'
 echo '	generate data remotely : 		2 for development only'
 echo '	query locally : 			3'
@@ -9,7 +8,6 @@ echo '	ssh into instance 1 :			6'
 echo '	make zip :				7'
 echo '	generate 16TB locally :			8'
 echo '	setup this machine :			9'
-echo '\n\n'
 
 generate(){
 	echo '		ENETER DAYS to generate! 1000000 entries are made per day'

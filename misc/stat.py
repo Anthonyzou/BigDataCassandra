@@ -9,7 +9,8 @@ with open("partial_data_table1.txt") as pdt:
 with open("cdr_table.sql") as labelfile:
     labels = [line.strip().rstrip(',') for line in labelfile]
 labels = [label.split() for label in labels]
-
+print labels
+exit()
 # get counts of each column and plot the count
 count = [0] * len(stuff[0])
 for line in stuff:
@@ -18,8 +19,7 @@ for line in stuff:
             count[index] += 1
 labels, count = zip(*sorted(zip(labels, count), key=lambda e: -e[1]))
 
-print labels
-print count
+
 
 # plot stuffs
 #pl.bar(range(len(count)), count, label=labels)
