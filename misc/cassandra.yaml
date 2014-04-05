@@ -48,7 +48,7 @@ max_hints_delivery_threads: 2
 
 # Maximum throttle in KBs per second, total. This will be
 # reduced proportionally to the number of nodes in the cluster.
-batchlog_replay_throttle_in_kb: 5024
+batchlog_replay_throttle_in_kb: 100
 
 # The following setting populates the page cache on memtable flush and compaction
 # WARNING: Enable this setting only when the whole node's data fits in memory.
@@ -101,19 +101,19 @@ permissions_validity_in_ms: 2000
 #
 # See http://wiki.apache.org/cassandra/Operations for more on
 # partitioners and token selection.
-partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+partitioner: org.apache.cassandra.dht.OrderPreservingPartitioner
 
 # Directories where Cassandra should store data on disk.  Cassandra
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 data_file_directories:
-    -  /391volumn/group3/cassandra/data
+    -  /391bigvolumn/group3-data/cassandra/data
 
 # commit log
-commitlog_directory:  /391volumn/group3/cassandra/commitlog
+commitlog_directory:  /391bigvolumn/group3-data/cassandra/commitlog
 
 # saved caches
-saved_caches_directory:  /391volumn/group3/cassandra/saved_caches
+saved_caches_directory:  /391bigvolumn/group3-data/cassandra/saved_caches
 # policy for data disk failures:
 # stop: shut down gossip and Thrift, leaving the node effectively dead, but
 #       can still be inspected via JMX.
@@ -146,7 +146,7 @@ key_cache_size_in_mb:
 # has limited use.
 #
 # Default is 14400 or 4 hours.
-key_cache_save_period: 14400
+key_cache_save_period: 0
 
 # Number of keys from the key cache to save
 # Disabled by default, meaning all keys are going to be saved
@@ -156,7 +156,7 @@ key_cache_save_period: 14400
 # NOTE: if you reduce the size, you may not get you hottest keys loaded on startup.
 #
 # Default value is 0, to disable row caching.
-row_cache_size_in_mb: 0
+row_cache_size_in_mb: 10
 
 # Duration in seconds after which Cassandra should
 # safe the row cache. Caches are saved to saved_caches_directory as specified
@@ -195,7 +195,7 @@ row_cache_save_period: 0
 # performing the sync.
 #
 commitlog_sync: batch
-commitlog_sync_batch_window_in_ms: 500
+commitlog_sync_batch_window_in_ms: 1000
 #
 # the other option is "periodic" where writes may be acked immediately
 # and the CommitLog is simply synced every commitlog_sync_period_in_ms
@@ -241,7 +241,7 @@ seed_provider:
 # number of "concurrent_writes" is dependent on the number of cores in
 # your system; (8 * number_of_cores) is a good rule of thumb.
 concurrent_reads: 32
-concurrent_writes: 32
+concurrent_writes: 128
 
 # Total memory to use for sstable-reading buffers.  Defaults to
 # the smaller of 1/4 of heap or 512MB.
@@ -299,7 +299,7 @@ ssl_storage_port: 7001
 # address associated with the hostname (it might not be).
 #
 # Setting this to 0.0.0.0 is always wrong.
-listen_address: 10.0.0.31
+listen_address: localhost
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
@@ -393,7 +393,7 @@ rpc_server_type: hsha
 # internode_recv_buff_size_in_bytes:
 
 # Frame size for thrift (maximum message length).
-thrift_framed_transport_size_in_mb: 50000
+thrift_framed_transport_size_in_mb: 400000
 
 # Set to true to have Cassandra create a hard link to each sstable
 # flushed or streamed locally in a backups/ subdirectory of the
@@ -432,12 +432,12 @@ tombstone_failure_threshold: 100000
 # it to be small - at least if you do many partial-row reads - but all
 # the index data is read for each access, so you don't want to generate
 # that wastefully either.
-column_index_size_in_kb: 64
+column_index_size_in_kb: 128
 
 # Size limit for rows being compacted in memory.  Larger rows will spill
 # over to disk and use a slower two-pass compaction process.  A message
 # will be logged specifying the row key.
-in_memory_compaction_limit_in_mb: 64
+in_memory_compaction_limit_in_mb: 128
 
 # Number of simultaneous compactions to allow, NOT including
 # validation "compactions" for anti-entropy repair.  Simultaneous
@@ -457,7 +457,7 @@ in_memory_compaction_limit_in_mb: 64
 # This is usually only useful for SSD-based hardware: otherwise, 
 # your concern is usually to get compaction to do LESS i/o (see:
 # compaction_throughput_mb_per_sec), not more.
-multithreaded_compaction: true
+multithreaded_compaction: false
 
 # Throttles compaction to the given total throughput across the entire
 # system. The faster you insert data, the faster you need to compact in
@@ -465,12 +465,12 @@ multithreaded_compaction: true
 # 16 to 32 times the rate you are inserting data is more than sufficient.
 # Setting this to 0 disables throttling. Note that this account for all types
 # of compaction, including validation compaction.
-compaction_throughput_mb_per_sec: 32
+compaction_throughput_mb_per_sec: 0
 
 # Track cached row keys during compaction, and re-cache their new
 # positions in the compacted sstable.  Disable if you use really large
 # key caches.
-compaction_preheat_key_cache: true
+compaction_preheat_key_cache: false
 
 # Throttles all outbound streaming file transfers on this node to the
 # given total throughput in Mbps. This is necessary because Cassandra does
@@ -480,20 +480,20 @@ compaction_preheat_key_cache: true
 # stream_throughput_outbound_megabits_per_sec: 200
 
 # How long the coordinator should wait for read operations to complete
-read_request_timeout_in_ms: 50000000
+read_request_timeout_in_ms: 200000
 # How long the coordinator should wait for seq or index scans to complete
-range_request_timeout_in_ms: 100000000
+range_request_timeout_in_ms: 200000
 # How long the coordinator should wait for writes to complete
-write_request_timeout_in_ms: 20000000
+write_request_timeout_in_ms: 200000
 # How long a coordinator should continue to retry a CAS operation
 # that contends with other proposals for the same row
-cas_contention_timeout_in_ms: 10000000
+cas_contention_timeout_in_ms: 200000
 # How long the coordinator should wait for truncates to complete
 # (This can be much longer, because unless auto_snapshot is disabled
 # we need to flush first so we can snapshot before removing the data.)
-truncate_request_timeout_in_ms: 60000000
+truncate_request_timeout_in_ms: 200000
 # The default timeout for other, miscellaneous operations
-request_timeout_in_ms: 10000000
+request_timeout_in_ms: 200000
 
 # Enable operation timeout information exchange between nodes to accurately
 # measure request timeouts.  If disabled, replicas will assume that requests
@@ -510,7 +510,7 @@ cross_node_timeout: false
 # of the current file. This _can_ involve re-streaming an important amount of
 # data, so you should avoid setting the value too low.
 # Default value is 0, which never timeout streams.
-# streaming_socket_timeout_in_ms: 0
+streaming_socket_timeout_in_ms: 0
 
 # phi value that must be reached for a host to be marked down.
 # most users should never need to adjust this.
@@ -675,10 +675,10 @@ internode_compression: all
 # Disabling it will result in larger (but fewer) network packets being sent,
 # reducing overhead from the TCP protocol itself, at the cost of increasing
 # latency if you block for cross-datacenter responses.
-inter_dc_tcp_nodelay: false
+inter_dc_tcp_nodelay: true
 
 # Enable or disable kernel page cache preheating from contents of the key cache after compaction.
 # When enabled it would preheat only first "page" (4KB) of each row to optimize
 # for sequential access. Note: This could be harmful for fat rows, see CASSANDRA-4937
 # for further details on that topic.
-preheat_kernel_page_cache: true
+preheat_kernel_page_cache: false
