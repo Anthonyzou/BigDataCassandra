@@ -107,13 +107,13 @@ partitioner: org.apache.cassandra.dht.ByteOrderedPartitioner
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 data_file_directories:
-    -  /391volumn/group3-data/cassandra/data
+    -  /391bigvolumn/group3-data/cassandra/data
 
 # commit log
 commitlog_directory:  /tmp
 
 # saved caches
-saved_caches_directory:  /391volumn/group3-data/cassandra/saved_caches
+saved_caches_directory:  /391bigvolumn/group3-data/cassandra/saved_caches
 # policy for data disk failures:
 # stop: shut down gossip and Thrift, leaving the node effectively dead, but
 #       can still be inspected via JMX.
@@ -669,13 +669,13 @@ client_encryption_options:
 # can be:  all  - all traffic is compressed
 #          dc   - traffic between different datacenters is compressed
 #          none - nothing is compressed.
-internode_compression: all
+internode_compression: dc
 
 # Enable or disable tcp_nodelay for inter-dc communication.
 # Disabling it will result in larger (but fewer) network packets being sent,
 # reducing overhead from the TCP protocol itself, at the cost of increasing
 # latency if you block for cross-datacenter responses.
-inter_dc_tcp_nodelay: false
+inter_dc_tcp_nodelay: true
 
 # Enable or disable kernel page cache preheating from contents of the key cache after compaction.
 # When enabled it would preheat only first "page" (4KB) of each row to optimize

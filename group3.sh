@@ -66,7 +66,7 @@ setup(){
 	echo '	ENTER THIS MACHINES IP'
 	read input
 	ssh $input "rm -f apache-cassandra-2.0.6/conf/cassandra.yaml"
-	sed "s/localhost/$input/g" misc/cassandra.yaml | ssh $input "cat > apache-cassandra-2.0.6/conf/cassandra.yaml"
+	sed "s/localhost/$input/g" docs/cassandra.yaml | ssh $input "cat > apache-cassandra-2.0.6/conf/cassandra.yaml"
 	ssh $input
 }
 
