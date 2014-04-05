@@ -8,7 +8,7 @@ echo '	status :				5'
 echo '	ssh into instance 1 :			6'
 echo '	make zip :				7'
 echo '	generate 16TB locally :			8'
-echo '	setup this machine :			9'
+echo '	setup remote machine :			9'
 echo '\n\n'
 
 generate(){
@@ -63,11 +63,9 @@ zip(){
 }
 
 setup(){
-	curl http://www.apache.org/dyn/closer.cgi?path=/cassandra/2.0.6/apache-cassandra-2.0.6-bin.tar.gz | tar xf C $HOME
-	export PATH=$PATH:$HOME/apache-cassandra-2.0.6/bin
 	echo '	ENTER THIS MACHINES IP'
 	read input
-	sed "s/10.0.0.31/$input/g" misc/cassandra.yaml >> $HOME/apache-cassandra-2.0.6/conf/cassandra.yaml
+	sed "s/localhost/$input/g" misc/cassandra.yaml >> ssh $input "cat > apache-cassandra-2.0.6/conf/cassandra.yaml"
 }
 
 chmod 600 NebulaLaunchKey.pem
