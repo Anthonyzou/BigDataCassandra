@@ -152,7 +152,7 @@ Subsection 3.1: Data Generation
 
 
 
-Subsection 3.2: CQL Queries 
+Subsection 3.2: CQL Queries
 
     1)
 SELECT count (*) as ten_atomic
@@ -245,7 +245,7 @@ from GROUP_BY_MOBILE_ID_TYPE;
            constraints of Ahmdal's Law) due to the very even distribution of data across all 
            8 nodes. 
 
-           Updating counts is done in the following way:
+           Updating counter columns is done in the following way:
 
 update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1;
 
@@ -290,6 +290,8 @@ Section 4: Theoretical Description
             GROUP BY Ci;    -- Where 1 <= i <= n
 
         -The above query will return something like this: (where 1 <= j <= k <= m)
+
+        [TODO: Make a better illustration, but use LaTeX to do it]
             
             |  Ci  |  C1  |
             +------+------+
@@ -363,7 +365,7 @@ Section 7: Analysis and Discussion
             -Parallelism 'deteriorates' in efficiency when distribution is
              very uneven.
             -Maximal speedup is always a strict upper bound of 1/N.
-        -Impact of Cassandras lack of collision management:
+        -Impact of Cassandra's lack of collision management:
             -Many rows originally entered were overwritten with new rows, even 
              given the pseudo-random generation of primary key elements.
             -This may be due to: 
@@ -376,7 +378,6 @@ Section 7: Analysis and Discussion
                  more rows from being overwritten in the case of collisions.
 
 Section 8: Conclusions
-    -Cassandra 
 
 
 Section 9: Notes on Possible Improvements
@@ -398,7 +399,132 @@ Section 9: Notes on Possible Improvements
              incur a greater cost compared to going without, or generating something
              in constant time.
 
+        -Use of a higer replication factor. In our case, we discovered that using
+         replication factor of 3 helped with 'protecting' data.
 
 Section 10: References Used
+
+Agilent Technologies Inc (28 October, 2014), "Mobile Station Reported Pilot Information".
+    Available at: http://wireless.agilent.com/rfcomms/refdocs/cdma2k/c2kla_gen_ms_pilot_meas_report.html
+    Accessed: 10 March 2014.
+
+
+Apache Software Foundation (2004), "The Apache Licence, Version 2.0".
+    Available at: http://www.apache.org/licences/LICENCE-2.0
+    Accessed 7 March, 2014.
+
+Apache Software Foundation (10 March 2014), "Cassandra Query Language (CQL) v3.1.5".
+    Available at: http://cassandra.apache.org/doc/cql3/CQL.html
+    Accessed: 10 March 2014.
+
+Apache Software Foundation (15 November 2013), "UUID".
+    Available at: http://wiki.apache.org/cassandra/UUID
+    Accessed: 13 March 2014.
+
+
+DataStax Documentation (2014), "Cassandra Storage Basics".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/manage_dml_intro_c.html
+    Accessed 7 March, 2014.
+
+DataStax Documentation (2014), "The cassandra.yaml Configuration File".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/configuration/configCassandra_yaml_r.html 
+    Accessed 7 March, 2014.  
+
+DataStax Documentation (2014), "CLI keyspace and table storage configuration".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/reference/referenceStorage_r.html
+    Accessed: 10 March 2014.
+
+DataStax Inc. (2014), "UUID and timeuuid".
+    Available at: http://www.datastax.com/documentation/cql/3.0/cql/cql_reference/uuid_type_r.html
+    Accessed: 13 March 2014.
+
+DataStax Documentation (2014), "What's new in Cassandra 2.0".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/features/features_key_c.html
+    Accessed: 10 March 2014.
+
+DataStax Documentation (2014), "The Write Path to Compaction".
+    Available at: http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/dml_write_path_c.html
+    Accessed 7 March, 2014.
+
+
+Fowler, M. (9 January 2012), "NosqlDefinition".
+    Available at: http://martinfowler.com/bliki/NosqlDefinition.html
+    Accessed: 13 March 2014.
+
+Fowler, M. (16 November 2011), "PolyglotPersistence".
+    Available at: http://martinfowler.com/bliki/PolyglotPersistence.html
+    Accessed: 13 March 2014.
+
+Fowler, M. (7 January 2013), "Schemaless Data Structures".
+    Available at: http://martinfowler.com/tags/noSQL.html
+    Accessed: 14 March 2014.
+
+
+Grinev, M. (9 July 2010), "A Quick Introduction to the Cassandra Data Model".
+    Available at: http://maxgrinev.com/2010/07/09/a-quick-introduction-to-the-cassandra-data-model/
+    Accessed: 10 March 2014.
+
+Grinev, M. (12 July 2010), "Do You Really Need SQL to Do It All in Cassandra?".
+    Available at:  http://maxgrinev.com/2010/07/12/do-you-really-need-sql-to-do-it-all-in-cassandra/
+    Accessed: 10 March 2014.
+
+
+McFadin, P. (13 November 2012), "Cassandra Data Modeling Talk".
+    Available at: http://www.slideshare.net/patrickmcfadin/data-modeling-talk
+    Accessed: 13 March 2014.
+
+McFadin, P. (3 May 2013), "The Data Model is Dead, Long Live the Data Model!".
+    Available at: http://www.slideshare.net/patrickmcfadin/the-data-model-is-dead-long-live-the-data-model
+    Accessed: 14 March 2014.
+
+McFadin, P. (16 May 2013), "Become a Super Modeler".
+    Available at: http://www.slideshare.net/patrickmcfadin/become-a-super-modeler
+    Accessed: 14 March 2014.
+
+McFadin, P. (24 June 2013), "The World's Next Top Data Model".
+    Available at: http://www.slideshare.net/patrickmcfadin/the-worlds-next-top-data-model
+    Accessed: 14 March 2014.
+
+McFadin, P. (11 October 2013), "Cassandra 2.0: Better, Stronger Faster".
+    Available at: http://blog.imaginea.com/consistency-tuning-in-cassandra/
+    Accessed: 14 March 2014.
+
+McFadin, P. (17 February 2014), "Time Series with Apache Cassandra".
+    Available at: http://www.slideshare.net/patrickmcfadin/time-series-with-apache-cassandra-strata
+    Accessed: 13 March 2014.
+
+
+Oracle Inc. (Copyright 1996-2005), "Datatype Comparison Rules".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/sql_elements002.htm#i55214
+    Accessed: 10 March 2014.
+
+Oracle Inc (No date), "GROUP BY clause".
+    Available at: http://docs.oracle.com/javadb/10.6.1.0/ref/rrefsqlj32654.html
+    Accessed 7 March, 2014.
+
+Oracle Inc (No date), "ORDER BY clause".
+    Available at: http://docs.oracle.com/javadb/10.6.1.0/ref/rrefsqlj13658.html
+    Accessed: 10 March 2014.
+
+Oracle Inc (No date), "SelectExpression".
+    Available at: http://docs.oracle.com/javadb/10.6.1.0/ref/rrefselectexpression.html#rrefselectexpression
+    Accessed: 10 March 2014.
+
+Oracle Inc. (Copyright 1996-2005), "SYSDATE".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions172.htm
+    Accessed: 10 March 2014.
+
+Oracle Inc. (Copyright 1996-2005), "SYSTIMESTAMP".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions173.htm
+    Accessed: 10 March 2014.
+
+Oracle Inc. (Copyright 1996-2005), "TO_DATE".
+    Available at: http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions183.htm
+    Accessed: 10 March 2014.
+
+
+Saxena, S. (4 September 2013), "Consistency Tuning In Cassandra".
+    Available at: http://blog.imaginea.com/consistency-tuning-in-cassandra/
+    Accessed: 14 March 2014.
 
 

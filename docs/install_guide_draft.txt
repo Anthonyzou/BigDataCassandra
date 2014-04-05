@@ -60,15 +60,6 @@ Getting Cassandra
              them in. This wil probably require superuser privileges.
             -Follow the `make` instructions in the README.
 
-    On Microsoft Windows 8:
-        ????
-
-    On Microsoft Windows 7:
-        ????
-
-    On Microsoft Windows (Prior to Win7):
-        ????
-
     
 Getting cql 3.1.1:
     On Debian-Based GNU+Linux:
