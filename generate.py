@@ -52,27 +52,29 @@ if __name__ == '__main__':
     cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect() 
     
-    print cluster.metadata.cluster_name # keyspace should be our own
+    print cluster.metadata.cluster_name # cluster should be our own
+    print cluster.cql_version
     print cassandra.__version__ ,"\n"
+    exit()
     seed = 3333
     try:
         seed = int(sys.argv[2])
-        session.execute("use group3")
+        session.set_keyspace("group3")
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
         session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
                             AND durable_writes = false""",timeout=None)
-        session.execute("use group3",timeout=None)
+        session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                                 CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc) 
-                                and  compaction={'class': 'LeveledCompactionStrategy'} and compression={ 'sstable_compression':''} """
+                                and compression={ 'sstable_compression':''} """
                              ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                                 CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc) 
-                                and  compaction={'class': 'LeveledCompactionStrategy'} and compression={ 'sstable_compression':''} """
+                                and compression={ 'sstable_compression':''} """
                               ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
                               ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
                               , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
@@ -96,7 +98,7 @@ if __name__ == '__main__':
     
     try: days = int(sys.argv[1])
     except: days = 1
-    entriesPerDay = 100000
+    entriesPerDay = 100
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
