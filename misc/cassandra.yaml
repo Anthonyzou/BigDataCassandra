@@ -101,7 +101,7 @@ permissions_validity_in_ms: 2000
 #
 # See http://wiki.apache.org/cassandra/Operations for more on
 # partitioners and token selection.
-partitioner: org.apache.cassandra.dht.OrderPreservingPartitioner
+partitioner: org.apache.cassandra.dht.ByteOrderedPartitioner
 
 # Directories where Cassandra should store data on disk.  Cassandra
 # will spread data evenly across them, subject to the granularity of
