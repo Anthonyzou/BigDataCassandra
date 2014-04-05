@@ -3,6 +3,7 @@ CMPUT391-Big Data project
 
 ##Anthony , Jacqueline , Shenwei
 
+https://github.com/Anthonyzou/CMPUT391
 
 Populaing a call data record table with terrabytes of data and querying these records.
 
