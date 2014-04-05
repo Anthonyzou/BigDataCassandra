@@ -146,7 +146,7 @@ key_cache_size_in_mb:
 # has limited use.
 #
 # Default is 14400 or 4 hours.
-key_cache_save_period: 0
+key_cache_save_period: 10
 
 # Number of keys from the key cache to save
 # Disabled by default, meaning all keys are going to be saved
@@ -156,7 +156,7 @@ key_cache_save_period: 0
 # NOTE: if you reduce the size, you may not get you hottest keys loaded on startup.
 #
 # Default value is 0, to disable row caching.
-row_cache_size_in_mb: 10
+row_cache_size_in_mb: 0
 
 # Duration in seconds after which Cassandra should
 # safe the row cache. Caches are saved to saved_caches_directory as specified
@@ -299,7 +299,7 @@ ssl_storage_port: 7001
 # address associated with the hostname (it might not be).
 #
 # Setting this to 0.0.0.0 is always wrong.
-listen_address: localhost
+listen_address: 10.0.0.31
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
@@ -337,7 +337,7 @@ start_rpc: true
 # Note that unlike ListenAddress above, it is allowed to specify 0.0.0.0
 # here if you want to listen on all interfaces, but that will break clients 
 # that rely on node auto-discovery.
-rpc_address: localhost
+# rpc_address: localhost
 # port for Thrift to listen for clients on
 rpc_port: 9133
 
