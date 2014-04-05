@@ -16,9 +16,7 @@ def generate(label, element_type, frequency):
     global acluster
     global session
     global datadate
-    """ Generate an element value to insert. of arbitrary type, which is a null
-    value (1000-frequency)/1000 of the time
-    """
+
     # column-specific data
     if (label == "MOBILE_ID_TYPE"):  # pretend this is partition by cluster
         result = acluster % 8
@@ -96,26 +94,19 @@ if __name__ == '__main__':
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
     print( "query built and prepared")
     
-    days = 1
+    try: days = int(sys.argv[1])
+    except: days = 1
     entriesPerDay = 100000
-    try:
-        if int(sys.argv[1]) >= 1:
-            days = int(sys.argv[1])
-    except:
-        pass
     # example async insert into table
-    try:
-        for day in range(days):
-            for entry in range(entriesPerDay):
-                if entry == entriesPerDay:
-                    datadate += 86400 #increment one day 
-                build = []
-                for x in range(len(labels)):
-                    build.append(generate(labels[x][0], labels[x][1], counts[x]))
-                session.execute_async( prepared.bind(build))
-                session.execute_async( prepared2.bind(build))
-    except Exception as error:
-        print error
+    for day in range(days):
+        for entry in range(entriesPerDay):
+            if entry == entriesPerDay:
+                datadate += 86400 #increment one day 
+            build = []
+            for x in range(len(labels)):
+                build.append(generate(labels[x][0], labels[x][1], counts[x]))
+            session.execute_async( prepared.bind(build))
+            session.execute_async( prepared2.bind(build))
 
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
     print seed, "seed used", days, 'days generated'
