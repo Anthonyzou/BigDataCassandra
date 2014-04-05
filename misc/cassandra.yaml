@@ -110,7 +110,7 @@ data_file_directories:
     -  /391volumn/group3-data/cassandra/data
 
 # commit log
-commitlog_directory:  /391volumn/group3-data/cassandra/commitlog
+commitlog_directory:  /tmp
 
 # saved caches
 saved_caches_directory:  /391volumn/group3-data/cassandra/saved_caches
@@ -229,7 +229,7 @@ seed_provider:
       parameters:
           # seeds is actually a comma-delimited list of addresses.
           # Ex: "<ip1>,<ip2>,<ip3>"
-          - seeds: "127.0.0.1,10.0.0.31,10.0.0.38,10.0.0.53,10.0.0.159,10.0.0.161,10.0.0.162,10.0.0.54,10.0.0.70"
+          - seeds: "127.0.0.1,10.0.0.162,10.0.0.31"
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from
