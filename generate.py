@@ -1,6 +1,7 @@
 import ast
 import cassandra
 from cassandra.cluster import Cluster
+from cassandra.io.libevreactor import LibevConnection
 import random, sys
 import string
 import timeit
@@ -50,6 +51,7 @@ def generate(label, element_type, frequency):
 if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+    cluster.connection_class = LibevConnection
     session = cluster.connect() 
     
     print cluster.metadata.cluster_name # cluster should be our own
