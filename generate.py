@@ -51,22 +51,20 @@ def generate(label, element_type, frequency):
 
 if __name__ == '__main__':
     start_time = timeit.default_timer()
-    cluster = Cluster(['199.116.235.57', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
-    session = cluster.connect()  # keyspace should be our own
+    cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+    session = cluster.connect() 
     
-    print cluster.metadata.cluster_name
-    print cassandra.__version__ +"\n"
+    print cluster.metadata.cluster_name # keyspace should be our own
+    print cassandra.__version__ ,"\n"
     seed = 3333
     try:
         seed = int(sys.argv[2])
-        random.seed(seed)
         session.execute("use group3")
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
         session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
                             AND durable_writes = false""",timeout=None)
         session.execute("use group3",timeout=None)
-        random.seed(seed)
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
@@ -84,20 +82,14 @@ if __name__ == '__main__':
                     session.execute(setupcmd, timeout=None)
                 except Exception as error:
                     print error
-
+    random.seed(seed)
     # read table stuffs from sample table schema
     with open("tableFrequency.txt") as tables_freq:
         (labels, counts) = tables_freq
     labels = ast.literal_eval(labels)  # turn input into list correctly
     counts = ast.literal_eval(counts)  # turn input into list correctly
-    types = []
-
-    body = ""
-    # build columns
-    for i in labels:
-        body += i[0] + ","
-        types.append(i[1])
-    body = body[:-1] + ") VALUES (" + ("?," * (len(labels) - 1)) + "?)"
+    
+    body = "".join(i[0]+"," for i in labels)[:-1] + ") VALUES (" + ("?," * (len(labels) - 1)) + "?)"
     # remove last char
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
@@ -119,7 +111,7 @@ if __name__ == '__main__':
                     datadate += 86400 #increment one day 
                 build = []
                 for x in range(len(labels)):
-                    build.append(generate(labels[x][0], types[x], counts[x]))
+                    build.append(generate(labels[x][0], labels[x][1], counts[x]))
                 session.execute_async( prepared.bind(build))
                 session.execute_async( prepared2.bind(build))
     except Exception as error:

@@ -12,10 +12,11 @@ Populaing a call data record table with terrabytes of data and querying these re
 
 ## Using:
 
-**apache-cassandra-2.0.6**
+**apache-cassandra-2.0.6** - http://www.apache.org/dyn/closer.cgi?path=/cassandra/2.0.6/apache-cassandra-2.0.6-bin.tar.gz
 
 **python 2**
 
+**cassandra-driver** - https://github.com/datastax/python-driver
 
 ## Useful for development:
 
@@ -24,8 +25,5 @@ Populaing a call data record table with terrabytes of data and querying these re
 **PyDev** - http://pydev.org/updates
 
 
-**Python Pip**
-
-cassandra-driver
 
 

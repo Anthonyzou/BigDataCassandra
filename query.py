@@ -9,8 +9,8 @@ session = cluster.connect('group3')  # keyspace should be our own
 loop = False #turn this to true when you want to do looping queries for group by
 
 print cluster.metadata.cluster_name  # should make sure this is group3
-print cassandra.__version__
-print ""
+print cassandra.__version__,"\n"
+
 program_st = timeit.default_timer()
 #======================================================================
 # QUERY 1
