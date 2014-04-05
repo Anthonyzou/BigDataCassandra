@@ -55,7 +55,7 @@ if __name__ == '__main__':
     print cluster.metadata.cluster_name # cluster should be our own
     print cluster.cql_version
     print cassandra.__version__ ,"\n"
-    exit()
+    
     seed = 3333
     try:
         seed = int(sys.argv[2])
