@@ -98,7 +98,7 @@ if __name__ == '__main__':
     
     try: days = int(sys.argv[1])
     except: days = 1
-    entriesPerDay = 100
+    entriesPerDay = 100000
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
