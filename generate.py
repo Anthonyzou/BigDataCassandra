@@ -49,7 +49,7 @@ def generate(label, element_type, frequency):
         elif (element_type == "timestamp"):
             result = datadate
         else:
-            result = random.randint(0, 9900000)
+            result = random.randint(-4000000000, 4000000000)
     else:
         result = ""
     return result
@@ -68,7 +68,8 @@ if __name__ == '__main__':
         session.execute("use group3")
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
-        session.execute("CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 }",timeout=None)
+        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 }
+                        and durable_writes = false""",timeout=None)
         session.execute("use group3",timeout=None)
         random.seed(seed)
         with open("tableColumns.sql") as tables_setup:
@@ -101,20 +102,19 @@ if __name__ == '__main__':
                         stdin = subprocess.PIPE, stdout = subprocess.PIPE, shell=True)
     cdr.stdin.write("COPY cdr FROM STDIN;\n")
     
-    for x in range(len(labels)):
-        print labels[x][0], labels[x][1]
                 #datadate += 86400 #increment one day
-#     for i in range(days):
-#         for k in range(entriesPerDay):
-#             for x in range(len(labels)):
-#                 gen = str(generate(labels[x][0], labels[x][1], 1000))
-#                 if x < len(labels)-1:
-#                     gen += ","
-#                 cdr.stdin.write(gen)
-#             cdr.stdin.write("\n")
-#     cdr.stdin.write("\.\n")
-#     cdr.stdin.close()
-#     cdr.wait()
+    for i in range(days):
+        for k in range(entriesPerDay):
+            gen = ""
+            for x in range(len(labels)):
+                gen += str(generate(labels[x][0], labels[x][1], 1000))
+                if x < len(labels)-1:
+                    gen += ","
+            cdr.stdin.write(gen)
+            cdr.stdin.write("\n")
+    cdr.stdin.write("\.\n")
+    cdr.stdin.close()
+    cdr.wait()
 
  
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
