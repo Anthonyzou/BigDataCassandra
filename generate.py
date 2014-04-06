@@ -1,7 +1,7 @@
 import ast
 import cassandra
-from cassandra.cluster import Cluster
 from cassandra.io.libevreactor import LibevConnection
+from cassandra.cluster import Cluster
 import random, sys
 import string
 import timeit
@@ -44,7 +44,7 @@ def generate(label, element_type, frequency):
     elif (element_type == "timestamp"):
         result = datadate
     else:
-        result = random.randint(-4000000000, 4000000000)
+        result = random.randint(0, 9900000)
     return result
 
 
@@ -71,10 +71,12 @@ if __name__ == '__main__':
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc) """
+                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc) 
+                                and compression={ 'sstable_compression':''} """
                              ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
                                 MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc) """
+                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc) 
+                                and compression={ 'sstable_compression':''} """
                               ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
                               ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
                               , "create index on cdr (month_day)", "create index on cdr (MOBILE_ID_TYPE)"]:
