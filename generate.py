@@ -44,7 +44,7 @@ def generate(label, element_type, frequency):
     elif (element_type == "timestamp"):
         result = datadate
     else:
-        result = random.randint(0, 9900000)
+        result = random.randint(-4000000000, 4000000000)
     return result
 
 
