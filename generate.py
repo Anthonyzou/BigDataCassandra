@@ -13,25 +13,25 @@ def randword(length):
 acluster = 0
 datadate = 1385305327 #equal to 2013-11-24 08:02:07-0700
 session = None
+SEIZ_CELL_NUM_L = None
 def generate(label, element_type, frequency):
-    global acluster
-    global session
-    global datadate
+    global acluster, session, datadate, SEIZ_CELL_NUM_L
 
     # column-specific data
     if (label == "MOBILE_ID_TYPE"):  # pretend this is partition by cluster
         result = acluster % 8
         session.execute_async(
-                session.prepare("update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1")
-                .bind([result]))
+                session.prepare("insert into group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE, id) values (?,?)")
+                .bind([result, SEIZ_CELL_NUM_L]))
         acluster += 1
     elif label == "SEIZ_CELL_NUM_L":
         result = uuid.uuid4()
+        SEIZ_CELL_NUM_L = result
     elif (label == "MONTH_DAY"):
         result = random.randint(1, 31)
         session.execute_async(
-                session.prepare("update group_by_month set count = count + 1  where MONTH_DAY = ? and id = 1")
-                .bind([result]))
+                session.prepare("insert into group_by_month (MONTH_DAY, id) values (?,?)")
+                .bind([result, SEIZ_CELL_NUM_L]))
     elif (label == "LONGITUDE" or label == "LAST_LONGITUDE"):
         result = random.random() * 360 - 180
     elif (label == "LATITUDE" or label == "LAST_LATITUDE"):
@@ -79,13 +79,8 @@ if __name__ == '__main__':
                                 MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
                                 CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc) 
                                 and compression={ 'sstable_compression':''} """
-                              ,"CREATE TABLE Compressed_cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                                MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc,SERVICE_NODE_ID asc,RUM_DATA_NUM asc,
-                                MONTH_DAY asc,DUP_SEQ_NUM asc,MOBILE_ID_TYPE asc,SEIZ_CELL_NUM asc,FLOW_DATA_INC asc,SUB_HOME_INT_PRI asc,
-                                CON_OHM_NUM asc,SEIZ_CELL_NUM_L asc)"""
-                              ,"Create table group_by_month (id int, MONTH_DAY int, count counter, primary key (id,month_day)) with clustering order by (month_day asc)"
-                              ,"Create table group_by_MOBILE_ID_TYPE (id int,MOBILE_ID_TYPE int, count counter, primary key (id,MOBILE_ID_TYPE))with clustering order by (mobile_id_type asc)"
+                              ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
+                              ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                               , "create index on cdr (LONGITUDE)", "create index on cdr (LATITUDE)"
                                ]:
                 try:
@@ -104,7 +99,6 @@ if __name__ == '__main__':
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared2 = session.prepare("INSERT INTO query3 (" + body)
-    prepared3 = session.prepare("INSERT INTO compressed_cdr (" + body)
     print( "query built and prepared")
     
     try: days = int(sys.argv[1])
@@ -121,7 +115,6 @@ if __name__ == '__main__':
             try:
                 session.execute_async( prepared2.bind(build))
                 session.execute_async( prepared.bind(build))
-                session.execute_async( prepared3.bind(build))
             except:
                 pass
 
