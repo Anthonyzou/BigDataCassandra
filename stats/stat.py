@@ -6,7 +6,7 @@
 with open("partial_data_table1.txt") as pdt:
     stuff = [tuple(line.strip().split(";")) for line in pdt]
 
-with open("cdr_table.sql") as labelfile:
+with open("tableColumns.sql") as labelfile:
     labels = [line.strip().rstrip(',') for line in labelfile]
 labels = [label.split() for label in labels]
 
