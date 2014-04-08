@@ -65,7 +65,7 @@ if __name__ == '__main__':
     except: 
         session.execute("drop keyspace if exists group3", timeout=None)
         session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
-                            AND durable_writes = false""",timeout=None)
+                            """,timeout=None)
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
@@ -75,9 +75,11 @@ if __name__ == '__main__':
                                 MONTH_DAY asc,DUP_SEQ_NUM asc,MOBILE_ID_TYPE asc,SEIZ_CELL_NUM asc,FLOW_DATA_INC asc,SUB_HOME_INT_PRI asc,
                                 CON_OHM_NUM asc,SEIZ_CELL_NUM_L asc)
                                 and compression={ 'sstable_compression':''} """
-                             ,"CREATE TABLE query3(" + cols + """primary key(MSC_CODE ,DUP_SEQ_NUM ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                                MONTH_DAY ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (DUP_SEQ_NUM asc) 
+                             ,"CREATE TABLE query1(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
+                                MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
+                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (CITY_ID asc,SERVICE_NODE_ID asc,RUM_DATA_NUM asc,
+                                MONTH_DAY asc,DUP_SEQ_NUM asc,MOBILE_ID_TYPE asc,SEIZ_CELL_NUM asc,FLOW_DATA_INC asc,SUB_HOME_INT_PRI asc,
+                                CON_OHM_NUM asc,SEIZ_CELL_NUM_L asc) 
                                 and compression={ 'sstable_compression':''} """
                               ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                               ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
@@ -98,7 +100,7 @@ if __name__ == '__main__':
     # remove last char
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
-    prepared2 = session.prepare("INSERT INTO query3 (" + body)
+    prepared2 = session.prepare("INSERT INTO query1 (" + body)
     print( "query built and prepared")
     
     try: days = int(sys.argv[1])
