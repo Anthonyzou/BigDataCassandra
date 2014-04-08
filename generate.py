@@ -1,6 +1,5 @@
 import ast
 import cassandra
-from cassandra.io.libevreactor import LibevConnection
 from cassandra.cluster import Cluster
 import random, sys
 import string
@@ -51,7 +50,6 @@ def generate(label, element_type, frequency):
 if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
-    cluster.connection_class = LibevConnection
     session = cluster.connect() 
     
     print cluster.metadata.cluster_name # cluster should be our own
@@ -59,6 +57,12 @@ if __name__ == '__main__':
     print cassandra.__version__ ,"\n"
     
     seed = 3333
+        # read table stuffs from sample table schema
+    with open("tableFrequency.txt") as tables_freq:
+        (labels, counts) = tables_freq
+    labels = ast.literal_eval(labels)  # turn input into list correctly
+    counts = ast.literal_eval(counts)  # turn input into list correctly
+    
     try:
         seed = int(sys.argv[2])
         session.set_keyspace("group3")
@@ -69,18 +73,8 @@ if __name__ == '__main__':
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
-            for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                                MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (city_id asc,SERVICE_NODE_ID asc,RUM_DATA_NUM asc,
-                                MONTH_DAY asc,DUP_SEQ_NUM asc,MOBILE_ID_TYPE asc,SEIZ_CELL_NUM asc,FLOW_DATA_INC asc,SUB_HOME_INT_PRI asc,
-                                CON_OHM_NUM asc,SEIZ_CELL_NUM_L asc)
-                                and compression={ 'sstable_compression':''} """
-                             ,"CREATE TABLE query1(" + cols + """primary key(MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,
-                                MONTH_DAY ,DUP_SEQ_NUM ,MOBILE_ID_TYPE ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,
-                                CON_OHM_NUM,SEIZ_CELL_NUM_L)) with clustering order by (CITY_ID asc,SERVICE_NODE_ID asc,RUM_DATA_NUM asc,
-                                MONTH_DAY asc,DUP_SEQ_NUM asc,MOBILE_ID_TYPE asc,SEIZ_CELL_NUM asc,FLOW_DATA_INC asc,SUB_HOME_INT_PRI asc,
-                                CON_OHM_NUM asc,SEIZ_CELL_NUM_L asc) 
-                                and compression={ 'sstable_compression':''} """
+            for setupcmd in ["CREATE TABLE cdr(" + cols + "primary key(" + "".join(labels[i][0]+"," for i in range(100))[:-1] + """))
+                               with compression={ 'sstable_compression':''}"""
                               ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                               ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                               , "create index on cdr (LONGITUDE)", "create index on cdr (LATITUDE)"
@@ -90,17 +84,13 @@ if __name__ == '__main__':
                 except Exception as error:
                     print error
     random.seed(seed)
-    # read table stuffs from sample table schema
-    with open("tableFrequency.txt") as tables_freq:
-        (labels, counts) = tables_freq
-    labels = ast.literal_eval(labels)  # turn input into list correctly
-    counts = ast.literal_eval(counts)  # turn input into list correctly
+
     
     body = "".join(i[0]+"," for i in labels)[:-1] + ") VALUES (" + ("?," * (len(labels) - 1)) + "?)"
     # remove last char
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
-    prepared2 = session.prepare("INSERT INTO query1 (" + body)
+    
     print( "query built and prepared")
     
     try: days = int(sys.argv[1])
@@ -115,7 +105,6 @@ if __name__ == '__main__':
             for x in range(len(labels)):
                 build.append(generate(labels[x][0], labels[x][1], counts[x]))
             try:
-                session.execute_async( prepared2.bind(build))
                 session.execute_async( prepared.bind(build))
             except:
                 pass
