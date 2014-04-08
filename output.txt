@@ -1,0 +1,60 @@
+group3
+1.0.2.post 
+
+Row(ten_atomic=80)
+0.0214398026466  minutes elapsed for query 1
+
+Row(range_city_id=41)
+0.0152220686277  minutes elapsed for query 2
+
+Row(range_dup_seq_num=7)
+0.00544063250224  minutes elapsed for query 3
+
+Row(optimized_range_dup_seq_num=11)
+0.00479286909103  minutes elapsed for optimized query 3
+
+Row(mobile_id_type=0, count=784)
+Row(mobile_id_type=1, count=784)
+Row(mobile_id_type=2, count=783)
+Row(mobile_id_type=3, count=783)
+Row(mobile_id_type=4, count=783)
+Row(mobile_id_type=5, count=783)
+Row(mobile_id_type=6, count=783)
+Row(mobile_id_type=7, count=783)
+0.0129489898682 seconds elapsed for query 4 table
+
+Row(month_day=1, count=211)
+Row(month_day=2, count=204)
+Row(month_day=3, count=200)
+Row(month_day=4, count=221)
+Row(month_day=5, count=177)
+Row(month_day=6, count=190)
+Row(month_day=7, count=192)
+Row(month_day=8, count=198)
+Row(month_day=9, count=194)
+Row(month_day=10, count=192)
+Row(month_day=11, count=208)
+Row(month_day=12, count=223)
+Row(month_day=13, count=188)
+Row(month_day=14, count=199)
+Row(month_day=15, count=225)
+Row(month_day=16, count=205)
+Row(month_day=17, count=191)
+Row(month_day=18, count=219)
+Row(month_day=19, count=196)
+Row(month_day=20, count=258)
+Row(month_day=21, count=199)
+Row(month_day=22, count=204)
+Row(month_day=23, count=194)
+Row(month_day=24, count=210)
+Row(month_day=25, count=184)
+Row(month_day=26, count=193)
+Row(month_day=27, count=206)
+Row(month_day=28, count=200)
+Row(month_day=29, count=203)
+Row(month_day=30, count=189)
+Row(month_day=31, count=194)
+0.0122489929199 seoncds elapsed for query 5 table
+
+0.047316634655 minutes elapsed for program
+
