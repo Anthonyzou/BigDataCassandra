@@ -194,8 +194,8 @@ row_cache_save_period: 0
 # commitlog_sync_batch_window_in_ms milliseconds for other writes, before
 # performing the sync.
 #
-commitlog_sync: batch
-commitlog_sync_batch_window_in_ms: 10000
+# commitlog_sync: batch
+# commitlog_sync_batch_window_in_ms: 100000
 #
 # the other option is "periodic" where writes may be acked immediately
 # and the CommitLog is simply synced every commitlog_sync_period_in_ms
@@ -203,9 +203,9 @@ commitlog_sync_batch_window_in_ms: 10000
 # entries on the commitlog queue.  If you are writing very large blobs,
 # you should reduce that; 16*cores works reasonably well for 1MB blobs.
 # It should be at least as large as the concurrent_writes setting.
-# commitlog_sync: periodic
-# commitlog_sync_period_in_ms: 10000
-# commitlog_periodic_queue_size:
+commitlog_sync: periodic
+commitlog_sync_period_in_ms: 100000
+# commitlog_periodic_queue_size: 
 
 # The size of the individual commitlog file segments.  A commitlog
 # segment may be archived, deleted, or recycled once all the data
@@ -240,7 +240,7 @@ seed_provider:
 # On the other hand, since writes are almost never IO bound, the ideal
 # number of "concurrent_writes" is dependent on the number of cores in
 # your system; (8 * number_of_cores) is a good rule of thumb.
-concurrent_reads: 32
+concurrent_reads: 16
 concurrent_writes: 128
 
 # Total memory to use for sstable-reading buffers.  Defaults to
@@ -465,7 +465,7 @@ multithreaded_compaction: false
 # 16 to 32 times the rate you are inserting data is more than sufficient.
 # Setting this to 0 disables throttling. Note that this account for all types
 # of compaction, including validation compaction.
-compaction_throughput_mb_per_sec: 32
+compaction_throughput_mb_per_sec: 0
 
 # Track cached row keys during compaction, and re-cache their new
 # positions in the compacted sstable.  Disable if you use really large

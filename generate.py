@@ -71,8 +71,8 @@ if __name__ == '__main__':
         session.set_keyspace("group3")
     except: 
         session.execute("drop keyspace if exists group3")
-        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
-                            """)
+        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 } 
+                            AND durable_writes = false""")
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
@@ -105,9 +105,11 @@ if __name__ == '__main__':
             build = []
             for x in range(len(labels)):
                 build.append(generate(labels[x][0], labels[x][1], counts[x]))
-            session.execute_async( prepared.bind(build))
+            try :session.execute_async( prepared.bind(build))
+            except : pass
             
-    session.execute("create index on cdr (MONTH_DAY)")
+    session.execute_async("create index on cdr (MONTH_DAY)")
     session.execute( "create index on cdr (MOBILE_ID_TYPE)")
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
     print seed, "seed used", days, 'days generated'
+    
