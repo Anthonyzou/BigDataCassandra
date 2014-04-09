@@ -6,8 +6,7 @@ import string
 import timeit
 import uuid
 
-def randword(length):
-    return ''.join(random.choice(string.lowercase) for i in range(length))
+def randword(length): return ''.join(random.choice(string.lowercase) for i in range(length))
 
 acluster = 0
 datadate = 1385305327 #equal to 2013-11-24 08:02:07-0700
@@ -51,6 +50,10 @@ if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
     session = cluster.connect() 
+    cluster.compression = False
+    cluster.max_schema_agreement_wait = 60
+    cluster.control_connection_timeout = 60
+    cluster.default_timeout = None
     
     print cluster.metadata.cluster_name # cluster should be our own
     print cluster.cql_version
@@ -67,22 +70,20 @@ if __name__ == '__main__':
         seed = int(sys.argv[2])
         session.set_keyspace("group3")
     except: 
-        session.execute("drop keyspace if exists group3", timeout=None)
+        session.execute("drop keyspace if exists group3")
         session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
-                            """,timeout=None)
+                            """)
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
-            for setupcmd in ["CREATE TABLE cdr(" + cols + "primary key(" + "".join(labels[i][0]+"," for i in range(100))[:-1] + """))
-                               with compression={ 'sstable_compression':''}"""
+            for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+                                ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+                                SESS_SFC, CFC)) with compression={ 'sstable_compression':''}"""
                               ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                               ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
-                              , "create index on cdr (LONGITUDE)", "create index on cdr (LATITUDE)"
-                               ]:
-                try:
-                    session.execute(setupcmd, timeout=None)
-                except Exception as error:
-                    print error
+                            ]:
+                try:session.execute(setupcmd)
+                except Exception as error: print error
     random.seed(seed)
 
     
@@ -95,7 +96,7 @@ if __name__ == '__main__':
     
     try: days = int(sys.argv[1])
     except: days = 1
-    entriesPerDay = 10000
+    entriesPerDay = 20000
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
@@ -104,10 +105,9 @@ if __name__ == '__main__':
             build = []
             for x in range(len(labels)):
                 build.append(generate(labels[x][0], labels[x][1], counts[x]))
-            try:
-                session.execute_async( prepared.bind(build))
-            except:
-                pass
-
+            session.execute_async( prepared.bind(build))
+            
+    session.execute("create index on cdr (MONTH_DAY)")
+    session.execute( "create index on cdr (MOBILE_ID_TYPE)")
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
     print seed, "seed used", days, 'days generated'
