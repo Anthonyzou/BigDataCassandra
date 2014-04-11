@@ -1,4 +1,4 @@
-# Cassandra storage config YAML 
+# Cassandra storage config YAML
 
 # NOTE:
 #   See http://wiki.apache.org/cassandra/StorageConfiguration for
@@ -19,13 +19,13 @@ cluster_name: 'group3'
 #
 # Specifying initial_token will override this setting.
 #
-# If you already have a cluster with 1 token per node, and wish to migrate to 
+# If you already have a cluster with 1 token per node, and wish to migrate to
 # multiple tokens per node, see http://wiki.apache.org/cassandra/Operations
 num_tokens: 256
 
 # initial_token allows you to specify tokens manually.  While you can use # it with
-# vnodes (num_tokens > 1, above) -- in which case you should provide a 
-# comma-separated list -- it's primarily used when adding nodes # to legacy clusters 
+# vnodes (num_tokens > 1, above) -- in which case you should provide a
+# comma-separated list -- it's primarily used when adding nodes # to legacy clusters
 # that do not have vnodes enabled.
 # initial_token: 0
 
@@ -85,7 +85,7 @@ permissions_validity_in_ms: 2000
 # own as long as it is on the classpath.  Out of the box, Cassandra
 # provides org.apache.cassandra.dht.{Murmur3Partitioner, RandomPartitioner
 # ByteOrderedPartitioner, OrderPreservingPartitioner (deprecated)}.
-# 
+#
 # - RandomPartitioner distributes rows across the cluster evenly by md5.
 #   This is the default prior to 1.2 and is retained for compatibility.
 # - Murmur3Partitioner is similar to RandomPartioner but uses Murmur3_128
@@ -107,13 +107,13 @@ partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 data_file_directories:
-    -  /391volumn/group3-data/cassandra/data
+    -  /local/scratch/cassandradata/data
 
 # commit log
-commitlog_directory:  /391volumn/group3-data/cassandra/commitlog
+commitlog_directory:  /local/scratch/cassandradata/commitlog
 
 # saved caches
-saved_caches_directory:  /391volumn/group3-data/cassandra/saved_caches
+saved_caches_directory:  /local/scratch/cassandradata/saved_caches
 # policy for data disk failures:
 # stop: shut down gossip and Thrift, leaving the node effectively dead, but
 #       can still be inspected via JMX.
@@ -177,7 +177,7 @@ row_cache_save_period: 0
 # well as caches.  Experiments show that JEMAlloc saves some memory
 # than the native GCC allocator (i.e., JEMalloc is more
 # fragmentation-resistant).
-# 
+#
 # Supported values are: NativeAllocator, JEMallocAllocator
 #
 # If you intend to use JEMallocAllocator you have to install JEMalloc as library and
@@ -188,7 +188,7 @@ row_cache_save_period: 0
 
 
 
-# commitlog_sync may be either "periodic" or "batch." 
+# commitlog_sync may be either "periodic" or "batch."
 # When in batch mode, Cassandra won't ack writes until the commit log
 # has been fsynced to disk.  It will wait up to
 # commitlog_sync_batch_window_in_ms milliseconds for other writes, before
@@ -205,12 +205,12 @@ row_cache_save_period: 0
 # It should be at least as large as the concurrent_writes setting.
 commitlog_sync: periodic
 commitlog_sync_period_in_ms: 100000
-# commitlog_periodic_queue_size: 
+# commitlog_periodic_queue_size:
 
 # The size of the individual commitlog file segments.  A commitlog
 # segment may be archived, deleted, or recycled once all the data
 # in it (potentially from each columnfamily in the system) has been
-# flushed to sstables.  
+# flushed to sstables.
 #
 # The default size is 32, which is almost always fine, but if you are
 # archiving commitlog segments (see commitlog_archiving.properties),
@@ -221,7 +221,7 @@ commitlog_segment_size_in_mb: 32
 # any class that implements the SeedProvider interface and has a
 # constructor that takes a Map<String, String> of parameters will do.
 seed_provider:
-    # Addresses of hosts that are deemed contact points. 
+    # Addresses of hosts that are deemed contact points.
     # Cassandra nodes use this list of hosts to find each other and learn
     # the topology of the ring.  You must change this if you are running
     # multiple nodes!
@@ -229,7 +229,7 @@ seed_provider:
       parameters:
           # seeds is actually a comma-delimited list of addresses.
           # Ex: "<ip1>,<ip2>,<ip3>"
-          - seeds: "127.0.0.1,10.0.0.161"
+          - seeds: "127.0.0.1,um08.cs.ualberta.ca"
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from
@@ -240,7 +240,7 @@ seed_provider:
 # On the other hand, since writes are almost never IO bound, the ideal
 # number of "concurrent_writes" is dependent on the number of cores in
 # your system; (8 * number_of_cores) is a good rule of thumb.
-concurrent_reads: 16
+concurrent_reads: 32
 concurrent_writes: 128
 
 # Total memory to use for sstable-reading buffers.  Defaults to
@@ -292,7 +292,7 @@ ssl_storage_port: 7001
 # Address to bind to and tell other Cassandra nodes to connect to. You
 # _must_ change this if you want multiple nodes to be able to
 # communicate!
-# 
+#
 # Leaving it blank leaves it up to InetAddress.getLocalHost(). This
 # will always do the Right Thing _if_ the node is properly configured
 # (hostname, name resolution, etc), and the Right Thing is to use the
@@ -303,7 +303,7 @@ listen_address: localhost
 
 # Address to broadcast to other Cassandra nodes
 # Leaving this blank will set it to the same value as listen_address
-#broadcast_address: 
+#broadcast_address:
 
 # Internode authentication backend, implementing IInternodeAuthenticator;
 # used to allow/disallow connections from peer nodes.
@@ -335,7 +335,7 @@ start_rpc: true
 # (i.e. it will be based on the configured hostname of the node).
 #
 # Note that unlike ListenAddress above, it is allowed to specify 0.0.0.0
-# here if you want to listen on all interfaces, but that will break clients 
+# here if you want to listen on all interfaces, but that will break clients
 # that rely on node auto-discovery.
 rpc_address: 127.0.0.1
 # port for Thrift to listen for clients on
@@ -408,7 +408,7 @@ incremental_backups: false
 snapshot_before_compaction: false
 
 # Whether or not a snapshot is taken of the data before keyspace truncation
-# or dropping of column families. The STRONGLY advised default of true 
+# or dropping of column families. The STRONGLY advised default of true
 # should be used to provide data safety. If you set this flag to false, you will
 # lose data on truncation or drop.
 auto_snapshot: false
@@ -454,7 +454,7 @@ in_memory_compaction_limit_in_mb: 64
 
 # Multi-threaded compaction. When enabled, each compaction will use
 # up to one thread per core, plus one thread per sstable being merged.
-# This is usually only useful for SSD-based hardware: otherwise, 
+# This is usually only useful for SSD-based hardware: otherwise,
 # your concern is usually to get compaction to do LESS i/o (see:
 # compaction_throughput_mb_per_sec), not more.
 multithreaded_compaction: false
@@ -471,13 +471,13 @@ compaction_throughput_mb_per_sec: 0
 # positions in the compacted sstable.  Disable if you use really large
 # key caches.
 compaction_preheat_key_cache: false
-
+commit_failure_policy: ignore
 # Throttles all outbound streaming file transfers on this node to the
 # given total throughput in Mbps. This is necessary because Cassandra does
 # mostly sequential IO when streaming data during bootstrap or repair, which
 # can lead to saturating the network connection and degrading rpc performance.
 # When unset, the default is 200 Mbps or 25 MB/s.
-# stream_throughput_outbound_megabits_per_sec: 200
+stream_throughput_outbound_megabits_per_sec: 20000
 
 # How long the coordinator should wait for read operations to complete
 read_request_timeout_in_ms: 1000000
@@ -498,7 +498,7 @@ request_timeout_in_ms: 1000000
 # Enable operation timeout information exchange between nodes to accurately
 # measure request timeouts.  If disabled, replicas will assume that requests
 # were forwarded to them instantly by the coordinator, which means that
-# under overload conditions we will waste that much extra time processing 
+# under overload conditions we will waste that much extra time processing
 # already-timed-out requests.
 #
 # Warning: before enabling this property make sure to ntp is installed
@@ -569,7 +569,7 @@ endpoint_snitch: SimpleSnitch
 
 # controls how often to perform the more expensive part of host score
 # calculation
-dynamic_snitch_update_interval_in_ms: 100 
+dynamic_snitch_update_interval_in_ms: 100
 # controls how often to reset all host scores, allowing a bad host to
 # possibly recover
 dynamic_snitch_reset_interval_in_ms: 600000
@@ -599,7 +599,7 @@ request_scheduler: org.apache.cassandra.scheduler.NoScheduler
 # NoScheduler - Has no options
 # RoundRobin
 #  - throttle_limit -- The throttle_limit is the number of in-flight
-#                      requests per client.  Requests beyond 
+#                      requests per client.  Requests beyond
 #                      that limit are queued up until
 #                      running requests can complete.
 #                      The value of 80 here is twice the number of
