@@ -48,7 +48,7 @@ def generate(label, element_type, frequency):
 
 if __name__ == '__main__':
     start_time = timeit.default_timer()
-    cluster = Cluster(['10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+    cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
     session = cluster.connect() 
     cluster.compression = False
     cluster.max_schema_agreement_wait = 60

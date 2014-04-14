@@ -40,7 +40,7 @@ max_hint_window_in_ms: 10800000 # 3 hours
 # are two nodes in the cluster, each delivery thread will use the maximum
 # rate; if there are three, each will throttle to half of the maximum,
 # since we expect two nodes to be delivering hints simultaneously.)
-hinted_handoff_throttle_in_kb: 1024
+hinted_handoff_throttle_in_kb: 1
 # Number of threads with which to deliver hints;
 # Consider increasing this number when you have multi-dc deployments, since
 # cross-dc handoff tends to be slower
@@ -48,7 +48,7 @@ max_hints_delivery_threads: 2
 
 # Maximum throttle in KBs per second, total. This will be
 # reduced proportionally to the number of nodes in the cluster.
-batchlog_replay_throttle_in_kb: 5024
+batchlog_replay_throttle_in_kb: 1
 
 # The following setting populates the page cache on memtable flush and compaction
 # WARNING: Enable this setting only when the whole node's data fits in memory.
@@ -107,13 +107,13 @@ partitioner: org.apache.cassandra.dht.Murmur3Partitioner
 # will spread data evenly across them, subject to the granularity of
 # the configured compaction strategy.
 data_file_directories:
-    -  /local/scratch/cassandradata/data
+    -  /myvolumn/group3-data/cassandradata/data
 
 # commit log
-commitlog_directory:  /local/scratch/cassandradata/commitlog
+commitlog_directory:  /myvolumn/group3-data/cassandradata/commitlog
 
 # saved caches
-saved_caches_directory:  /local/scratch/cassandradata/saved_caches
+saved_caches_directory:  /myvolumn/group3-data/cassandradata/saved_caches
 # policy for data disk failures:
 # stop: shut down gossip and Thrift, leaving the node effectively dead, but
 #       can still be inspected via JMX.
@@ -121,7 +121,7 @@ saved_caches_directory:  /local/scratch/cassandradata/saved_caches
 #              remaining available sstables.  This means you WILL see obsolete
 #              data at CL.ONE!
 # ignore: ignore fatal errors and let requests fail, as in pre-1.2 Cassandra
-disk_failure_policy: stop
+disk_failure_policy: best_effort
 
 # Maximum size of the key cache in memory.
 #
@@ -229,7 +229,7 @@ seed_provider:
       parameters:
           # seeds is actually a comma-delimited list of addresses.
           # Ex: "<ip1>,<ip2>,<ip3>"
-          - seeds: "127.0.0.1,um08.cs.ualberta.ca"
+          - seeds: "127.0.0.1,10.1.0.105"
 
 # For workloads with more data than can fit in memory, Cassandra's
 # bottleneck will be reads that need to fetch data from

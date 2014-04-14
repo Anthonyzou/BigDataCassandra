@@ -51,15 +51,15 @@ remote_query(){
 }
 
 instance1(){
-	ssh -x -i NebulaLaunchKey.pem group3@199.116.235.57
+	ssh -x -i NebulaLaunchKey.pem group3@199.116.235.55
 }
 
 status(){
-	ssh -i NebulaLaunchKey.pem group3@199.116.235.57 "apache-cassandra-2.0.6/bin/nodetool status"
+	ssh -i NebulaLaunchKey.pem group3@199.116.235.55 "apache-cassandra-2.0.6/bin/nodetool status"
 }
 
 zip(){
-	tar -cv docs query.py misc group3.sh generate.py cdr_table.sql tablestuffs.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
+	tar -cv docs query.py stats docs group3.sh generate.py tableColumns.sql tableFrequency.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
 }
 
 setup(){
