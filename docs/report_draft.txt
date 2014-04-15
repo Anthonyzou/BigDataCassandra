@@ -94,16 +94,24 @@ Subsection 3.1: Data Generation
         -Only nodes with this name can join the cluser.
 
     -Shell script
-        -To run: sh group3.sh
+        -To run, enter into the directory containing group3.sh, and enter the 
+         following in a bash compatible terminal emulator: `sh group3.sh`
         -Set up to be able to run multiple instances and then send the output
          to an output file.
         -To generate data: follow the prompts by entering option numbers.
 
     -Table schema
+        -Replication factor set to 1.
+        -Compression factor set to 0.
+        -Keyspace is called "group3".
         -"CDR"
-            -Exactly 100 columns.
+            -Exactly 400 columns.
             -Numbers range from 0 to 9.9 million for all integers.
             -Has 10 column keys and 1 partition key.
+        -Indexes:
+            -"MONTH_DAY"
+            -"MOBILE_ID_TYPE"
+
         -"QUERY3"
             -Contains the same data, but the column keys are ordered MSC_CODE first in
              an attempt to optimize for range-queries based on values of those column keys.
@@ -154,16 +162,19 @@ Subsection 3.1: Data Generation
 
 Subsection 3.2: CQL Queries
 
-    1)
-SELECT count (*) as ten_atomic
-FROM cdr 
-WHERE 
-(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SEIZ_CELL_NUM,FLOW_DATA_INC,SUB_HOME_INT_PRI,CON_OHM_NUM) 
-> (10000,10000,10000,3,10000,1,10000,10000,10000,10000)
-AND (CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM,MOBILE_ID_TYPE,SEIZ_CELL_NUM,FLOW_DATA_INC,SUB_HOME_INT_PRI,CON_OHM_NUM) 
-< (150000,150000,150000,30,150000,8,150000,150000,150000,150000)
-LIMIT 40000000
+1) Query 1
+---STARTCODE---
+SELECT  count (*) as ten_atomic
+FROM    cdr 
+WHERE       (MSC_CODE, CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, 
+            SEIZ_CELL_NUM, FLOW_DATA_INC, SUB_HOME_INT_PRI, CON_OHM_NUM, SESS_SFC) 
+            > (10000,10000,10000,3,10000,1,10000,10000,10000,10000)
+        AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, SEIZ_CELL_NUM, 
+            FLOW_DATA_INC, SUB_HOME_INT_PRI ,CON_OHM_NUM, SESS_SFC) 
+            < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
+LIMIT   40000000
 ALLOW FILTERING;
+----ENDCODE----
 
            Cluster-wide range query with 10 atomic formulas. Searches on every column key of the
            CDR table, as this is the only conceivable way to properly execute a range query.
@@ -175,13 +186,15 @@ ALLOW FILTERING;
            10%. In other words, any 'extreme' data points in the CDR table can be ignored for
            statistical analysis.
 
-        2)
-SELECT count (*) as range_city_id
-FROM cdr
-WHERE
-CITY_ID > 5000 AND CITY_ID < 90000
-LIMIT 40000000
+2) Query 2
+
+---STARTCODE---
+SELECT  count (*) as range_city_id
+FROM    cdr
+WHERE   CITY_ID > 5000 AND CITY_ID < 90000
+LIMIT   40000000
 ALLOW FILTERING;
+----ENDCODE----
 
            Satisfies two requirements: cluster-wide and range query. Retrieves the number of
            cdr entries for cities with IDs strictly greater than 5000 and strictly less than
@@ -193,16 +206,19 @@ ALLOW FILTERING;
            have any major features in common, this query can be used in cases where only a small
            sample of all cities is required.
 
-        3) 
-SELECT count(*) as range_DUP_SEQ_NUM
-FROM cdr
-WHERE 
-(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
->(0,0,0,0,30000) AND
-(CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM,MONTH_DAY,DUP_SEQ_NUM)
-<(9900000,9900000,9900000,9900000,300000)
+3) Query 3
+
+---STARTCODE---
+SELECT  count(*) as range_DUP_SEQ_NUM
+FROM    cdr
+WHERE       (CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, MONTH_DAY, DUP_SEQ_NUM)
+            > (0, 0, 0, 0, 30000) 
+        AND
+            (CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, MONTH_DAY, DUP_SEQ_NUM)
+            < (9900000, 9900000, 9900000, 9900000, 300000)
 LIMIT 40000000
 ALLOW FILTERING;
+----ENDCODE----
 
            Satsifies two requirements: cluster-wide and range query. Counts the number of cdr
            entries such that DUP_SEQ_NUM is strictly greater than 30000 and strictly less than
@@ -220,9 +236,12 @@ ALLOW FILTERING;
            of privacy. This could address questions such as "do people with more privacy make
            certain types of calls compared to people who do not?".
 
-        4)
-SELECT MOBILE_ID_TYPE,count
-from GROUP_BY_MOBILE_ID_TYPE;
+4) Query 4
+
+---STARTCODE---
+SELECT  MOBILE_ID_TYPE,count
+FROM    GROUP_BY_MOBILE_ID_TYPE;
+----ENDCODE----
 
            Satisfies two requirements: group-by + order-by clause, and cluster-wide query.
 
@@ -247,14 +266,20 @@ from GROUP_BY_MOBILE_ID_TYPE;
 
            Updating counter columns is done in the following way:
 
+---STARTCODE---
 update group_by_MOBILE_ID_TYPE set count = count + 1  where MOBILE_ID_TYPE = ? and id = 1;
+----ENDCODE----
 
            Potential uses: Most likely for the generation of histograms, but other basic
            kinds of statistical analysis can be performed on these small MOBILE_ID_TYPE 
            'buckets' as well, such as calculating arithmetic averages, etc.
 
-        5) 
-SELECT month_day, count FROM group_by_month;
+5) Query 5
+
+---STARTCODE---
+SELECT  month_day, count 
+FROM    group_by_month;
+----ENDCODE----
 
            Satisfies the group-by + order-by clause requirements. 
            'CLUSTERING ORDER BY (MONTH_DAY)' ensures that the GROUP_BY_MONTHs entries are ordered
@@ -388,7 +413,7 @@ Section 9: Notes on Possible Improvements
     -For increased query execution time efficiency:
         -Increasing the number of smaller tables...? More data tables for the same
          data set but with fewer columns in each to make optimizing for queries easier(?)
-        -
+        -Decreasing the replication factor to 1.
 
     -For increased data protection:
         -Potential use of UUIDs to increase uniqueness of primary keys so as
@@ -400,7 +425,8 @@ Section 9: Notes on Possible Improvements
              in constant time.
 
         -Use of a higer replication factor. In our case, we discovered that using
-         replication factor of 3 helped with 'protecting' data.
+         replication factor of 3 helped with 'protecting' data. However, this slows
+         reads considerably.
 
 Section 10: References Used
 
