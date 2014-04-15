@@ -71,16 +71,17 @@ if __name__ == '__main__':
         session.set_keyspace("group3")
     except: 
         session.execute("drop keyspace if exists group3")
-        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 1 } 
+        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 2 } 
                             AND durable_writes = false""")
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
             cols = tables_setup.read()
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
-                                ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
-                                SESS_SFC, CFC)) with compression={ 'sstable_compression':''}"""
-                              ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
-                              ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
+                             ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+                             SESS_SFC, CFC,SM_CONUT1, SM_CONUT2 ,SM_CONUT3 ,SM_CONUT4 ,SM_CONUT5 ,SM_CONUT6 )) 
+                             with compression={ 'sstable_compression':''}"""
+                             ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
+                             ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                             ]:
                 try:session.execute(setupcmd)
                 except Exception as error: print error
@@ -96,7 +97,7 @@ if __name__ == '__main__':
     
     try: days = int(sys.argv[1])
     except: days = 1
-    entriesPerDay = 20000
+    entriesPerDay = 10000
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
@@ -105,11 +106,12 @@ if __name__ == '__main__':
             build = []
             for x in range(len(labels)):
                 build.append(generate(labels[x][0], labels[x][1], counts[x]))
-            try :session.execute_async( prepared.bind(build))
+            try:
+                session.execute_async( prepared.bind(build))
             except : pass
             
     session.execute_async("create index on cdr (MONTH_DAY)")
-    session.execute( "create index on cdr (MOBILE_ID_TYPE)")
+    session.execute("create index on cdr (MOBILE_ID_TYPE)")
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
     print seed, "seed used", days, 'days generated'
     
