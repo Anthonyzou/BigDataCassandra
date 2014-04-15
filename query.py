@@ -2,7 +2,7 @@ import cassandra
 from cassandra.cluster import Cluster
 import timeit
 
-cluster = Cluster(['10.0.0.70', '10.0.0.31', '10.0.0.38', '127.0.0.1'], port=9233)
+cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
 cluster.default_timeout = None
 session = cluster.connect('group3')  # keyspace should be our own
 
@@ -56,7 +56,7 @@ SELECT count(*) as range_DUP_SEQ_NUM
 FROM cdr
 WHERE 
 (MSC_CODE ,CITY_ID,SERVICE_NODE_ID,RUM_DATA_NUM ,DUP_SEQ_NUM )
->(0,0,0,0,3000) AND
+>(0,0,0,0,10000) AND
 (MSC_CODE ,CITY_ID,SERVICE_NODE_ID ,RUM_DATA_NUM ,DUP_SEQ_NUM)
 <(9900,9900,9900,9900,30000)
 LIMIT 40000000
@@ -83,7 +83,8 @@ print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4
 # QUERY 5
 #======================================================================
 query = """
-SELECT month_day, count FROM group_by_month
+SELECT month_day, count 
+FROM group_by_month
 """
 start_time = timeit.default_timer()
 
