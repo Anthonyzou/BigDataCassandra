@@ -10,55 +10,85 @@ Section 0: Introduction to Cassandra
         -"Not Only SQL". But what does this mean?
             -Any database system which does not strictly conform to the
              relational database model. We may have any one of the following:
-                -Does not meet all "ACID" properties.
+                -Does not meet all "ACID" properties. Instead, we have "BASE":
+                    -Basically Available (BA),
+                    -Soft-state (S),
+                    -Eventually consistent (E).
                 -May store data in a fashion other than a strictly
                  relational set of tables.
 
     -Why NoSQL?
-        -We have some BIG data to deal with (several TB), and growing!
-        -Big Data implies distribution;
-        -Distribution implies CAP theorem;
-        -CAP theorem implies compromises!
+        -We have some BIG data to deal with (several TB as a lower bound), and growing!
+            -Big Data implies distribution (partitioning and or sharding);
+        -Sometimes it is more important to repeat the same 'simple' types of queries over
+         very large datasets, rather than having the ability to write 'complicated' queries
+         which are to be executed only a handful of times.
+            -Obviously this is a grey-area. Here are two different example scenarios with very
+             different requirements:
+                -Calculating a very specific statistic over a dataset that is fixed in size
+                 and requires little to no updates is best facilitated by traditional relational
+                 database system. For instance, analyzing the performance of major-league 
+                 American baseball players between the years of 1970 and 1980.
+                -Calculating the number of connections between members of a large, dynamic
+                 social networking website to find the number of "friends", "guild members",
+                 "fans", etc., there are for each member of the website. Such a query will 
+                 probably be run quite often to gather information about what the average 
+                 amount of "social connection" is occurring on the website, how "popular" 
+                 the average user is, and so on. The same can be done for keyword frequency
+                 counts, sifting through logs to paint a general picture of average user
+                 activity, popularity of certain features, and so on. This becomes increasingly
+                 useful in the event that a change occurs in the schema.
+
+    -Do NoSQL Systems Have Drawbacks?
+            -Distribution implies that the CAP theorem holds, and database system designers 
+             have to make some compromises. With a distributed system, only one of the following
+             best options are possible.
+                -Partition-tolerance and high/complete availability of data across all nodes; XOR
+                -Partition-tolerance and total system-wide consistency across all nodes.
+            -As with all large and complicated systems a significant amount of planning is
+             essential in finding out which of availability or consistency has the highest
+             priority, or finding a way to balance the two with compromises, such as
+             "consistency-tuning".
 
     -What is Apache Project's Cassandra?
         -NoSQL DBMS, meant to be highly scalable.
-        -FOSS/FLOSS alternative to proprietary (and expensive) Oracle
-         NoSQL systems.
+        -FOSS/FLOSS alternative to proprietary (and expensive) Oracle NoSQL systems.
 
         Features:
-            -Available, Partition-tolerant
-            -Eventually consistent
-            -High scalability
-            -"Schemaless" (implicit schema)
-            -Has its own query language: Apache cql
-            -Data compaction
+            -Available, Partition-tolerant;
+            -Eventually consistent;
+            -High scalability;
+            -"Schemaless" (implicit schema);
+            -Has its own query language: Apache cql 3.1.5;
+            -Data compaction.
 
     -Why Cassandra?
         -Partition-tolerant (essential for clustered systems).
         -Available: mirrors "real-world" constraints on call-detail record
-         systems.
+         systems. Data is added in large amounts and almost constantly.
         -Eventual consistency is an acceptable compromise; we are not
          running a mission-critical system (like a bank), and most of our
          data insertion is similar to logging data.
-        -Cassandra is especially well-suited to storing logs.
+        -Cassandra is especially well-suited to storing logs due to its column-oriented
+         nature and high availability.
         -Widely used and relatively bug-free, especially for such "new" 
          software.
         -Handles map-reduce and low-level details of storage process for nodes,
          as well as performing maintenance (as specified by DB admin), such
-         as compaction.
+         as compaction. In other words, there is no need to "re-invent the wheel".
         -Very low chance of data loss (except if the DBA makes a mistake),
          even when upgrading Cassandra.
 
 Section 1: Goals and Objectives
     -To successfully implement a distributed database system which will
      reliably store at least 16TB of random data consisting of random
-     numeric and string-like data types organized into large tables with
-     many columns (attributes).
+     numeric and character string-like data types organized into large tables with
+     many hundreds columns. 
     -To distribute the data in the above tables across 8 "nodes" (servers), 
-     which form our "cluster".
+     which are to form our "cluster".
     -To generate additional tables distributed throughout the cluster to
      be optimally configured for the queries to meet their own requirements
-     (see below).
+     (see Section 4 for an overview of why).
      
     -To query the above tables such that all of the following requirements
      are met by five queries.
@@ -101,11 +131,14 @@ Subsection 3.1: Data Generation
         -To generate data: follow the prompts by entering option numbers.
 
     -Table schema
-        -Replication factor set to 1.
-        -Compression factor set to 0.
-        -Keyspace is called "group3".
+        -Properties of our tables:
+            -Replication factor set to 1.
+            -Compression factor set to 0.
+            -Keyspace is called "group3".
+            -Durable writes are disabled.
+            -Compression is disabled.
         -"CDR"
-            -Exactly 400 columns.
+            -Exactly ____ columns.
             -Numbers range from 0 to 9.9 million for all integers.
             -Has 10 column keys and 1 partition key.
         -Indexes:
@@ -134,11 +167,14 @@ Subsection 3.1: Data Generation
     -Keyspaces
         -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
             -No backups or snapshots are automatically made by the server.
+            -Improves performance of data insertion and modification by a constant factor.
 
     -Python 2.7 scripts
         -generate.py
+            -Uses the following libraries:
+                -ast, cassandra, Cluster from cassandra.cluster, random, sys, string, timeit, uuid.
             -Begins with attempting to establish a connection to the local machine which is part
-             of the cluster.
+             of the cluster. Constructs a connection object called 'session'.
             -Expects program arguments: 
                 -The number of days to generate data for. 
                 -Different seed values to prevent collisions of data insertions.
@@ -148,7 +184,10 @@ Subsection 3.1: Data Generation
                  for consistency in generation of data) and will drop all of the data before completely
                  regenerating it.
                 -Depending on the results from stat.py (see below), 
-            -Asynchronously executes the insertion statements to prevent blocking on the script.
+                -Asynchronously executes the insertion statements to prevent blocking on the script.
+            -randword() function
+                -Accepts parameter 'length' (intended to be a positive, nonzero numeric type)
+                -Generates a random lowercase string which is 'length' characters long.
             -generate() function
                 -Allows for custom ranges on specified columns.
                 -Allows for custom data for specified data types.
@@ -298,13 +337,22 @@ FROM    group_by_month;
 Section 4: Theoretical Description
     -Obviously, we are going to be constrained by the results of the CAP theorem.
     -As explained above, Cassandra is high-availability, partition-tolerant
-     and eventually-consistent.
+     and eventually-consistent. This means that partition-tolerance and availability are 
+     essentially guaranteed, while consistency is variable. Cassandra also allows for
+     consistency-tuning, at the expense of some availability.
+    -As a noSQL system, Cassandra has no explicit support for group-by aggregation,
+     among other things.
+    -However, obtaining equivalent query results are possible with some work-arounds.
     
     -To get the equivalent of a GROUP BY aggregation:
         -Recall: a GROUP BY aggregation is basically a function which
          gathers rows of data retrieved by a query and 'clusters' them
          together based on the attribute that we are grouping by.
+        -The approach, therefore, will be to "pre-process" the data by creating
+         "duplicate" tables which contain the data that we have sorted. We have
+         essentially "pre-grouped" the data. [?]
 
+---UNNECESSARY---
         -Suppose we have a table T on which we have columns C1,...,Cn,
          with rows R1,...,Rm. Say that P(C1) is an atomic formula which
          is satisfied for some C1 columns in R1,...,Rm.
@@ -317,7 +365,7 @@ Section 4: Theoretical Description
         -The above query will return something like this: (where 1 <= j <= k <= m)
 
         [TODO: Make a better illustration, but use LaTeX to do it]
-            
+             _____________
             |  Ci  |  C1  |
             +------+------+
             |Rj.Ci |Rj.C1 |
@@ -326,6 +374,7 @@ Section 4: Theoretical Description
             |  .   |  .   |
             |Rk.Ci |Rk.C1 |
             +------+------+
+---UNNECESSARY---
 
 
 Section 5: Preliminary Test Results
@@ -408,7 +457,6 @@ Section 8: Conclusions
 Section 9: Notes on Possible Improvements
 
     -For increased table population time efficiency:
-        -
 
     -For increased query execution time efficiency:
         -Increasing the number of smaller tables...? More data tables for the same
@@ -426,7 +474,7 @@ Section 9: Notes on Possible Improvements
 
         -Use of a higer replication factor. In our case, we discovered that using
          replication factor of 3 helped with 'protecting' data. However, this slows
-         reads considerably.
+         reads, possibly by a constant factor.
 
 Section 10: References Used
 
