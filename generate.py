@@ -51,12 +51,10 @@ if __name__ == '__main__':
     session = cluster.connect() 
     cluster.compression = False
     cluster.max_schema_agreement_wait = 60
-    cluster.control_connection_timeout = None
-    cluster.default_timeout = None
+    cluster.control_connection_timeout =  cluster.default_timeout = None
     
     print cluster.metadata.cluster_name # cluster should be our own
-    print cluster.cql_version
-    print cassandra.__version__ ,"\n"
+    print cluster.cql_version, cassandra.__version__ ,"\n"
     
     seed = 3333
         # read table stuffs from sample table schema
@@ -110,19 +108,12 @@ if __name__ == '__main__':
         for entry in range(entriesPerDay):
             futures = Queue.Queue()
             for i in range(100000):
-                if i % 120 == 0:
-                    # clear the existing queue
-                    while True:
-                        try:
-                            futures.get_nowait().result(timeout=None)
-                        except Queue.Empty:
-                            break
                 build = []
                 for x in range(len(labels)):
                     build.append(generate(labels[x][0], labels[x][1], counts[x]))
                 
-                futures.put_nowait(session.execute_async( prepared.bind(build)))
-                futures.put_nowait(session.execute_async( prepared1.bind(build)))
+                (session.execute_async( prepared.bind(build)))
+                (session.execute_async( prepared1.bind(build)))
                 
             if entry == entriesPerDay:
                 datadate += 86400 #increment one day 
