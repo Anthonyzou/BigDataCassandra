@@ -1,10 +1,9 @@
-import ast
-import cassandra
+import ast, cassandra
 from cassandra.cluster import Cluster
 import random, sys
-import string
-import timeit
-import uuid
+import string, timeit
+import uuid, Queue
+
 from cassandra import ConsistencyLevel
 def randword(length): return ''.join(random.choice(string.lowercase) for i in range(length))
 
@@ -105,18 +104,28 @@ if __name__ == '__main__':
     try: days = int(sys.argv[1])
     except: days = 1
     entriesPerDay = 100000
+    
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
+            futures = Queue.Queue()
+            for i in range(100000):
+                if i % 120 == 0:
+                    # clear the existing queue
+                    while True:
+                        try:
+                            futures.get_nowait().result()
+                        except Queue.Empty:
+                            break
+                build = []
+                for x in range(len(labels)):
+                    build.append(generate(labels[x][0], labels[x][1], counts[x]))
+                
+                futures.put_nowait(session.execute_async( prepared.bind(build)))
+                futures.put_nowait(session.execute_async( prepared1.bind(build)))
+                
             if entry == entriesPerDay:
                 datadate += 86400 #increment one day 
-            build = []
-            for x in range(len(labels)):
-                build.append(generate(labels[x][0], labels[x][1], counts[x]))
-            try:
-                session.execute_async( prepared.bind(build))
-                session.execute_async( prepared1.bind(build))
-            except : pass
             
     #session.execute_async("create index on cdr (MONTH_DAY)")
     #session.execute("create index on cdr (MOBILE_ID_TYPE)")
