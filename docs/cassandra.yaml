@@ -40,7 +40,7 @@ max_hint_window_in_ms: 10800000 # 3 hours
 # are two nodes in the cluster, each delivery thread will use the maximum
 # rate; if there are three, each will throttle to half of the maximum,
 # since we expect two nodes to be delivering hints simultaneously.)
-hinted_handoff_throttle_in_kb: 1
+hinted_handoff_throttle_in_kb: 10
 # Number of threads with which to deliver hints;
 # Consider increasing this number when you have multi-dc deployments, since
 # cross-dc handoff tends to be slower
@@ -48,7 +48,7 @@ max_hints_delivery_threads: 2
 
 # Maximum throttle in KBs per second, total. This will be
 # reduced proportionally to the number of nodes in the cluster.
-batchlog_replay_throttle_in_kb: 1
+batchlog_replay_throttle_in_kb: 10
 
 # The following setting populates the page cache on memtable flush and compaction
 # WARNING: Enable this setting only when the whole node's data fits in memory.
@@ -241,7 +241,7 @@ seed_provider:
 # number of "concurrent_writes" is dependent on the number of cores in
 # your system; (8 * number_of_cores) is a good rule of thumb.
 concurrent_reads: 32
-concurrent_writes: 256
+concurrent_writes: 512
 
 # Total memory to use for sstable-reading buffers.  Defaults to
 # the smaller of 1/4 of heap or 512MB.
@@ -319,11 +319,11 @@ native_transport_port: 9233
 # This is similar to rpc_max_threads though the default differs slightly (and
 # there is no native_transport_min_threads, idle threads will always be stopped
 # after 30 seconds).
-native_transport_max_threads: 1024
+native_transport_max_threads: 512
 #
 # The maximum size of allowed frame. Frame (requests) larger than this will
 # be rejected as invalid. The default is 256MB.
-native_transport_max_frame_size_in_mb: 2560
+native_transport_max_frame_size_in_mb: 512
 
 # Whether to start the thrift rpc server.
 start_rpc: true
