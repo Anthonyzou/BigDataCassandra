@@ -69,6 +69,7 @@ setup(){
 	    sed "s/localhost/$i/g" docs/cassandra.yaml | ssh $i "cat > /home/group3/cassandra/conf/cassandra.yaml"
 	    ssh $i "pkill -f cassandra"
 	done
+	sleep 10
 	for i in $array; do
 	    ssh $i "/home/group3/cassandra/bin/cassandra" &
 	done
