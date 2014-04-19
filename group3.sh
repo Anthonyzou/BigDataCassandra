@@ -70,7 +70,7 @@ setup(){
 	    ssh $i "pkill -f cassandra"
 	done
 	for i in $array; do
-	    ssh "$i" "/home/group3/cassandra/bin/cassandra"
+	    ssh $i "/home/group3/cassandra/bin/cassandra" &
 	done
 }
 
