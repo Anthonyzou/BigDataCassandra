@@ -49,8 +49,7 @@ if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
     session = cluster.connect() 
-    cluster.compression = False
-    cluster.max_schema_agreement_wait = 60
+    cluster.max_schema_agreement_wait = 600
     cluster.control_connection_timeout =  cluster.default_timeout = None
     
     print cluster.metadata.cluster_name # cluster should be our own
