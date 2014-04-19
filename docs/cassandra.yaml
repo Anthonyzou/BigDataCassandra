@@ -204,7 +204,7 @@ row_cache_save_period: 0
 # you should reduce that; 16*cores works reasonably well for 1MB blobs.
 # It should be at least as large as the concurrent_writes setting.
 commitlog_sync: periodic
-commitlog_sync_period_in_ms: 100000
+commitlog_sync_period_in_ms: 9100000
 # commitlog_periodic_queue_size:
 
 # The size of the individual commitlog file segments.  A commitlog
