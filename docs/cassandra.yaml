@@ -204,7 +204,7 @@ row_cache_save_period: 0
 # you should reduce that; 16*cores works reasonably well for 1MB blobs.
 # It should be at least as large as the concurrent_writes setting.
 commitlog_sync: periodic
-commitlog_sync_period_in_ms: 9100000
+commitlog_sync_period_in_ms: 100000
 # commitlog_periodic_queue_size:
 
 # The size of the individual commitlog file segments.  A commitlog
@@ -477,7 +477,7 @@ commit_failure_policy: ignore
 # mostly sequential IO when streaming data during bootstrap or repair, which
 # can lead to saturating the network connection and degrading rpc performance.
 # When unset, the default is 200 Mbps or 25 MB/s.
-stream_throughput_outbound_megabits_per_sec: 20000
+stream_throughput_outbound_megabits_per_sec: 2000000
 
 # How long the coordinator should wait for read operations to complete
 read_request_timeout_in_ms: 1000000
