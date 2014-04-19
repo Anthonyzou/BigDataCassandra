@@ -611,8 +611,8 @@ request_scheduler: org.apache.cassandra.scheduler.RoundRobinScheduler
 #               many requests are handled during each turn of the
 #               RoundRobin, based on the scheduler id.
 #
-# request_scheduler_options:
-#    throttle_limit: 80
+request_scheduler_options:
+   throttle_limit: 512
 #    default_weight: 5
 #    weights:
 #      Keyspace1: 1
