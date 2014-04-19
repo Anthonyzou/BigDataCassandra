@@ -80,7 +80,7 @@ if __name__ == '__main__':
                              ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
                              SESS_SFC, CFC,SM_CONUT1, SM_CONUT2 ,SM_CONUT3 ,SM_CONUT4 ,SM_CONUT5 ,SM_CONUT6 )) 
                              with compression={ 'sstable_compression':''}"""
-                             "CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+                             ,"CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
                              ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
                              SESS_SFC, CFC)) 
                              with compression={ 'sstable_compression':''}"""
