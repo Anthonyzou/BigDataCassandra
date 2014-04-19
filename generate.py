@@ -70,7 +70,7 @@ if __name__ == '__main__':
         session.set_keyspace("group3")
     except: 
         session.execute("drop keyspace if exists group3")
-        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 2 } 
+        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
                             AND durable_writes = false""")
         session.set_keyspace("group3")
         with open("tableColumns.sql") as tables_setup:
@@ -78,11 +78,11 @@ if __name__ == '__main__':
             for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
                              ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
                              SESS_SFC, CFC,SM_CONUT1, SM_CONUT2 ,SM_CONUT3 ,SM_CONUT4 ,SM_CONUT5 ,SM_CONUT6 )) 
-                             with compression={ 'sstable_compression':''}"""
+                             with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
                              ,"CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
                              ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
                              SESS_SFC, CFC)) 
-                             with compression={ 'sstable_compression':''}"""
+                             with compression={ 'sstable_compression':''} and clustering order by (msc_code desc)"""
                              ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                              ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                             ]:
@@ -114,7 +114,7 @@ if __name__ == '__main__':
                     # clear the existing queue
                     while True:
                         try:
-                            futures.get_nowait().result()
+                            futures.get_nowait().result(timeout=None)
                         except Queue.Empty:
                             break
                 build = []
