@@ -67,6 +67,7 @@ setup(){
 	read input
 	ssh $input "rm -f cassandra/conf/cassandra.yaml"
 	sed "s/localhost/$input/g" docs/cassandra.yaml | ssh $input "cat > cassandra/conf/cassandra.yaml"
+	ssh $input "pkill -f cassandra"
 	ssh $input
 }
 
