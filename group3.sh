@@ -63,12 +63,15 @@ zip(){
 }
 
 setup(){
-	echo '	ENTER THIS MACHINES IP'
-	read input
-	ssh $input "rm -f cassandra/conf/cassandra.yaml"
-	sed "s/localhost/$input/g" docs/cassandra.yaml | ssh $input "cat > cassandra/conf/cassandra.yaml"
-	ssh $input "pkill -f cassandra"
-	ssh $input
+	array="10.1.0.104 10.1.0.105 10.1.0.107 10.1.0.108 10.1.0.109 10.1.0.110 10.1.0.111 10.1.0.112"
+	for i in $array; do
+	    ssh "$i" "rm -f /home/group3/cassandra/conf/cassandra.yaml"
+	    sed "s/localhost/$input/g" docs/cassandra.yaml | ssh $input "cat > /home/group3/cassandra/conf/cassandra.yaml"
+	    ssh "$i" "pkill -f cassandra"
+	done
+	for i in $array; do
+	    ssh "$i" "/home/group3/cassandra/bin/cassandra"
+	done
 }
 
 chmod 600 NebulaLaunchKey.pem
