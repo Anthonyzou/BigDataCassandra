@@ -1,5 +1,5 @@
 import cassandra
-from cassandra.cluster import Cluster
+from cassandra.cluster import SimpleStatement, ConsistencyLevel, Cluster
 import timeit
 
 cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
@@ -15,7 +15,7 @@ program_st = timeit.default_timer()
 #======================================================================
 # QUERY 1
 #======================================================================
-query = """
+query = SimpleStatement("""
 SELECT count (*) as ten_atomic
 FROM cdr 
 WHERE 
@@ -28,8 +28,8 @@ AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID
 SESS_SFC) 
 < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
 LIMIT 40000000
-ALLOW FILTERING ;
-"""
+ALLOW FILTERING ; 
+""",consistency_level=ConsistencyLevel.QUORUM)
 start_time = timeit.default_timer()
 print session.execute(query)[0]
 
@@ -37,21 +37,21 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 #======================================================================
 # QUERY 2
 #======================================================================
-query = """ 
+query = SimpleStatement(""" 
 SELECT count (*) as range_city_id
 FROM cdr
 WHERE
 MSC_CODE > 5000 AND MSC_CODE < 90000
 LIMIT 40000000
 ALLOW FILTERING;
-"""
+""",consistency_level=ConsistencyLevel.QUORUM)
 start_time = timeit.default_timer()
-print session.execute(query)[0]
+print (session.execute(query)[0])
 print str((timeit.default_timer() - start_time)/60), " minutes elapsed for query 2\n"
 #======================================================================
 # QUERY 3
 #======================================================================
-query = """
+query = SimpleStatement("""
 SELECT count(*) as range_DUP_SEQ_NUM
 FROM cdr
 WHERE 
@@ -61,7 +61,7 @@ WHERE
 <(9900,9900,9900,9900,30000)
 LIMIT 40000000
 ALLOW FILTERING;
-"""
+""",consistency_level=ConsistencyLevel.QUORUM)
 start_time = timeit.default_timer()
 temp = session.execute(query)[0]
 print temp
@@ -70,10 +70,10 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 #======================================================================
 # QUERY 4
 #======================================================================
-query = """
+query = SimpleStatement("""
 SELECT MOBILE_ID_TYPE,count
 from GROUP_BY_MOBILE_ID_TYPE
-"""
+""",consistency_level=ConsistencyLevel.QUORUM)
 start_time = timeit.default_timer()
 
 for i in range (8):
@@ -82,10 +82,10 @@ print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4
 #======================================================================
 # QUERY 5
 #======================================================================
-query = """
+query = SimpleStatement("""
 SELECT month_day, count 
 FROM group_by_month
-"""
+""",consistency_level=ConsistencyLevel.QUORUM)
 start_time = timeit.default_timer()
 
 for i in range (1,31):

@@ -51,7 +51,7 @@ if __name__ == '__main__':
     session = cluster.connect() 
     cluster.compression = False
     cluster.max_schema_agreement_wait = 60
-    cluster.control_connection_timeout = 60
+    cluster.control_connection_timeout = None
     cluster.default_timeout = None
     
     print cluster.metadata.cluster_name # cluster should be our own
@@ -96,8 +96,8 @@ if __name__ == '__main__':
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared1 = session.prepare("INSERT INTO cdr_alt ("+ body )
-    prepared.consistency_level = ConsistencyLevel.QUORUM
-    prepared1.consistency_level = ConsistencyLevel.QUORUM
+    prepared.consistency_level = ConsistencyLevel.ANY
+    prepared1.consistency_level = ConsistencyLevel.ANY
 
     print( "query built and prepared")
     
