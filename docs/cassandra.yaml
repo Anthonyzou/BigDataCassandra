@@ -267,7 +267,7 @@ concurrent_writes: 512
 # while blocked. If you have a large heap and many data directories,
 # you can increase this value for better flush performance.
 # By default this will be set to the amount of data directories defined.
-#memtable_flush_writers: 1
+memtable_flush_writers: 5
 
 # the number of full memtables to allow pending flush, that is,
 # waiting for a writer thread.  At a minimum, this should be set to
