@@ -413,10 +413,26 @@ Section 5: Preliminary Test Results
 Section 6: Experimental Results
     -Execution time for the data definition and data manipulation on the
      fully populated cluster (~8 TB):
+        -400-Column:
+        -Column-Key Partition:
 
+    -Resulting amounts of data successfully written in this time:
+        -400-Column:
+        -Column-Key Partition:
 
-    -Execution time for queries on the fully populated cluster:
+    -Execution time for queries on the fully populated cluster (400 Column):
+        -Query 1:
+        -Query 2:
+        -Query 3:
+        -Query 4:
+        -Query 5:
 
+    -Execution time for queries on the fully populated cluster (Column-Key):
+        -Query 1:
+        -Query 2:
+        -Query 3:
+        -Query 4:
+        -Query 5:
 
 Section 7: Analysis and Discussion
 
