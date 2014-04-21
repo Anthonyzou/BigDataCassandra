@@ -60,7 +60,7 @@ print session.execute(query,timeout = None)[0]
 
 print str((timeit.default_timer() - start_time) /60), " minutes elapsed for query 1\n"
 #======================================================================
-# QUERY 1
+# QUERY 1 small
 #======================================================================
 query = SimpleStatement("""
 SELECT count (*) as ten_atomic
