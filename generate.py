@@ -62,40 +62,47 @@ if __name__ == '__main__':
         (labels, counts) = tables_freq
     labels = ast.literal_eval(labels)  # turn input into list correctly
     counts = ast.literal_eval(counts)  # turn input into list correctly
-    
+    smallLabels = labels[:len(labels)/2]
     try:
         seed = int(sys.argv[2])
-        session.set_keyspace("group3")
+        session.set_keyspace("group3alt")
     except: 
-        session.execute("drop keyspace if exists group3")
-        session.execute("""CREATE KEYSPACE group3 WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
+        session.execute("drop keyspace if exists group3alt")
+        session.execute("""CREATE KEYSPACE group3alt WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
                             AND durable_writes = false""")
-        session.set_keyspace("group3")
-        with open("tableColumns.sql") as tables_setup:
-            cols = tables_setup.read()
-            for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
-                             ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
-                             SESS_SFC, CFC,SM_CONUT1, SM_CONUT2 ,SM_CONUT3 ,SM_CONUT4 ,SM_CONUT5 ,SM_CONUT6 )) 
-                             with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
-                             ,"CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
-                             ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
-                             SESS_SFC, CFC)) 
-                             with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
-                             ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
-                             ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
-                            ]:
-                try:session.execute(setupcmd)
-                except Exception as error: print error
+        session.set_keyspace("group3alt")
+        cols = "".join(i[0]+" "+i[1]+"," for i in labels)
+        smallcols = "".join(i[0]+" "+i[1]+"," for i in labels[:len(labels)/2])
+        for setupcmd in ["CREATE TABLE cdr(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+                         ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+                         SESS_SFC, CFC,SM_CONUT1, SM_CONUT2 ,SM_CONUT3 ,SM_CONUT4 ,SM_CONUT5 ,SM_CONUT6 )) 
+                         with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
+                        ,"CREATE TABLE smallcdr(" + smallcols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+                        ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+                         SESS_SFC, CFC)) 
+                         with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
+                        ,"CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+                        ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+                         SESS_SFC, CFC)) 
+                         with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
+                        ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
+                        ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
+                        ]:
+	 try: session.execute(setupcmd)
+         except Exception as error: print error
     random.seed(seed)
 
     
     body = "".join(i[0]+"," for i in labels)[:-1] + ") VALUES (" + ("?," * (len(labels) - 1)) + "?)"
+    smallbody = "".join(i[0]+"," for i in smallLabels)[:-1] + ") VALUES (" + ("?," * (len(smallLabels) - 1)) + "?)"
     # remove last char
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared1 = session.prepare("INSERT INTO cdr_alt ("+ body )
+    prepared2 = session.prepare("INSERT INTO smallcdr ("+ smallbody )
     prepared.consistency_level = ConsistencyLevel
     prepared1.consistency_level = ConsistencyLevel
+    prepared2.consistency_level = ConsistencyLevel
 
     print( "query built and prepared")
     
@@ -115,6 +122,11 @@ if __name__ == '__main__':
                 (session.execute_async( prepared.bind(build)))
                 (session.execute_async( prepared1.bind(build)))
                 
+		build = []
+		for x in range(len(smallLabels)):
+		    build.append(generate(smallLabels[x][0],smallLabels[x][1], counts[x]))
+		(session.execute_async( prepared2.bind(build)))
+		
             if entry == entriesPerDay:
                 datadate += 86400 #increment one day 
             
