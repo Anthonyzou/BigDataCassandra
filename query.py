@@ -1,5 +1,5 @@
 import cassandra
-from cassandra.cluster import SimpleStatement, ConsistencyLevel, Cluster
+from cassandra.cluster import SimpleStatement, Cluster
 import timeit
 
 cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
@@ -10,6 +10,8 @@ loop = False #turn this to true when you want to do looping queries for group by
 
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__,"\n"
+
+ConsistencyLevel = 1
 
 program_st = timeit.default_timer()
 #======================================================================
@@ -29,7 +31,29 @@ SESS_SFC)
 < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
 LIMIT 40000000
 ALLOW FILTERING ; 
-""",consistency_level=ConsistencyLevel.QUORUM)
+""",consistency_level=ConsistencyLevel)
+start_time = timeit.default_timer()
+print session.execute(query)[0]
+
+print str((timeit.default_timer() - start_time) /60), " minutes elapsed for query 1\n"
+#======================================================================
+# QUERY 1 alternative
+#======================================================================
+query = SimpleStatement("""
+SELECT count (*) as ten_atomic
+FROM cdr_alt 
+WHERE 
+(MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+SESS_SFC) 
+> (10000,10000,10000,3,10000,1,10000,10000,10000,10000)
+AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID
+,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
+SESS_SFC) 
+< (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
+LIMIT 40000000
+ALLOW FILTERING ; 
+""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
 print session.execute(query)[0]
 
@@ -44,7 +68,7 @@ WHERE
 MSC_CODE > 5000 AND MSC_CODE < 90000
 LIMIT 40000000
 ALLOW FILTERING;
-""",consistency_level=ConsistencyLevel.QUORUM)
+""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
 print (session.execute(query)[0])
 print str((timeit.default_timer() - start_time)/60), " minutes elapsed for query 2\n"
@@ -61,7 +85,7 @@ WHERE
 <(9900,9900,9900,9900,30000)
 LIMIT 40000000
 ALLOW FILTERING;
-""",consistency_level=ConsistencyLevel.QUORUM)
+""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
 temp = session.execute(query)[0]
 print temp
@@ -73,7 +97,7 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 query = SimpleStatement("""
 SELECT MOBILE_ID_TYPE,count
 from GROUP_BY_MOBILE_ID_TYPE
-""",consistency_level=ConsistencyLevel.QUORUM)
+""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
 
 for i in range (8):
@@ -85,7 +109,7 @@ print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4
 query = SimpleStatement("""
 SELECT month_day, count 
 FROM group_by_month
-""",consistency_level=ConsistencyLevel.QUORUM)
+""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
 
 for i in range (1,31):

@@ -4,9 +4,10 @@ import random, sys
 import string, timeit
 import uuid, Queue
 
-from cassandra import ConsistencyLevel
+
 def randword(length): return ''.join(random.choice(string.lowercase) for i in range(length))
 
+ConsistencyLevel = 0
 acluster = 0
 datadate = 1385305327 #equal to 2013-11-24 08:02:07-0700
 session = None
@@ -79,7 +80,7 @@ if __name__ == '__main__':
                              ,"CREATE TABLE cdr_alt(" + cols + """primary key(SEIZ_CELL_NUM_L,MSC_CODE ,CITY_ID,SERVICE_NODE_ID
                              ,RUM_DATA_NUM ,DUP_SEQ_NUM ,SEIZ_CELL_NUM ,FLOW_DATA_INC ,SUB_HOME_INT_PRI ,CON_OHM_NUM,
                              SESS_SFC, CFC)) 
-                             with compression={ 'sstable_compression':''} and clustering order by (msc_code desc)"""
+                             with compression={ 'sstable_compression':''} and clustering order by (msc_code asc)"""
                              ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                              ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                             ]:
@@ -93,8 +94,8 @@ if __name__ == '__main__':
     # build question marks for binding
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared1 = session.prepare("INSERT INTO cdr_alt ("+ body )
-    prepared.consistency_level = ConsistencyLevel.ANY
-    prepared1.consistency_level = ConsistencyLevel.ANY
+    prepared.consistency_level = ConsistencyLevel
+    prepared1.consistency_level = ConsistencyLevel
 
     print( "query built and prepared")
     
