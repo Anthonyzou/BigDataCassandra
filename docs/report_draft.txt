@@ -411,6 +411,9 @@ Section 5: Preliminary Test Results
 
 
 Section 6: Experimental Results
+
+Section 7: Analysis and Discussion
+
     -Execution time for the data definition and data manipulation on the
      fully populated cluster (~8 TB):
         -400-Column:
@@ -434,10 +437,8 @@ Section 6: Experimental Results
         -Query 4:
         -Query 5:
 
-Section 7: Analysis and Discussion
 
-    -Quantitative results: [Insert clean, organized tables in this section]
-
+---UNNECESSARY---
     -Quantitative analysis of results:
         -Most expensive query.
         -Query with most results.
@@ -445,16 +446,21 @@ Section 7: Analysis and Discussion
         -The amount of time it takes to retrieve all of the data in the cluster
          is very close to the amount of time it takes to insert all of the data
          into the entire cluster.
+---UNNECESSARY---
 
     -Qualitative description of results:
         -Insertion of data into nodes has a lower bound of the maximal write
          speed of secondary storage, in this case hard-disk.
+
+        ---UNNECESSARY---
         -Ahmdal's Law
             -Maximum gains from parallelism come when there is the most even
              distribution of work.
             -Parallelism 'deteriorates' in efficiency when distribution is
              very uneven.
             -Maximal speedup is always a strict upper bound of 1/N.
+        ---UNNECESSARY---
+
         -Impact of Cassandra's lack of collision management:
             -Many rows originally entered were overwritten with new rows, even 
              given the pseudo-random generation of primary key elements.
@@ -470,25 +476,38 @@ Section 7: Analysis and Discussion
 Section 8: Conclusions
 
 
-Section 9: Notes on Possible Improvements
+Section 9: Notes on (Possible) Improvements
 
     -For increased table population time efficiency:
+        -Disabling durable writes.
+        -Almost entirely disabling commit-logs by drastically increasing the
+         commit-log sync-period to 100,000 ms.
+            -Too short: too many writes to the commit-logs.
+            -Too long: writes to commit-logs are too expensive to complete in
+             their own allotted time frame. [?]
+        -Turning off compaction during the main data-generation and writing process.
+        -Creating indexes on tables after they are created in DDL statements but not
+         after they are populated with data.
 
     -For increased query execution time efficiency:
         -Increasing the number of smaller tables...? More data tables for the same
          data set but with fewer columns in each to make optimizing for queries easier(?)
-        -Decreasing the replication factor to 1.
+            -Cassandra is "column-oriented", and therefore will typically load
+             an entire tuple when a query is performed. The length of time needed
+             to execute a query on a given table therefore scales with respect
+             to the number of columns in that table, given that most rows are unique.
+        -Decreasing the replication factor(?). [QUESTIONABLE] [CITATION NEEDED]
 
     -For increased data protection:
         -Potential use of UUIDs to increase uniqueness of primary keys so as
-         to dramatically decrease the odds of collisions.
+         to dramatically decrease the probability of collisions occurring.
             -Comes with a computational cost for queries and especially for data definition
              and modification. Generating one 128-bit UUID is not expensive in and of
              itself, but multiplying that operation upward of one trillion times will
              incur a greater cost compared to going without, or generating something
              in constant time.
 
-        -Use of a higer replication factor. In our case, we discovered that using
+        -Use of a higher replication factor. In our case, we discovered that using
          replication factor of 3 helped with 'protecting' data. However, this slows
          reads, possibly by a constant factor.
 
