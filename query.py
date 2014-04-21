@@ -4,7 +4,7 @@ import timeit
 
 cluster = Cluster(['10.1.0.104', '10.1.0.105', '127.0.0.1'], port=9233)
 cluster.default_timeout = None
-session = cluster.connect('group3')  # keyspace should be our own
+session = cluster.connect('group3alt')  # keyspace should be our own
 
 loop = False #turn this to true when you want to do looping queries for group by
 
