@@ -16,10 +16,16 @@ Section 0: Introduction to Cassandra
                     -Eventually consistent (E).
                 -May store data in a fashion other than a strictly
                  relational set of tables.
+                    -Example: the network model, which preceeded Codd's relational model.
 
     -Why NoSQL?
-        -We have some BIG data to deal with (several TB as a lower bound), and growing!
-            -Big Data implies distribution (partitioning and or sharding);
+        -We have some very large data sets to deal with (several TB as a lower bound).
+            -Traditional SQL operations, such as joins, are no longer feasible.
+            -Seemingly complex queries may have to be repeated many times.
+            -More users may perform queries on the data.
+            -The size of the data set may imply the need to distribute that data over multiple
+             storage locations, either small servers in the same building or entire data centers.
+            -Hence, 'Big Data' implies distribution (partitioning and or sharding);
         -Sometimes it is more important to repeat the same 'simple' types of queries over
          very large datasets, rather than having the ability to write 'complicated' queries
          which are to be executed only a handful of times.
@@ -52,15 +58,16 @@ Section 0: Introduction to Cassandra
 
     -What is Apache Project's Cassandra?
         -NoSQL DBMS, meant to be highly scalable.
-        -FOSS/FLOSS alternative to proprietary (and expensive) Oracle NoSQL systems.
+        -FOSS ('Free and Open Source Software') or FLOSS ('Free/Libre and Open Source Software') 
+         alternative to proprietary (and usually expensive) NoSQL systems.
 
         Features:
-            -Available, Partition-tolerant;
+            -Highly available and partition-tolerant;
             -Eventually consistent;
             -High scalability;
-            -"Schemaless" (implicit schema);
+            -'Schemaless' (non-rigid abstraction-- i.e., an 'implicit schema');
             -Has its own query language: Apache cql 3.1.5;
-            -Data compaction.
+            -Supports data compaction.
 
     -Why Cassandra?
         -Partition-tolerant (essential for clustered systems).
@@ -130,44 +137,52 @@ Subsection 3.1: Data Generation
          to an output file.
         -To generate data: follow the prompts by entering option numbers.
 
-    -Table schema
-        -Properties of our tables:
-            -Replication factor set to 1.
-            -Compression factor set to 0.
-            -Keyspace is called "group3".
-            -Durable writes are disabled.
-            -Compression is disabled.
-        -"CDR"
-            -Exactly ____ columns.
-            -Numbers range from 0 to 9.9 million for all integers.
-            -Has 10 column keys and 1 partition key.
-        -Indexes:
-            -"MONTH_DAY"
-            -"MOBILE_ID_TYPE"
-
-        -"QUERY3"
-            -Contains the same data, but the column keys are ordered MSC_CODE first in
-             an attempt to optimize for range-queries based on values of those column keys.
-        -"GROUP_BY_MONTH" 
-            -Keys are between 1 and 31.
-            -Reduces data to facilitate completion of a query equivalent to one
-             in SQL containing 'GROUP BY MONTH_DAY'.
-            -Uses 'WITH CLUSTERING ORDER BY(MONTH_DAY)' to facilitate ordering the resulting
-             tables contents by the day of the month.
-        -"GOUP_BY_MOBILE_ID_TYPE"
-            -Keys are between 0 and 7.
-            -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
-             is based on its insertion number modulo 8.
-            -'CLUSTERING ORDER BY(MOBILE_ID_TYPE)' used to order the rows with respect to
-             MOBILE_ID_TYPE instead of the aggregate group MONTH.
-        -The role of the last two tables is to make the substitute aggregate queries both
-         possible (as Cassandra has no explicit support for GROUP BY aggregation) 
-         and efficient (pre-processing data to be optimal for queries).
 
     -Keyspaces
-        -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
-            -No backups or snapshots are automatically made by the server.
-            -Improves performance of data insertion and modification by a constant factor.
+        -'group3'
+            -'SimpleStrategy' class and replication_factor of 1.
+                -No backups or snapshots are automatically made by the server.
+                -Improves performance of data insertion and modification by a constant factor.
+            -Table schemas
+                -Properties of our tables:
+                    -Replication factor set to 1.
+                    -Compression factor set to 0.
+                    -Keyspace is called "group3".
+                    -Durable writes are disabled.
+                    -Compression is disabled.
+                -"CDR"
+                    -Exactly 400 columns.
+                    -Numbers range from 0 to 9.9 million for all integers.
+                    -Has 10 column keys and 1 partition key.
+                -Indexes:
+                    -"MONTH_DAY"
+                    -"MOBILE_ID_TYPE"
+                -"QUERY3"
+                    -Contains the same data, but the column keys are ordered MSC_CODE first in
+                     an attempt to optimize for range-queries based on values of those column keys.
+                -"GROUP_BY_MONTH" 
+                    -Keys are between 1 and 31.
+                    -Reduces data to facilitate completion of a query equivalent to one
+                     in SQL containing 'GROUP BY MONTH_DAY'.
+                    -Uses 'WITH CLUSTERING ORDER BY(MONTH_DAY)' to facilitate ordering the resulting
+                     tables contents by the day of the month.
+                -"GOUP_BY_MOBILE_ID_TYPE"
+                    -Keys are between 0 and 7.
+                    -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
+                     is based on its insertion number modulo 8.
+                    -'CLUSTERING ORDER BY(MOBILE_ID_TYPE)' used to order the rows with respect to
+                     MOBILE_ID_TYPE instead of the aggregate group MONTH.
+                -The role of the last two tables is to make the substitute aggregate queries both
+                 possible (as Cassandra has no explicit support for GROUP BY aggregation) 
+                 and efficient (pre-processing data to be optimal for queries).
+
+
+        -'group3alt'
+            -'SimpleStrategy' class and replication_factor of 1.
+            -Experimental, smaller version of the keyspace 'group3'. Uses the first half of the columns
+             in the table 'cdr' from the keyspace 'group3'. Used to generate a smaller data
+             set and test scalability of our queries.
+            -Tables schemas otherwise identical to the ones in 'group3'.
 
     -Python 2.7 scripts
         -generate.py
@@ -196,7 +211,6 @@ Subsection 3.1: Data Generation
             -Reads in the contents of "partial_data_table.txt" and "cdr_table.txt", then 
              counts the number of non-empty columns for each row.
             -Prints the resulting number (frequency) of items for each column.
-
 
 
 Subsection 3.2: CQL Queries
@@ -396,7 +410,7 @@ Section 4: Theoretical Description
          "duplicate" tables which contain the data that we have sorted. We have
          essentially "pre-grouped" the data. [?]
 
----UNNECESSARY---
+---UNNECESSARY--- [?]
         -Suppose we have a table T on which we have columns C1,...,Cn,
          with rows R1,...,Rm. Say that P(C1) is an atomic formula which
          is satisfied for some C1 columns in R1,...,Rm.
@@ -458,7 +472,7 @@ Section 6: Experimental Results
 
     -Execution time for the data definition and data manipulation on the
      partially cluster (Maximum space available: approximately 1.75 TB):
-        -35.5102157513 minutes [?]
+        -35.5102157513 minutes
 
     -Resulting amounts of data successfully written in this time:
         -[?]
@@ -683,6 +697,15 @@ Section 7: Analysis and Discussion
                  more rows from being overwritten in the case of collisions.
 
 Section 8: Conclusions
+    -Lowering the number of columns for data sets of the same size increases
+     the query speed, presumably due to the fact that there is less overhead
+     in loading a smaller tuple into memory.
+    -Indexes should not be used for data sets with very large numbers of rows
+     if real-time performance is a high priority.
+    -Tuning the scheduling policy for data generation (how to determine when
+     to write data on each node) is key to increasing write throughput.
+        -In general, it is wise to optimize the the configuration file
+         to best take advantage of your servers' hardware and cluster size.
 
 
 Section 9: Notes on (Possible) Improvements
@@ -721,7 +744,7 @@ Section 9: Notes on (Possible) Improvements
          reads, possibly by a constant factor.
 
         -Use consistency level 3.
-            -Adds some latency, but increases the likelihood that
+            -Adds some latency, but decreases the probabilities of read inconsistencies.
 
 Section 10: References Used
 
