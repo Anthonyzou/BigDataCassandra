@@ -110,13 +110,12 @@ if __name__ == '__main__':
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
-            for i in range(100000):
-                build = []
-                for x in range(len(labels)):
-                    build.append(generate(labels[x][0], labels[x][1], counts[x]))
-                (session.execute_async( prepared.bind(build)))
-                (session.execute_async( prepared1.bind(build)))
-                (session.execute_async( prepared2.bind(build[:len(build)/2])))
+            build = []
+            for x in range(len(labels)):
+                build.append(generate(labels[x][0], labels[x][1], counts[x]))
+            (session.execute_async( prepared.bind(build)))
+            (session.execute_async( prepared1.bind(build)))
+            (session.execute_async( prepared2.bind(build[:len(build)/2])))
         if entry == entriesPerDay:
             datadate += 86400 #increment one day 
             
