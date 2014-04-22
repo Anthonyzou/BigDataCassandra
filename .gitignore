@@ -1,8 +1,11 @@
-*.jar
 *.pyc
+*.jar
 *.class
-javaClient/bin
-javaClient/target
 .*
 *~
 *.tgz
+
+# latex 
+*.aux
+*.log
+*.out
