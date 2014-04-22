@@ -524,6 +524,7 @@ Section 6: Experimental Results
             month_day 25: 9690 rows counted
             month_day 12: 9632 rows counted
             month_day 3: 9651 rows counted
+
             Total execution time: 0.618799209595 seconds 
 
 Section 7: Analysis and Discussion
@@ -596,7 +597,9 @@ Section 7: Analysis and Discussion
             month_day 28: 281471 rows counted
             month_day 29: 273596 rows counted
             month_day 30: 281835 rows counted
-            Total execution time: 25.0987439871 minutes
+            No time data available.
+
+        -Program execution time: 25.0987439871 minutes 
 
 
     -Execution time for the data definition and data manipulation on the
@@ -660,6 +663,8 @@ Section 7: Analysis and Discussion
             month_day 29: 9347 rows counted
             month_day 30: 9434 rows counted
             Total execution time: 1.80933117867 seconds
+
+        -Program execution time: 7.59543753068 minutes 
 
 ---UNNECESSARY---
     -Quantitative analysis of results:
