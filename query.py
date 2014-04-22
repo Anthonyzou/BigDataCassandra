@@ -11,7 +11,7 @@ loop = False #turn this to true when you want to do looping queries for group by
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__,"\n"
 
-Consist_Level = 1
+Consist_Level = 3
 
 program_st = timeit.default_timer()
 #======================================================================
@@ -142,8 +142,7 @@ start_time = timeit.default_timer()
 prep = session.prepare("select count(*) from group_by_month where month_day = ?")
 prep.consistency_level = Consist_Level
 for i in range (1,32):
-    print str(i) + " : " , session.execute(prep
-                                           .bind([i]), timeout=None)
+    print str(i) + " : " , session.execute(prep.bind([i]), timeout=None)
 print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5 loop\n"
 #======================================================================
 # QUERY 5

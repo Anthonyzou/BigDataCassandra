@@ -50,7 +50,6 @@ if __name__ == '__main__':
     start_time = timeit.default_timer()
     cluster = Cluster(['10.1.0.104 ', '10.1.0.105', '127.0.0.1'], port=9233)
     session = cluster.connect() 
-    cluster.max_schema_agreement_wait = 600
     cluster.control_connection_timeout =  cluster.default_timeout = None
     
     print cluster.metadata.cluster_name # cluster should be our own
@@ -68,8 +67,9 @@ if __name__ == '__main__':
         session.set_keyspace("group3alt")
     except: 
         session.execute("drop keyspace if exists group3alt")
-        session.execute("""CREATE KEYSPACE group3alt WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
-                            AND durable_writes = false""")
+        session.execute("""CREATE KEYSPACE group3alt 
+                           WITH REPLICATION = { 'class' : 'SimpleStrategy','replication_factor' : 3 } 
+                           AND durable_writes = false""")
         session.set_keyspace("group3alt")
         cols = "".join(i[0]+" "+i[1]+"," for i in labels)
         smallcols = "".join(i[0]+" "+i[1]+"," for i in labels[:len(labels)/2])
@@ -91,7 +91,6 @@ if __name__ == '__main__':
             try: session.execute(setupcmd)
             except Exception as error: print error
     random.seed(seed)
-
     
     body = "".join(i[0]+"," for i in labels)[:-1] + ") VALUES (" + ("?," * (len(labels) - 1)) + "?)"
     smallbody = "".join(i[0]+"," for i in smallLabels)[:-1] + ") VALUES (" + ("?," * (len(smallLabels) - 1)) + "?)"
@@ -100,9 +99,7 @@ if __name__ == '__main__':
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared1 = session.prepare("INSERT INTO cdr_alt ("+ body )
     prepared2 = session.prepare("INSERT INTO smallcdr ("+ smallbody )
-    prepared.consistency_level = Consist_Level
-    prepared1.consistency_level = Consist_Level
-    prepared2.consistency_level = Consist_Level
+    prepared.consistency_level = prepared1.consistency_level = prepared2.consistency_level = Consist_Level
 
     print( "query built and prepared")
     
@@ -113,19 +110,13 @@ if __name__ == '__main__':
     # example async insert into table
     for day in range(days):
         for entry in range(entriesPerDay):
-            futures = Queue.Queue()
             for i in range(100000):
                 build = []
                 for x in range(len(labels)):
                     build.append(generate(labels[x][0], labels[x][1], counts[x]))
-                
                 (session.execute_async( prepared.bind(build)))
                 (session.execute_async( prepared1.bind(build)))
-                
-        build = []
-        for x in range(len(smallLabels)):
-            build.append(generate(smallLabels[x][0],smallLabels[x][1], counts[x]))
-        (session.execute_async( prepared2.bind(build)))
+                (session.execute_async( prepared2.bind(build[:len(build)/2])))
         if entry == entriesPerDay:
             datadate += 86400 #increment one day 
             
