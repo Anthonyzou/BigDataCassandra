@@ -6,7 +6,7 @@ cluster = Cluster(['10.1.0.104', '10.1.0.105', '127.0.0.1'], port=9233)
 cluster.default_timeout = None
 session = cluster.connect('group3alt')  # keyspace should be our own
 
-loop = False #turn this to true when you want to do looping queries for group by
+indexsearch = False #turn this to true when you want to do looping queries for group by
 
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__,"\n"
@@ -127,13 +127,13 @@ print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4
 #======================================================================
 # QUERY 4
 #======================================================================
-
-start_time = timeit.default_timer()
-prep = session.prepare("select count(*) from cdr where MOBILE_ID_TYPE = ?")
-prep.consistency_level = 1
-for i in range (8):
-    print str(i) + " : " , session.execute(prep.bind([i]),timeout=None)
-print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 loop on cdr index\n"
+if indexsearch:
+    start_time = timeit.default_timer()
+    prep = session.prepare("select count(*) from cdr where MOBILE_ID_TYPE = ?")
+    prep.consistency_level = 1
+    for i in range (8):
+        print str(i) + " : " , session.execute(prep.bind([i]),timeout=None)
+    print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 loop on cdr index\n"
 
 #======================================================================
 # QUERY 5
@@ -147,11 +147,12 @@ print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5
 #======================================================================
 # QUERY 5
 #======================================================================
-start_time = timeit.default_timer()
-prep = session.prepare("select count(*) from cdr where month_day = ?")
-prep.consistency_level = 1
-for i in range (1,32):
-    print str(i) + " : " , session.execute(prep.bind([i]), timeout=None)
-print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5 loop on cdr index\n"
+if indexsearch:
+    start_time = timeit.default_timer()
+    prep = session.prepare("select count(*) from cdr where month_day = ?")
+    prep.consistency_level = 1
+    for i in range (1,32):
+        print str(i) + " : " , session.execute(prep.bind([i]), timeout=None)
+    print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5 loop on cdr index\n"
 
 print str((timeit.default_timer() - program_st)/60)+ " minutes elapsed for program\n"

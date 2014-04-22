@@ -116,8 +116,7 @@ if __name__ == '__main__':
             (session.execute_async( prepared.bind(build)))
             (session.execute_async( prepared1.bind(build)))
             (session.execute_async( prepared2.bind(build[:len(build)/2])))
-        if entry == entriesPerDay:
-            datadate += 86400 #increment one day 
+        datadate += 86400 #increment one day 
             
     session.execute_async("create index on cdr (MONTH_DAY)")
     session.execute_async("create index on cdr (MOBILE_ID_TYPE)")
