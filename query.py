@@ -11,7 +11,7 @@ loop = False #turn this to true when you want to do looping queries for group by
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__,"\n"
 
-ConsistencyLevel = 3
+Consist_Level = 1
 
 program_st = timeit.default_timer()
 #======================================================================
@@ -31,7 +31,7 @@ SESS_SFC)
 < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
 LIMIT 4000
 ALLOW FILTERING ; 
-""",consistency_level=ConsistencyLevel)
+""",consistency_level=Consist_Level)
 start_time = timeit.default_timer()
 print session.execute(query,timeout = None)[0]
 
@@ -54,7 +54,7 @@ SESS_SFC)
 < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
 LIMIT 4000
 ALLOW FILTERING ; 
-""",consistency_level=ConsistencyLevel)
+""",consistency_level=Consist_Level)
 start_time = timeit.default_timer()
 print session.execute(query,timeout = None)[0]
 
@@ -76,7 +76,7 @@ SESS_SFC)
 < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
 LIMIT 4000
 ALLOW FILTERING ; 
-""",consistency_level=ConsistencyLevel)
+""",consistency_level=Consist_Level)
 start_time = timeit.default_timer()
 print session.execute(query,timeout = None)[0]
 
@@ -92,7 +92,7 @@ WHERE
 MSC_CODE > 5000 AND MSC_CODE < 90000
 LIMIT 4000
 ALLOW FILTERING;
-""",consistency_level=ConsistencyLevel)
+""",consistency_level=Consist_Level)
 start_time = timeit.default_timer()
 print (session.execute(query, timeout=None)[0])
 print str((timeit.default_timer() - start_time)/60), " minutes elapsed for query 2\n"
@@ -109,7 +109,7 @@ WHERE
 <(9900,9900,9900,9900,30000)
 LIMIT 4000
 ALLOW FILTERING;
-""",consistency_level=ConsistencyLevel)
+""",consistency_level=Consist_Level)
 start_time = timeit.default_timer()
 print session.execute(query,timeout=None)[0]
 
@@ -117,51 +117,42 @@ print str((timeit.default_timer() - start_time) /60), " minutes elapsed for quer
 #======================================================================
 # QUERY 4
 #======================================================================
-query = SimpleStatement("""
-SELECT MOBILE_ID_TYPE,count
-from GROUP_BY_MOBILE_ID_TYPE
-""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
+prep = session.prepare("select count(*) from group_by_MOBILE_ID_TYPE where MOBILE_ID_TYPE = ?")
+prep.consistency_level = Consist_Level
 
 for i in range (8):
-    print str(i) + " : " , session.execute(session.prepare("select count(*) from group_by_MOBILE_ID_TYPE where MOBILE_ID_TYPE = ?").bind([i]),timeout=None)
+    print str(i) + " : " , session.execute(prep.bind([i]),timeout=None)
 print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 loop\n"
 #======================================================================
 # QUERY 4
 #======================================================================
-query = SimpleStatement("""
-SELECT MOBILE_ID_TYPE,count
-from GROUP_BY_MOBILE_ID_TYPE
-""",consistency_level=ConsistencyLevel)
-start_time = timeit.default_timer()
 
+start_time = timeit.default_timer()
+prep = session.prepare("select count(*) from cdr where MOBILE_ID_TYPE = ?")
+prep.consistency_level = 1
 for i in range (8):
-    print str(i) + " : " , session.execute(session.prepare("select count(*) from cdr where MOBILE_ID_TYPE = ?").bind([i]),timeout=None)
+    print str(i) + " : " , session.execute(prep.bind([i]),timeout=None)
 print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 4 loop on cdr index\n"
 
 #======================================================================
 # QUERY 5
 #======================================================================
-query = SimpleStatement("""
-SELECT month_day, count 
-FROM group_by_month
-""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
-
+prep = session.prepare("select count(*) from group_by_month where month_day = ?")
+prep.consistency_level = Consist_Level
 for i in range (1,32):
-    print str(i) + " : " , session.execute(session.prepare("select count(*) from group_by_month where month_day = ?").bind([i]), timeout=None)
+    print str(i) + " : " , session.execute(prep
+                                           .bind([i]), timeout=None)
 print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5 loop\n"
 #======================================================================
 # QUERY 5
 #======================================================================
-query = SimpleStatement("""
-SELECT month_day, count
-FROM group_by_month
-""",consistency_level=ConsistencyLevel)
 start_time = timeit.default_timer()
-
+prep = session.prepare("select count(*) from cdr where month_day = ?")
+prep.consistency_level = 1
 for i in range (1,32):
-    print str(i) + " : " , session.execute(session.prepare("select count(*) from cdr where month_day = ?").bind([i]), timeout=None)
+    print str(i) + " : " , session.execute(prep.bind([i]), timeout=None)
 print str((timeit.default_timer() - start_time)) + " seconds elapsed for query 5 loop on cdr index\n"
 
 print str((timeit.default_timer() - program_st)/60)+ " minutes elapsed for program\n"

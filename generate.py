@@ -7,7 +7,7 @@ import uuid, Queue
 
 def randword(length): return ''.join(random.choice(string.lowercase) for i in range(length))
 
-ConsistencyLevel = 0
+Consist_Level = 0
 acluster = 0
 datadate = 1385305327 #equal to 2013-11-24 08:02:07-0700
 session = None
@@ -88,8 +88,8 @@ if __name__ == '__main__':
                         ,"Create table group_by_month (MONTH_DAY int, id uuid, primary key (month_day, id))"
                         ,"Create table group_by_MOBILE_ID_TYPE (MOBILE_ID_TYPE int, id uuid, primary key (MOBILE_ID_TYPE,id))"
                         ]:
-	 try: session.execute(setupcmd)
-         except Exception as error: print error
+            try: session.execute(setupcmd)
+            except Exception as error: print error
     random.seed(seed)
 
     
@@ -100,9 +100,9 @@ if __name__ == '__main__':
     prepared = session.prepare("INSERT INTO cdr ("+ body )
     prepared1 = session.prepare("INSERT INTO cdr_alt ("+ body )
     prepared2 = session.prepare("INSERT INTO smallcdr ("+ smallbody )
-    prepared.consistency_level = ConsistencyLevel
-    prepared1.consistency_level = ConsistencyLevel
-    prepared2.consistency_level = ConsistencyLevel
+    prepared.consistency_level = Consist_Level
+    prepared1.consistency_level = Consist_Level
+    prepared2.consistency_level = Consist_Level
 
     print( "query built and prepared")
     
@@ -122,16 +122,15 @@ if __name__ == '__main__':
                 (session.execute_async( prepared.bind(build)))
                 (session.execute_async( prepared1.bind(build)))
                 
-		build = []
-		for x in range(len(smallLabels)):
-		    build.append(generate(smallLabels[x][0],smallLabels[x][1], counts[x]))
-		(session.execute_async( prepared2.bind(build)))
-		
-            if entry == entriesPerDay:
-                datadate += 86400 #increment one day 
+        build = []
+        for x in range(len(smallLabels)):
+            build.append(generate(smallLabels[x][0],smallLabels[x][1], counts[x]))
+        (session.execute_async( prepared2.bind(build)))
+        if entry == entriesPerDay:
+            datadate += 86400 #increment one day 
             
-    #session.execute_async("create index on cdr (MONTH_DAY)")
-    #session.execute("create index on cdr (MOBILE_ID_TYPE)")
+    session.execute_async("create index on cdr (MONTH_DAY)")
+    session.execute_async("create index on cdr (MOBILE_ID_TYPE)")
     print str((timeit.default_timer() - start_time)/60), " minutes elapsed"
     print seed, "seed used", days, 'days generated'
     
