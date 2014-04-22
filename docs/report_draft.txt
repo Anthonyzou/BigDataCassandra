@@ -461,7 +461,7 @@ Section 6: Experimental Results
         -35.5102157513 minutes [?]
 
     -Resulting amounts of data successfully written in this time:
-        -
+        -[?]
 
     -Results of queries on the fully populated cluster (Keyspace 'group3'):
         -Query 1: 4245 rows counted in 0.236439430714 minutes
@@ -517,10 +517,10 @@ Section 7: Analysis and Discussion
     -Execution time for the data definition and data manipulation on the
      fully populated cluster (Maximum space available: approximately 8 TB)
      400-Column (Keyspace 'group3'):
-        -
+        -[?]
 
     -Resulting amounts of data successfully written to 400-Column (Keyspace 'group3'):
-        -
+        -[?]
 
     -Results of queries on the fully populated cluster (Keyspace 'group3'):
 
@@ -593,11 +593,59 @@ Section 7: Analysis and Discussion
         -Column-Key Partition (Keyspace 'group3alt'):
 
     -Results of queries on the less populated cluster (Keyspace 'group3alt'):
-        -Query 1: 4000 rows counted in 3.03299493392 minutes
-        -Query 1 'Alternate': 
-        -Query 1 'Small':
+        -Query 1: 2103 rows counted 2.54962503513 minutes
+
+        -Query 1 'Alternate': 2103 rows counted in 2.03927400112 minutes
+
+        -Query 1 'Small': 2053 rows counted in 0.98935221831 minutes
+
         -Query 2: 4000 rows counted in 6.13761813243 minutes
+
         -Query 3: 4000 rows counted in 4.17100990216 minutes
+
+        -Query 4:
+            Node 0: 36058 rows counted
+            Node 1: 36064 rows counted
+            Node 2: 36060 rows counted
+            Node 3: 36062 rows counted
+            Node 4: 36062 rows counted
+            Node 5: 36058 rows counted
+            Node 6: 36064 rows counted
+            Node 7: 36058 rows counted
+            Total execution time: 1.50475788116 seconds
+
+        -Query 5:
+            month_day 1: 9393 rows counted
+            month_day 2: 9295 rows counted
+            month_day 3: 9207 rows counted
+            month_day 4: 9356 rows counted
+            month_day 5: 9164 rows counted
+            month_day 6: 9285 rows counted
+            month_day 7: 9299 rows counted
+            month_day 8: 9315 rows counted
+            month_day 9: 9187 rows counted
+            month_day 10: 9304 rows counted
+            month_day 11: 9178 rows counted
+            month_day 12: 9422 rows counted
+            month_day 13: 9380 rows counted
+            month_day 14: 9475 rows counted
+            month_day 15: 9320 rows counted
+            month_day 16: 9285 rows counted
+            month_day 17: 9367 rows counted
+            month_day 18: 9448 rows counted
+            month_day 19: 9285 rows counted
+            month_day 20: 9225 rows counted
+            month_day 21: 9389 rows counted
+            month_day 22: 9273 rows counted
+            month_day 23: 9145 rows counted
+            month_day 24: 9455 rows counted
+            month_day 25: 9307 rows counted
+            month_day 26: 9297 rows counted
+            month_day 27: 9161 rows counted
+            month_day 28: 9199 rows counted
+            month_day 29: 9347 rows counted
+            month_day 30: 9434 rows counted
+            Total execution time: 1.80933117867 seconds
 
 ---UNNECESSARY---
     -Quantitative analysis of results:
