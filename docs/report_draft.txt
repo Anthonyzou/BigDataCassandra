@@ -16,10 +16,16 @@ Section 0: Introduction to Cassandra
                     -Eventually consistent (E).
                 -May store data in a fashion other than a strictly
                  relational set of tables.
+                    -Example: the network model, which preceeded Codd's relational model.
 
     -Why NoSQL?
-        -We have some BIG data to deal with (several TB as a lower bound), and growing!
-            -Big Data implies distribution (partitioning and or sharding);
+        -We have some very large data sets to deal with (several TB as a lower bound).
+            -Traditional SQL operations, such as joins, are no longer feasible.
+            -Seemingly complex queries may have to be repeated many times.
+            -More users may perform queries on the data.
+            -The size of the data set may imply the need to distribute that data over multiple
+             storage locations, either small servers in the same building or entire data centers.
+            -Hence, 'Big Data' implies distribution (partitioning and or sharding);
         -Sometimes it is more important to repeat the same 'simple' types of queries over
          very large datasets, rather than having the ability to write 'complicated' queries
          which are to be executed only a handful of times.
@@ -52,15 +58,16 @@ Section 0: Introduction to Cassandra
 
     -What is Apache Project's Cassandra?
         -NoSQL DBMS, meant to be highly scalable.
-        -FOSS/FLOSS alternative to proprietary (and expensive) Oracle NoSQL systems.
+        -FOSS ('Free and Open Source Software') or FLOSS ('Free/Libre and Open Source Software') 
+         alternative to proprietary (and usually expensive) NoSQL systems.
 
         Features:
-            -Available, Partition-tolerant;
+            -Highly available and partition-tolerant;
             -Eventually consistent;
             -High scalability;
-            -"Schemaless" (implicit schema);
+            -'Schemaless' (non-rigid abstraction-- i.e., an 'implicit schema');
             -Has its own query language: Apache cql 3.1.5;
-            -Data compaction.
+            -Supports data compaction.
 
     -Why Cassandra?
         -Partition-tolerant (essential for clustered systems).
@@ -130,44 +137,52 @@ Subsection 3.1: Data Generation
          to an output file.
         -To generate data: follow the prompts by entering option numbers.
 
-    -Table schema
-        -Properties of our tables:
-            -Replication factor set to 1.
-            -Compression factor set to 0.
-            -Keyspace is called "group3".
-            -Durable writes are disabled.
-            -Compression is disabled.
-        -"CDR"
-            -Exactly ____ columns.
-            -Numbers range from 0 to 9.9 million for all integers.
-            -Has 10 column keys and 1 partition key.
-        -Indexes:
-            -"MONTH_DAY"
-            -"MOBILE_ID_TYPE"
-
-        -"QUERY3"
-            -Contains the same data, but the column keys are ordered MSC_CODE first in
-             an attempt to optimize for range-queries based on values of those column keys.
-        -"GROUP_BY_MONTH" 
-            -Keys are between 1 and 31.
-            -Reduces data to facilitate completion of a query equivalent to one
-             in SQL containing 'GROUP BY MONTH_DAY'.
-            -Uses 'WITH CLUSTERING ORDER BY(MONTH_DAY)' to facilitate ordering the resulting
-             tables contents by the day of the month.
-        -"GOUP_BY_MOBILE_ID_TYPE"
-            -Keys are between 0 and 7.
-            -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
-             is based on its insertion number modulo 8.
-            -'CLUSTERING ORDER BY(MOBILE_ID_TYPE)' used to order the rows with respect to
-             MOBILE_ID_TYPE instead of the aggregate group MONTH.
-        -The role of the last two tables is to make the substitute aggregate queries both
-         possible (as Cassandra has no explicit support for GROUP BY aggregation) 
-         and efficient (pre-processing data to be optimal for queries).
 
     -Keyspaces
-        -One keyspace used, with a 'SimpleStrategy' class and replication_factor of 1.
-            -No backups or snapshots are automatically made by the server.
-            -Improves performance of data insertion and modification by a constant factor.
+        -'group3'
+            -'SimpleStrategy' class and replication_factor of 1.
+                -No backups or snapshots are automatically made by the server.
+                -Improves performance of data insertion and modification by a constant factor.
+            -Table schemas
+                -Properties of our tables:
+                    -Replication factor set to 1.
+                    -Compression factor set to 0.
+                    -Keyspace is called "group3".
+                    -Durable writes are disabled.
+                    -Compression is disabled.
+                -"CDR"
+                    -Exactly 400 columns.
+                    -Numbers range from 0 to 9.9 million for all integers.
+                    -Has 10 column keys and 1 partition key.
+                -Indexes:
+                    -"MONTH_DAY"
+                    -"MOBILE_ID_TYPE"
+                -"QUERY3"
+                    -Contains the same data, but the column keys are ordered MSC_CODE first in
+                     an attempt to optimize for range-queries based on values of those column keys.
+                -"GROUP_BY_MONTH" 
+                    -Keys are between 1 and 31.
+                    -Reduces data to facilitate completion of a query equivalent to one
+                     in SQL containing 'GROUP BY MONTH_DAY'.
+                    -Uses 'WITH CLUSTERING ORDER BY(MONTH_DAY)' to facilitate ordering the resulting
+                     tables contents by the day of the month.
+                -"GOUP_BY_MOBILE_ID_TYPE"
+                    -Keys are between 0 and 7.
+                    -Similar to "GROUP_BY_MONTH", but instead the assignment of the rows' locations
+                     is based on its insertion number modulo 8.
+                    -'CLUSTERING ORDER BY(MOBILE_ID_TYPE)' used to order the rows with respect to
+                     MOBILE_ID_TYPE instead of the aggregate group MONTH.
+                -The role of the last two tables is to make the substitute aggregate queries both
+                 possible (as Cassandra has no explicit support for GROUP BY aggregation) 
+                 and efficient (pre-processing data to be optimal for queries).
+
+
+        -'group3alt'
+            -'SimpleStrategy' class and replication_factor of 1.
+            -Experimental, smaller version of the keyspace 'group3'. Uses the first half of the columns
+             in the table 'cdr' from the keyspace 'group3'. Used to generate a smaller data
+             set and test scalability of our queries.
+            -Tables schemas otherwise identical to the ones in 'group3'.
 
     -Python 2.7 scripts
         -generate.py
@@ -198,20 +213,19 @@ Subsection 3.1: Data Generation
             -Prints the resulting number (frequency) of items for each column.
 
 
-
 Subsection 3.2: CQL Queries
 
-1) Query 1
+1.1) Query 1
 ---STARTCODE---
 SELECT  count (*) as ten_atomic
 FROM    cdr 
 WHERE       (MSC_CODE, CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, 
             SEIZ_CELL_NUM, FLOW_DATA_INC, SUB_HOME_INT_PRI, CON_OHM_NUM, SESS_SFC) 
-            > (10000,10000,10000,3,10000,1,10000,10000,10000,10000)
+            > (10000, 10000, 10000, 3, 10000, 1, 10000, 10000, 10000, 10000)
         AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, SEIZ_CELL_NUM, 
             FLOW_DATA_INC, SUB_HOME_INT_PRI ,CON_OHM_NUM, SESS_SFC) 
-            < (150000,150000,150000,30,150000,6,150000,150000,150000,150000)
-LIMIT   40000000
+            < (150000, 150000, 150000, 30, 150000, 6, 150000, 150000, 150000, 150000)
+LIMIT   4000
 ALLOW FILTERING;
 ----ENDCODE----
 
@@ -224,6 +238,50 @@ ALLOW FILTERING;
            and below the minimum and maximum values of all the columns respectively, by approximately
            10%. In other words, any 'extreme' data points in the CDR table can be ignored for
            statistical analysis.
+
+1.2) Query 1 ('Alternate')
+---STARTCODE---
+SELECT  count (*) as ten_atomic
+FROM    cdr_alt 
+WHERE       (MSC_CODE, CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, 
+            SEIZ_CELL_NUM, FLOW_DATA_INC, SUB_HOME_INT_PRI, CON_OHM_NUM, SESS_SFC) 
+            > (10000, 10000, 10000, 3, 10000, 1, 10000, 10000, 10000, 10000)
+        AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, SEIZ_CELL_NUM, 
+            FLOW_DATA_INC, SUB_HOME_INT_PRI ,CON_OHM_NUM, SESS_SFC) 
+            < (150000, 150000, 150000, 30, 150000, 6, 150000, 150000, 150000, 150000)
+LIMIT   4000
+ALLOW FILTERING;
+----ENDCODE----
+
+            Performs the same cluster-wide query as Query 1, but over the table cdr_alt,
+            which resides in the keyspace 'group3alt' instead of 'group3'.
+
+            Potential uses: essentially the same as those for Query 1, but in cases
+            where less information from each row is required to complete the query,
+            or when query execution must be fast.
+
+1.3) Query 1 ('Small')
+---STARTCODE---
+SELECT  count (*) as ten_atomic
+FROM    smallcdr 
+WHERE       (MSC_CODE, CITY_ID, SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, 
+            SEIZ_CELL_NUM, FLOW_DATA_INC, SUB_HOME_INT_PRI, CON_OHM_NUM, SESS_SFC) 
+            > (10000, 10000, 10000, 3, 10000, 1, 10000, 10000, 10000, 10000)
+        AND (MSC_CODE ,CITY_ID,SERVICE_NODE_ID, RUM_DATA_NUM, DUP_SEQ_NUM, SEIZ_CELL_NUM, 
+            FLOW_DATA_INC, SUB_HOME_INT_PRI ,CON_OHM_NUM, SESS_SFC) 
+            < (150000, 150000, 150000, 30, 150000, 6, 150000, 150000, 150000, 150000)
+LIMIT   4000
+ALLOW FILTERING;
+----ENDCODE----
+
+            Performs the same cluster-wide query as Query 1, but over the table smallcdr,
+            which resides in the keyspace 'group3alt' instead of 'group3'. This query
+            is intended to take less time than the previous query, because fewer columns
+            have to be read into memory in order for the atomic conditions to be evaluated.
+
+            Potential uses: essentially the same as those for Query 1, but in cases
+            where less information from each row is required to complete the query,
+            or when query execution must be even faster than Query 1 'Alternate'.
 
 2) Query 2
 
@@ -352,7 +410,7 @@ Section 4: Theoretical Description
          "duplicate" tables which contain the data that we have sorted. We have
          essentially "pre-grouped" the data. [?]
 
----UNNECESSARY---
+---UNNECESSARY--- [?]
         -Suppose we have a table T on which we have columns C1,...,Cn,
          with rows R1,...,Rm. Say that P(C1) is an atomic formula which
          is satisfied for some C1 columns in R1,...,Rm.
@@ -412,31 +470,201 @@ Section 5: Preliminary Test Results
 
 Section 6: Experimental Results
 
+    -Execution time for the data definition and data manipulation on the
+     partially cluster (Maximum space available: approximately 1.75 TB):
+        -35.5102157513 minutes
+
+    -Resulting amounts of data successfully written in this time:
+        -[?]
+
+    -Results of queries on the fully populated cluster (Keyspace 'group3'):
+        -Query 1: 4245 rows counted in 0.236439430714 minutes
+        -Query 2: 2505 rows counted in  0.16082859834 minutes
+        -Query 3: 121100 rows counted in 2.79360364676 minutes
+        -Query 4:
+            -Node 0: 37500 rows counted
+            -Node 1: 37500 rows counted
+            -Node 2: 37500 rows counted
+            -Node 3: 37500 rows counted
+            -Node 4: 37500 rows counted
+            -Node 5: 37500 rows counted
+            -Node 6: 37500 rows counted
+            -Node 7: 37500 rows counted
+            -Total execution time: 0.680876970291 seconds
+
+        -Query 5:
+            month_day 23: 9629 rows counted
+            month_day 5: 9712 rows counted
+            month_day 28: 9733 rows counted
+            month_day 10: 9841 rows counted
+            month_day 16: 9550 rows counted
+            month_day 13: 9775 rows counted
+            month_day 30: 9658 rows counted
+            month_day 11: 9719 rows counted
+            month_day 1: 9655 rows counted
+            month_day 19: 9588 rows counted
+            month_day 8: 9711 rows counted
+            month_day 2: 9819 rows counted
+            month_day 4: 9719 rows counted
+            month_day 18: 9681 rows counted
+            month_day 15: 9727 rows counted
+            month_day 22: 9571 rows counted
+            month_day 27: 9750 rows counted
+            month_day 20: 9493 rows counted
+            month_day 7: 9818 rows counted
+            month_day 6: 9622 rows counted
+            month_day 29: 9725 rows counted
+            month_day 9: 9668 rows counted
+            month_day 14: 9746 rows counted
+            month_day 26: 9471 rows counted
+            month_day 21: 9681 rows counted
+            month_day 17: 9463 rows counted
+            month_day 31: 9757 rows counted
+            month_day 24: 9745 rows counted
+            month_day 25: 9690 rows counted
+            month_day 12: 9632 rows counted
+            month_day 3: 9651 rows counted
+
+            Total execution time: 0.618799209595 seconds 
+
 Section 7: Analysis and Discussion
 
     -Execution time for the data definition and data manipulation on the
-     fully populated cluster (~8 TB):
-        -400-Column:
-        -Column-Key Partition:
+     fully populated cluster (Maximum space available: approximately 8 TB)
+     400-Column (Keyspace 'group3'):
+        -[?]
+
+    -Resulting amounts of data successfully written to 400-Column (Keyspace 'group3'):
+        -[?]
+
+    -Results of queries on the fully populated cluster (Keyspace 'group3'):
+
+        -Query 1:
+            4000 rows counted
+            Total execution time: 3.03299493392 minutes
+
+        -Query 1 'Alternate':
+            4000 rows counted
+            Total execution time: 6.13761813243 minutes
+
+        -Query 2:
+            4000 rows counted
+            Total execution time: 4.17100990216 minutes
+
+        -Query 3:
+            4000 rows counted
+            Total execution time: 9.96416149934 minutes
+
+        -Query 4: 
+            -Node 0: 1087910 rows counted
+            -Node 1: 1091199 rows counted
+            -Node 2: 1080710 rows counted
+            -Node 3: 1091193 rows counted
+            -Node 4: 1087885 rows counted
+            -Node 5: 1091188 rows counted
+            -Node 6: 1091186 rows counted
+            -Node 7: 1090555 rows counted
+            -Total execution time: 54.6977770329 seconds 
+
+        -Query 5: 
+            month_day 1: 281291 rows counted
+            month_day 2: 281156 rows counted
+            month_day 3: 281517 rows counted
+            month_day 4: 282005 rows counted
+            month_day 5: 281072 rows counted
+            month_day 6: 281875 rows counted
+            month_day 7: 280422 rows counted
+            month_day 8: 281765 rows counted
+            month_day 9: 281777 rows counted
+            month_day 10: 281089 rows counted
+            month_day 11: 283354 rows counted
+            month_day 12: 280825 rows counted
+            month_day 13: 282244 rows counted
+            month_day 14: 278722 rows counted
+            month_day 15: 281838 rows counted
+            month_day 16: 281499 rows counted
+            month_day 17: 280351 rows counted
+            month_day 18: 281946 rows counted
+            month_day 19: 281602 rows counted
+            month_day 20: 278706 rows counted
+            month_day 21: 281782 rows counted
+            month_day 22: 274502 rows counted
+            month_day 23: 276660 rows counted
+            month_day 24: 282074 rows counted
+            month_day 25: 282137 rows counted
+            month_day 26: 280485 rows counted
+            month_day 27: 281130 rows counted
+            month_day 28: 281471 rows counted
+            month_day 29: 273596 rows counted
+            month_day 30: 281835 rows counted
+            No time data available.
+
+        -Program execution time: 25.0987439871 minutes 
+
+
+    -Execution time for the data definition and data manipulation on the
+     less populated cluster (Maximum space available: approximately 8 TB):
+        -Column-Key Partition (Keyspace 'group3alt'):
 
     -Resulting amounts of data successfully written in this time:
-        -400-Column:
-        -Column-Key Partition:
+        -Column-Key Partition (Keyspace 'group3alt'):
 
-    -Execution time for queries on the fully populated cluster (400 Column):
-        -Query 1:
-        -Query 2:
-        -Query 3:
+    -Results of queries on the less populated cluster (Keyspace 'group3alt'):
+        -Query 1: 2103 rows counted 2.54962503513 minutes
+
+        -Query 1 'Alternate': 2103 rows counted in 2.03927400112 minutes
+
+        -Query 1 'Small': 2053 rows counted in 0.98935221831 minutes
+
+        -Query 2: 4000 rows counted in 6.13761813243 minutes
+
+        -Query 3: 4000 rows counted in 4.17100990216 minutes
+
         -Query 4:
-        -Query 5:
+            Node 0: 36058 rows counted
+            Node 1: 36064 rows counted
+            Node 2: 36060 rows counted
+            Node 3: 36062 rows counted
+            Node 4: 36062 rows counted
+            Node 5: 36058 rows counted
+            Node 6: 36064 rows counted
+            Node 7: 36058 rows counted
+            Total execution time: 1.50475788116 seconds
 
-    -Execution time for queries on the fully populated cluster (Column-Key):
-        -Query 1:
-        -Query 2:
-        -Query 3:
-        -Query 4:
         -Query 5:
+            month_day 1: 9393 rows counted
+            month_day 2: 9295 rows counted
+            month_day 3: 9207 rows counted
+            month_day 4: 9356 rows counted
+            month_day 5: 9164 rows counted
+            month_day 6: 9285 rows counted
+            month_day 7: 9299 rows counted
+            month_day 8: 9315 rows counted
+            month_day 9: 9187 rows counted
+            month_day 10: 9304 rows counted
+            month_day 11: 9178 rows counted
+            month_day 12: 9422 rows counted
+            month_day 13: 9380 rows counted
+            month_day 14: 9475 rows counted
+            month_day 15: 9320 rows counted
+            month_day 16: 9285 rows counted
+            month_day 17: 9367 rows counted
+            month_day 18: 9448 rows counted
+            month_day 19: 9285 rows counted
+            month_day 20: 9225 rows counted
+            month_day 21: 9389 rows counted
+            month_day 22: 9273 rows counted
+            month_day 23: 9145 rows counted
+            month_day 24: 9455 rows counted
+            month_day 25: 9307 rows counted
+            month_day 26: 9297 rows counted
+            month_day 27: 9161 rows counted
+            month_day 28: 9199 rows counted
+            month_day 29: 9347 rows counted
+            month_day 30: 9434 rows counted
+            Total execution time: 1.80933117867 seconds
 
+        -Program execution time: 7.59543753068 minutes 
 
 ---UNNECESSARY---
     -Quantitative analysis of results:
@@ -474,6 +702,15 @@ Section 7: Analysis and Discussion
                  more rows from being overwritten in the case of collisions.
 
 Section 8: Conclusions
+    -Lowering the number of columns for data sets of the same size increases
+     the query speed, presumably due to the fact that there is less overhead
+     in loading a smaller tuple into memory.
+    -Indexes should not be used for data sets with very large numbers of rows
+     if real-time performance is a high priority.
+    -Tuning the scheduling policy for data generation (how to determine when
+     to write data on each node) is key to increasing write throughput.
+        -In general, it is wise to optimize the the configuration file
+         to best take advantage of your servers' hardware and cluster size.
 
 
 Section 9: Notes on (Possible) Improvements
@@ -510,6 +747,9 @@ Section 9: Notes on (Possible) Improvements
         -Use of a higher replication factor. In our case, we discovered that using
          replication factor of 3 helped with 'protecting' data. However, this slows
          reads, possibly by a constant factor.
+
+        -Use consistency level 3.
+            -Adds some latency, but decreases the probabilities of read inconsistencies.
 
 Section 10: References Used
 
