@@ -271,22 +271,22 @@ to mimic a sparse table or a partitioned table and cdr\_alt table changed to sor
 Insertion of about 700000 entries --- resulted in about 40GB of data per node which took 3 hours.
 
 \subsection{Query Results}
-When it comes to searching very large data sets like the 400GB node with a potentially inconsistent read. 
-The quickest reads came from maximizing column keys usage
-like in query 1 or minimizing column key usage like in query 2. Going half way into the column keys, 
-happened to be the slowest possibly query for the 400GB dataset, while in the other set
-it became the quickest query overall. 
+When it comes to searching very large data sets like the 400GB node or smaller sized nodes with a 
+potentially inconsistent read. Then quick reads generally came from maximizing column keys usage
+like in query 1 or minimizing column key usage like in query 2, this held true in both data sets. 
 
-Doing consistent reads follows the same behavior except the speed of 
-queries that minimize column key usage is lost, i.e query 2.
-For the 40GB data set the results were very similar except we see the effects of reducing column keys and
-columns in the smallcdr table, this table led to the fastest query one.
-An anomaly is how query 3 was the slowest query in the 400GB data set, but now it is actually the 
-fastest query in this dataset.
+Query 3 only did a range on half the column keys, and this 
+happened to be the slowest possible query for the 400GB data set, while in the other set
+it became the quickest query overall with respect other queries at the same consistency level. 
 
-The GROUP BY queries predictably executed the
-fastest, as the work was already done at insertion time. 
-On lower consistency levels queries on this table is always reduces query time.
+Doing consistent reads was simply slower, and queries that tend to use more column keys were 
+generally faster.
+For the 40GB data set we experimented with a partitioned cdr table called the smallcdr table, this
+table led to the fastest and consistent query one.
+
+The GROUP BY queries executed the
+fastest, because map reduction was already done at insertion time. 
+On lower read consistency levels, queries on the group by tables had reduced query time.
 \\
 
 \begin{tabular}[h]{|l|r|r|}
@@ -337,7 +337,7 @@ this could be consistently leveraged it would could half read time.
 
 Searching on indexes made on the CDR column to facilitate a group by query could have been done, but
 it was obvious such a procedure would be incredibly slow. A procedure like this would be viable for 
-redoing the entire schema of Cassandra.
+redoing an entire schema.
 
 \section{Conclusions}
 
@@ -350,17 +350,22 @@ reduce CPU utilization allowing for more write threads. Schema configurations th
 bottlenecks were putting low carnality columns as column keys and making indexes after the bulk 
 insertion.
 
+There is no clear winner on having wide rows vs partitioned rows, either can be viable. A wider row
+was faster with inconsistent reads as opposed to a partitioned table, but this relation was inverted when
+it came to consistent reads. It comes down to the characteristics of the data and what makes
+sense for maximizing the applications of the data.
+
 In general denormalizing the data is not viable without increasing column keys or ensuring the data
 was sparse. It might be reasonable to assume that wide sparse tables inherently achieves normalized
-schema characteristics since nulls take up no space in Cassandra, and this works well in a column 
-oriented database. 
+schema characteristics since nulls take up no space in Cassandra, and this works in favor of a column oriented database. 
 A guess as to why increasing column keys helps speed up queries, is that columns keys can help buffer
 earlier column keys and prevent Cassandra from reading a mix of column keys and regular columns.
 Of course that doesn't mean all column keys are good, it is possible a column key is polluting
 another column key because it is unrelated to the query. This explains how going into the middle of
-the column key list can be very slow like in query 3 depending on the data, or very fast if the data
-is aligned correctly. There is probably the biggest difference, when querying in the middle of the
-column families, because these columns are never empty. 
+the column key list can be very slow for query 3 depending on the data, or very fast if the data
+is aligned correctly. The biggest variance in query times happens at middle of the
+column keys likely, because these columns are never empty and a slight misalignment can snowball
+into many more IOs. 
 
 \section{Notes on Possible Improvements}
 
