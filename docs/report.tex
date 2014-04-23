@@ -120,7 +120,8 @@ These tables are not generated in a sparse manner, every column will have an ent
 		for testing.
 		
 	\item "SMALLCDR"
-		This table has the last 235 columns removed but has the same 10 column keys as CDR\_ALT.
+		This table has the last 235 columns removed but has the same 10 column keys as CDR\_ALT,
+		an experiment in partitioned table.
 
 	\item "GROUP\_BY\_MONTH" 
 		\begin{itemize}
@@ -270,13 +271,15 @@ to mimic a sparse table or a partitioned table and cdr\_alt table changed to sor
 Insertion of about 700000 entries --- resulted in about 40GB of data per node which took 3 hours.
 
 \subsection{Query Results}
-When it comes to searching very large data sets like the 400GB cluster, maximizing column keys usage
-like in query 1 or minimizing column key usage like in query 2, with an inconsistent read, tends to be 
-the quickest possible read. Going half way into the column keys actually slows the search time, 
-as seen in query 3. Doing consistent reads follows the same behavior except the speed of queries that
-minimize column key usage is lost, i.e query 2.
+When it comes to searching very large data sets like the 400GB node with a potentially inconsistent read. 
+The quickest reads came from maximizing column keys usage
+like in query 1 or minimizing column key usage like in query 2. Going half way into the column keys, 
+happened to be the slowest possibly query for the 400GB dataset, while in the other set
+it became the quickest query overall. 
 
-For 40GB set the results were very similar except we see the effects of reducing column keys and
+Doing consistent reads follows the same behavior except the speed of 
+queries that minimize column key usage is lost, i.e query 2.
+For the 40GB data set the results were very similar except we see the effects of reducing column keys and
 columns in the smallcdr table, this table led to the fastest query one.
 An anomaly is how query 3 was the slowest query in the 400GB data set, but now it is actually the 
 fastest query in this dataset.
@@ -328,7 +331,9 @@ reduced the query time by over 50\%.
 
 With this information in mind, if one wanted to denormalize their data and the data characteristics was
 not very sparse, it could be a valid strategy to put in dummy columns keys that is never sparse at the
-end of the column key (at the end because matters when declaring column keys).
+end of the column key (at the end because matters when declaring column keys). In addition we also
+saw how querying up until the middle of the column keys was incredibly quick or incredibly slow, if 
+this could be consistently leveraged it would could half read time.
 
 Searching on indexes made on the CDR column to facilitate a group by query could have been done, but
 it was obvious such a procedure would be incredibly slow. A procedure like this would be viable for 
