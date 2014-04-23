@@ -75,7 +75,7 @@ setup(){
 	done
 }
 
-chmod 600 NebulaLaunchKey.pem
+chmod 600 NebulaLaunchKey.pem || true
 read input
 case $input in
 	1) generate;;
