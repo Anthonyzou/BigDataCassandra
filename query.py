@@ -1,6 +1,6 @@
 import cassandra
 from cassandra.cluster import SimpleStatement, Cluster
-import timeit
+import timeit,sys
 
 cluster = Cluster(['10.1.0.104', '10.1.0.105', '127.0.0.1'], port=9233)
 cluster.default_timeout = None
@@ -11,7 +11,8 @@ indexsearch = False #turn this to true when you want to do looping queries for g
 print cluster.metadata.cluster_name  # should make sure this is group3
 print cassandra.__version__,"\n"
 
-Consist_Level = 3
+try: Consist_Level = int(sys.argv[1])
+except: Consist_Level = 1
 
 program_st = timeit.default_timer()
 #======================================================================
