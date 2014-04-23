@@ -32,7 +32,7 @@ Winter 2014}
 				conditions (formulas) in the WHERE clause.
 			\item At least two of the queries must utilize both the GROUP BY and
 				ORDER BY clauses. Since Cassandra does not yet support GROUP BY
-				aggregation, the same functionality must be acheived in another
+				aggregation, the same functionality must be achieved in another
 				way.
 			\item At least three of the five queries must be range queries which
 				specify an upper and lower bound on some ordered attribute that
@@ -52,10 +52,10 @@ Winter 2014}
 \section{Implementation}
 
 \section{Shell Script}
-A shell script was written to wrap all functionality of the OLAP project,
+A shell script was written to wrap all functionality of the project,
 including server setup for all nodes, table creation and population and
 executing the queries. To run it, cd into the directory containing group3.sh,
-and call sh group3.sh, and follow the prompts interactively.
+and call "sh group3.sh", and follow the prompts interactively.
 
 \subsection{Configuration Changes}
 Many different aspects of Cassandra cluster and the table were tuned so that we
@@ -95,66 +95,78 @@ changes that we applied:
 				value.
 			\item Consistency level for inserts was set to 0 for
 				maximum write availability.
-			\item Compression is disabled.
+			\item Compression is disabled to keep CPU utilization low.
+			\item Removing column keys that had low cardinality.
+			\item Making indexes after the bulk insert.
 		\end{enumerate}
 \end{itemize}
 
 \subsection{Table Schemas}
-The cdr table follows the assignment specification's schema, with 400 columns.
+The cdr table follows the assignment specification's schema, with 470 columns.
 It 
-and 10 column keys, indexed on MONTH\_DAY and MOBILE\_ID\_TYPE. QUERY3 shows the
-performance 
-The role of the last two
-tables is to make the substitute
-aggregate queries both possible (as Cassandra has no
-explicit support for GROUP BY aggregation) and
-efficient (preprocessing data to be optimal for
-queries).
+and 16 column keys, indexed on MONTH\_DAY and MOBILE\_ID\_TYPE.
+The role of the last two tables is to make the substitute
+aggregate queries both possible.
+These tables are not generated in a sparse manner, every column will have an entry of the appropriate type.
 \begin{enumerate}
 	\item "CDR"
-		The large 400 column table (column family) with 10
-		column keys and 1 partition key. This table is 
+		The large 470 column family with 16
+		column keys and a UUID as the partition key. This helps with distributing across nodes
+		when the partitioner is random or byte ordered.
 
-	\item "QUERY3"
-		Contains the same data as cdr, but the column keys are
-		ordered MSC\_CODE first in an attempt to optimize for
-		range-queries based on values of those column keys.
+	\item "CDR\_ALT"
+		Contains the same 470 columns as cdr, but the last 6 column
+		keys are no longer column keys. These 6 columns were never queried upon but in the CDR table
+		for testing.
+		
+	\item "SMALLCDR"
+		This table has the last 235 columns removed but has the same 10 column keys as CDR\_ALT.
+
 	\item "GROUP\_BY\_MONTH" 
 		\begin{itemize}
 			\item Keys are between 1 and 31.
+			\item UUID of the partition key in CDR is kept as a column key
 			\item Reduces data to facilitate completion of
 				a query equivalent to one in SQL
 				containing `GROUP BY MONTH\_DAY'.
-			\item Uses `WITH CLUSTERING ORDER
-				BY(MONTH\_DAY)' to facilitate ordering
-				the resulting tables contents by the
-				day of the month.  
+			\item Ordering is implicitly done by Cassandra
 		\end{itemize}
 	\item "GROUP\_BY\_MOBILE\_ID\_TYPE"
 		\begin{itemize}
 			\item Keys are between 0 and 7.
+			\item Again the UUID of the partition key in CDR is kept as a column key
 			\item Similar to "GROUP\_BY\_MONTH", but instead
-				the assignment of the rows' locations
+				the assignment
 				is based on its insertion number modulo
-				8.
-			\item 'CLUSTERING ORDER BY(MOBILE\_ID\_TYPE)'
-				used to order the rows with respect to
-				MOBILE\_ID\_TYPE instead of the aggregate
-				group MONTH.
+				8. This helps us identify if insertions are consistent since 
+				this number should not variate much.
+				
+			\item Ordering is implicitly done by Cassandra
 		\end{itemize}
+		
+	\item Indexes
+		 An alternative to creating a table for grouping by.
+		\begin{itemize}
+			\item On table CDR, column month\_day
+			\item On table CDR, column mobile\_id\_type
+		\end{itemize}
+		
 \end{enumerate}
 
 \subsection{Programs}
-We wrote two main Python 2.7 scripts: generate.py and query.py. generate.py
-creates the tables and inserts them into cassandra. It takes lots of shortcuts
-as described above, and writes have no guarantees to succeed. Query.py runs 
-the queries.
+
+We wrote two main Python 2.7 scripts: generate.py and query.py. These programs are meant to run in
+the background uninterrupted.
+The generate program is designed such that it can run many times as a different process with a
+different seed, so that data generation doesn't collide.
+A benefit is that now a generator process can be run on each node to maintain a balanced CPU load.
+Query.py runs the queries with facilities to measure real time spent running.
 
 \subsection{CQL Queries}
 
 \begin{enumerate}
 	\item Query 1
-		\lstinputlisting[breaklines=true]{queries/query1.sql}
+		\lstinputlisting[breaklines=true,frame=single,language=SQL]{queries/query1.sql}
 
 		Cluster-wide range query with 10 atomic formulas. Searches on
 		every column key of the CDR table, as this is the only
@@ -170,34 +182,21 @@ the queries.
 		statistical analysis.
 
 		Query 1 ('Alternate')
-		\lstinputlisting[breaklines=true]{queries/query1a.sql}
 
-		Performs the same cluster-wide query as Query 1, but over the table cdr\_alt,
-		which resides in the keyspace 'group3alt' instead of 'group3'.
-
-		Potential uses: essentially the same as those for Query 1, but in cases
-		where less information from each row is required to complete the query,
-		or when query execution must be fast.
+		Performs the same cluster-wide query as Query 1, but over the table cdr\_alt.
 
 		Query 1 ('Small')
-		\lstinputlisting[breaklines=true]{queries/query1s.sql}
 
-		Performs the same cluster-wide query as Query 1, but over the table smallcdr,
-		which resides in the keyspace 'group3alt' instead of 'group3'. This query
+		This query
 		is intended to take less time than the previous query, because fewer columns
 		have to be read into memory in order for the atomic conditions to be evaluated.
 
-		Potential uses: essentially the same as those for Query 1, but in cases
-		where less information from each row is required to complete the query,
-		or when query execution must be even faster than Query 1 'Alternate'.
-
 	\item Query 2
-		\lstinputlisting[breaklines=true]{queries/query2.sql}
+		\lstinputlisting[breaklines=true,frame=single,language=SQL]{queries/query2.sql}
 
 		Satisfies two requirements: cluster-wide and range query. Retrieves the number of
 		cdr entries for cities with IDs strictly greater than 5000 and strictly less than
-		90000. Limits the maximal number of elements counted to 40000000. Filtering of
-		results is enabled.
+		90000. 
 
 		Potential uses: In some cases companies may wish to know how many calls were made
 		in a given range of cities, based on certain CITY\_IDs. While
@@ -206,66 +205,49 @@ the queries.
 		sample of all cities is required.
 
 	\item Query 3
-		\lstinputlisting[breaklines=true]{queries/query3.sql}
+		\lstinputlisting[breaklines=true,frame=single,language=SQL]{queries/query3.sql}
 
 		Satsifies two requirements: cluster-wide and range query. Counts the number of cdr
 		entries such that DUP\_SEQ\_NUM is strictly greater than 30000 and strictly less than
 		300000. All other atomic conditions in the range query are used to ensure that
 		all of the results fall within a valid range and have no null-valued entries for
-		CITY\_ID, SERVICE\_NODE\_ID, and so on. Because we are trying to query mainly by 
-		DUP\_SEQ\_NUM, we allow filtering on the query in order to speed up execution.
+		CITY\_ID, SERVICE\_NODE\_ID, and so on.
 
 		Potential uses: Suppose that statistical data is to be generated for rows in the
 		CDR table for which there are no null-valued entries in the columns CITY\_ID,
 		SERVICE\_NODE\_ID, RUM\_DATA\_NUM, MONTH\_DAY and DUP\_SEQ\_NUM, and that DUP\_SEQ\_NUM
-		falls within a more specific range, that is 30000-300000 (not inclusive). The
-		records could then be analyzed and compared to data for which not all of the
-		attributes above are null, to compare behaviors of callers with different amounts
-		of privacy. This could address questions such as "do people with more privacy make
-		certain types of calls compared to people who do not?".
-
+		falls within a more specific range, that is 30000-300000.
+		\\\\\\\\
 	\item Query 4
-		\lstinputlisting[breaklines=true]{queries/query4.sql}
+		\lstinputlisting[breaklines=true,frame=single,language=python]{queries/query4.sql}
 
 		Satisfies two requirements: group-by and order-by clause, and cluster-wide query.
 
-		A table of counters aggregates the keys of the MOBILE\_ID\_TYPE columns with the 
-		count of each number of rows in the CDR table with matchine MOBILE\_ID\_TYPE.
-		Ordering by mobile\_id\_type is acheived by using a the 'USE CLUSTERING ORDER' 
-		clause in the data definition statement in generate.py.
-		We then retrieve GROUP\_BY\_MOBILE\_ID\_TYPEs contents and the count of its rows
-		in order of appearance, i.e., the order in which the aggregated rows are sorted.
+		A table of UUIDs aggregates the keys of the MOBILE\_ID\_TYPE columns.
+		This query has to be in a python loop to execute a query on each group.
+		
 
-		MOBILE\_ID is the insertion number modulo 8 (or however many nodes), therefore
-		the rows of the MOBILE\_ID table are evenly distributed throughout the cluster.
-		This means that we can easily use this query as a check for correctness of
-		the insertion process, as counting the number of rows in the MOBILE\_ID\_TYPE table
-		on each node should total up to the number of unique items in the database.
+		Additionally this is a idempotent transaction, this insert can be done multiple times and it 	
+		will not cause inconsistencies.
 
-		This is an atomic, yet seemingly asynchronous transaction. In other words, only
-		small critical sections of execution are protected for short amounts of time
-		to prevent collisions, but otherwise parallelism is fully exploited (with minimal
-		constraints of Ahmdal's Law) due to the very even distribution of data across all 
-		8 nodes. 
-
-		Updating counter columns is done in the following way:
-
-		update group\_by\_MOBILE\_ID\_TYPE set count = count + 1  where MOBILE\_ID\_TYPE = ? and id = 1;
-
+		Inserting into the table is done in the following way:
+		\begin{lstlisting}[frame=single]
+insert into group_by_MOBILE_ID_TYPE 
+(MOBILE_ID_TYPE, id) values (?,?)
+		\end{lstlisting}
+		
 		Potential uses: Most likely for the generation of histograms, but other basic
 		kinds of statistical analysis can be performed on these small MOBILE\_ID\_TYPE 
 		'buckets' as well, such as calculating arithmetic averages, etc.
 
 	\item Query 5
-		\lstinputlisting[breaklines=true]{queries/query5.sql}
+		\lstinputlisting[breaklines=true,frame=single,language=python]{queries/query5.sql}
 
 		Satisfies the group-by and order-by clause requirements. 
 		'CLUSTERING ORDER BY (MONTH\_DAY)' ensures that the GROUP\_BY\_MONTHs entries are ordered
-		by MONTH\_DAY, and GROUP BY functionality is acheived via aggregating the COUNT type
-		column `COUNTER' into MONTH\_DAY groupings. The resulting COUNTER column typically
-		contains values which are quite close in value, but with some differences between
-		them due to the pseudorandom generation and distribution of data.
-
+		by MONTH\_DAY, and GROUP BY functionality is achieved via aggregating UUIDs of each 
+		row in CDR.
+		
 		Potential uses: finding out which day(s) of each month of the year have the highest
 		frequency of entries added to the CDR table can be of use for marketing to customers,
 		optimizing billing rates, and so on. Similar queries can be written for different
@@ -274,61 +256,118 @@ the queries.
 		in billing plans with calls at different times incurring different costs.
 \end{enumerate}
 
-\section{Notes on GROUP BY Queries}
-Recall that a GROUP BY aggregation is basically a function which
-gathers rows of data retrieved by a query and groups them
-together based on an attribute. Since cassandra doesn't support doing
-GROUP BYs on the fly (a trade off to provide faster column-oriented reads and
-writes, they are done at insert time, by creating tables with redundant,
-sorted data.
-
 \section{Experimental Results}
 
 \subsection{Table Population}
 
-A test cluster was used for some preliminary tests. With the
-various configuration tweaks described above, insertion of about 300,000
-entries --- resulting about 40GB of data per node --- took 35.5 minutes.
 The biggest table to generate took two and a half days, generating an average
 of 380GB per node for a total of just over 3TB of data, out of the 8TB that was
-available on the cluster. The average speed of insertions to the big table was
-roughly 15MB/s. 
+available on the cluster, with roughly 8.8 million columns. 
+The average speed of insertions to the big table was roughly 15MB/s.
+
+A separate keyspace was used for some postliminary tests. With the additional smallcdr table
+to mimic a sparse table or a partitioned table and cdr\_alt table changed to sort ascendingly. 
+Insertion of about 700000 entries --- resulted in about 40GB of data per node which took 3 hours.
 
 \subsection{Query Results}
+When it comes to searching very large data sets like the 400GB cluster, maximizing column keys usage
+like in query 1 or minimizing column key usage like in query 2, with an inconsistent read, tends to be 
+the quickest possible read. Going half way into the column keys actually slows the search time, 
+as seen in query 3. Doing consistent reads follows the same behavior except the speed of queries that
+minimize column key usage is lost, i.e query 2.
 
-Our queries ran pretty quickly as expected. The GROUP BY queries predictably executed the
-fastest, as the work was already done at insertion time.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=\textwidth]{chart}
-	\label{fig:Query Execution Times}
-\end{figure}
+For 40GB set the results were very similar except we see the effects of reducing column keys and
+columns in the smallcdr table, this table led to the fastest query one.
+An anomaly is how query 3 was the slowest query in the 400GB data set, but now it is actually the 
+fastest query in this dataset.
+
+The GROUP BY queries predictably executed the
+fastest, as the work was already done at insertion time. 
+On lower consistency levels queries on this table is always reduces query time.
+\\
+
+\begin{tabular}[h]{|l|r|r|}
+\hline
+& 400GB CsistLvl=3 & 400GB CsistLvl=1 \\ \hline
+Query 1       & 3.032994934 & 2.200000453 \\
+Q. 1 Alt,desc   & 6.137618132 & 4.19432343245 \\
+Query 2       & 4.171009902 & 2.12728600105 \\
+Query 3       & 9.964161499 & 4.75602963368 \\
+Query 4       & 0.9116 & 0.6132 \\
+Query 5       & 0.8965 & 0.5538 \\\hline
+\end{tabular}
+
+Fig 1. Queries on initial keyspace with a 400GB load per node and a replication factor 3 with units in minutes. Queries 1-3 return 4000 results.
+\\
+
+\begin{tabular}[h]{|l|r|r|}
+\hline
+& 40GB CsistLvl=3 & 40GB CsistLvl=1 \\ \hline
+Query 1       & 3.76711789767 & 1.394323281 \\
+Q. 1 Alt,asc    & 5.64526818196 & 4.377174052 \\
+Query 1 Small  & 2.46129718224 & 2.025322433 \\
+Query 2        & 4.20441953341 & 1.726343501 \\
+Query 3        & 1.50994411707 & 0.5942962646 \\
+Query 4       & 0.1503 & 0.1344 \\
+Query 5       & 0.1674 & 0.1395 \\
+\hline
+\end{tabular}
+
+Fig 2. Second keyspace made with cdr\_alt sorted ascendingly and the smaller cdr table.
 
 \section{Discussion}
 
-It was unclear why query 1 performed faster than query 2 even though query 1
-has 6 more column keys and 200 fewer resulting rows. Another anomaly was that
-removing column keys from query 1 did not improve performance as it was
-hypothesized to.
+What is not obvious from query one and derivatives, is as columns count increases, so should the number 
+of column keys to keep query time from growing exponentially.
+We saw the move from 470 columns with 16 column keys in the cdr table to 470 columns with 10 column
+keys in cdr\_alt, and this resulted in a
+longer query time by over a factor of two, when reducing the amount of column keys by over 50\%.
+
+In addition we saw the move from the cdr\_alt table with 470 columns and 10 column keys to the smallcdr table with 235 columns and 10 column keys which
+reduced the query time by over 50\%. 
+
+With this information in mind, if one wanted to denormalize their data and the data characteristics was
+not very sparse, it could be a valid strategy to put in dummy columns keys that is never sparse at the
+end of the column key (at the end because matters when declaring column keys).
+
+Searching on indexes made on the CDR column to facilitate a group by query could have been done, but
+it was obvious such a procedure would be incredibly slow. A procedure like this would be viable for 
+redoing the entire schema of Cassandra.
 
 \section{Conclusions}
 
-The most important changes that affected insert speed was using the round
-robin scheduler to have more nodes handle requests in parallel, and to disable
-the commit log/durable writes in order to get more disk IO.
+The bulk insertion phase of the test had to be tuned in server side and in schema related ways, to maximize
+insertions.
+The most important server side changes that affected insert speed was using the round
+robin scheduler to have more nodes handle requests in parallel, to disable
+the commit log/durable writes in order to get more disk IO, and disabling compression of tables helped
+reduce CPU utilization allowing for more write threads. Schema configurations that were found to be
+bottlenecks were putting low carnality columns as column keys and making indexes after the bulk 
+insertion.
 
-The queries on the other hand were pretty straightforward, except for the fact
-that GROUP BYs have to be done a priori, as Cassandra has no facility to do
-them on the fly.
+In general denormalizing the data is not viable without increasing column keys or ensuring the data
+was sparse. It might be reasonable to assume that wide sparse tables inherently achieves normalized
+schema characteristics since nulls take up no space in Cassandra, and this works well in a column 
+oriented database. 
+A guess as to why increasing column keys helps speed up queries, is that columns keys can help buffer
+earlier column keys and prevent Cassandra from reading a mix of column keys and regular columns.
+Of course that doesn't mean all column keys are good, it is possible a column key is polluting
+another column key because it is unrelated to the query. This explains how going into the middle of
+the column key list can be very slow like in query 3 depending on the data, or very fast if the data
+is aligned correctly. There is probably the biggest difference, when querying in the middle of the
+column families, because these columns are never empty. 
 
 \section{Notes on Possible Improvements}
 
-Some tests were run on query 1 to assess the performance increase of data
-partitioning. We weren't able to re-generate the large table to see the effects
-on that, but trials on a smaller table reduced the runtime of query 1 from 2.6
-minutes down to 1.0 minute. We haven't tested it on a larger scale, but would
-say that it has lots of potential to speed up querying, without much hit to our
-table populating speed.
+Cassandra offers the ability of store entire tables into memory, using this feature on the
+group by tables would have likely led to a large speed up, and would have been
+interesting to explore, but a pure implementation of this would probably not be big data.
+
+It is possible to run the server with a custom scheduling, so with this in mind it could be possible
+to write a scheduler that is optimized for bulk insertions.
+Cassandra also offers trigger support which could automatically reduce inserts into
+appropriate tables. These previous two features aren't well documented but could be useful in future
+works.
 
 \section{References Used}
 
