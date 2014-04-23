@@ -1,0 +1,7 @@
+SELECT  count (*) as range_city_id
+FROM    cdr
+WHERE   CITY_ID > 5000 AND CITY_ID < 90000
+LIMIT   40000000
+ALLOW FILTERING;
+
+
