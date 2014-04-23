@@ -59,7 +59,7 @@ status(){
 }
 
 zip(){
-	tar -cv docs query.py stats docs group3.sh generate.py tableColumns.sql tableFrequency.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
+	tar -cv docs query.py stats docs group3.sh generate.py tableFrequency.txt NebulaLaunchKey.pem README.md | gzip -c > project.tgz
 }
 
 setup(){
