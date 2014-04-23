@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage{listings}
+\usepackage{graphicx}
 \usepackage{hyperref}
 
 \title{Big Data Project Report}
@@ -378,17 +379,35 @@ Our queries ran pretty quickly as expected. The GROUP BY queries predictably exe
 fastest, as the work was already done at insertion time.
 \begin{figure}[h]
 	\centering
-	\includegraphics{chart}
+	\includegraphics[resolution=300]{chart}
 	\label{fig:Query Execution Times}
 \end{figure}
 
 \section{Discussion}
+
 It was unclear why query 1 performed faster than query 2 even though query 1
-has 6 more column keys and 200 fewer resulting rows. 
+has 6 more column keys and 200 fewer resulting rows. Another anomaly was that
+removing column keys from query 1 did not improve performance as it was
+hypothesized to.
 
 \section{Conclusions}
 
+The most important changes that affected insert speed was using the round
+robin scheduler to have more nodes handle requests in parallel, and to disable
+the commit log/durable writes in order to get more disk IO.
+
+The queries on the other hand were pretty straightforward, except for the fact
+that GROUP BYs have to be done a priori, as Cassandra has no facility to do
+them on the fly.
+
 \section{Notes on Possible Improvements}
+
+Some tests were run on query 1 to assess the performance increase of data
+partitioning. We weren't able to re-generate the large table to see the effects
+on that, but trials on a smaller table reduced the runtime of query 1 from 2.6
+minutes down to 1.0 minute. We haven't tested it on a larger scale, but would
+say that it has lots of potential to speed up querying, without much hit to our
+table populating speed.
 
 \section{References Used}
 
