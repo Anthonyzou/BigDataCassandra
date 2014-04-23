@@ -13,64 +13,11 @@ Winter 2014}
 
 \begin{document}
 \maketitle
-\section{Introduction to Cassandra}
-\lstset{postbreak=\space, breakindent=5pt, breaklines}
-
-\subsection{What is NoSQL?}
-NoSQL is a term that describes any database system which does not strictly
-conform to the relational database model. We may have any one of the
-following:
-\begin{itemize}
-	\item Does not meet all "ACID" properties.
-	\item May store data in a fashion other than a strictly
-		relational set of tables.
-\end{itemize}
-
-\subsection{Why NoSQL?}
-\begin{itemize}
-	\item We have some BIG data to deal with (several TB), and growing!
-	\item Big Data implies distribution;
-	\item Distribution implies CAP theorem;
-	\item CAP theorem implies compromises!
-\end{itemize}
-
-\subsection{What is Apache Project's Cassandra?}
-Apache Cassandra is an open-source NoSQL DBMS based on a
-column-oriented data model. 
-Features:
-\begin{itemize}
-	\item Available, Partition-tolerant
-	\item Eventually consistent
-	\item High scalability
-	\item "Schemaless" (implicit schema)
-	\item Has its own query language: Apache cql
-	\item Data compaction
-\end{itemize}
-
-\subsection{Why Cassandra?}
-\begin{itemize}
-	\item Partition-tolerant (essential for clustered systems).
-	\item Available: mirrors "real-world" constraints on call-detail record
-		systems.
-	\item Eventual consistency is an acceptable compromise; we are not
-		running a mission-critical system (like a bank), and most of our
-		data insertion is similar to logging data.
-	\item Cassandra is especially well-suited to storing logs.
-	\item Widely used and relatively bug-free, especially for such "new" 
-		software.
-	\item Handles map-reduce and low-level details of storage process for nodes,
-		as well as performing maintenance (as specified by DB admin), such
-		as compaction.
-	\item Very low chance of data loss (except if the DBA makes a mistake),
-		even when upgrading Cassandra.
-\end{itemize}
-
 \section{Goals and Objectives}
 \begin{itemize}
 	\item To successfully implement a distributed database system which
-		will reliably store at least 16TB of random data consisting of
-		random numbers and strings organized into large tables with
-		many columns (attributes).
+		will quickly and reliably store several terabytes of random
+		data into large tables with many columns (attributes).
 	\item To distribute the data in the above tables across 8 "nodes"
 		(servers), which form our "cluster".
 	\item To generate additional tables distributed throughout the cluster
@@ -177,8 +124,8 @@ queries).
 			\item Keys are between 1 and 31.
 			\item Reduces data to facilitate completion of
 				a query equivalent to one in SQL
-				containing 'GROUP BY MONTH\_DAY'.
-			\item Uses 'WITH CLUSTERING ORDER
+				containing `GROUP BY MONTH\_DAY'.
+			\item Uses `WITH CLUSTERING ORDER
 				BY(MONTH\_DAY)' to facilitate ordering
 				the resulting tables contents by the
 				day of the month.  
@@ -198,42 +145,16 @@ queries).
 \end{enumerate}
 
 \subsection{Programs}
-We wrote two main Python 2.7 scripts: generate.py and query.py.
-
-generate.py generates data 
--generate.py
--Begins with attempting to establish a connection to the local machine which is part
-of the cluster. Constructs a connection object called 'session'.
--Expects program arguments: 
--The number of days to generate data for. 
--Different seed values to prevent collisions of data insertions.
--Cassandra has no support for primary keys; collisions result in overwriting data.
--Allows for multiple concurrent instances of data generation.
--Without seed argument, the script will use its default seed value (typically used
-for consistency in generation of data) and will drop all of the data before completely
-regenerating it.
--Depending on the results from stat.py (see below), 
--Asynchronously executes the insertion statements 
--randword() function
--Accepts parameter 'length' (intended to be a positive, nonzero numeric type)
--Generates a random lowercase string which is 'length' characters long.
--generate() function
--Allows for custom ranges on specified columns.
--Allows for custom data for specified data types.
-
--stat.py (mainly for testing)
--Reads in the contents of "partial\_data\_table.txt" and
-"cdr\_table.txt", then counts the number of non-empty columns for
-each row.
--Prints the resulting number (frequency) of items for each column.
-
-
+We wrote two main Python 2.7 scripts: generate.py and query.py. generate.py
+creates the tables and inserts them into cassandra. It takes lots of shortcuts
+as described above, and writes have no guarantees to succeed. Query.py runs 
+the queries.
 
 \subsection{CQL Queries}
 
 \begin{enumerate}
 	\item Query 1
-		\lstinputlisting{queries/query1.sql}
+		\lstinputlisting[breaklines=true]{queries/query1.sql}
 
 		Cluster-wide range query with 10 atomic formulas. Searches on
 		every column key of the CDR table, as this is the only
@@ -249,7 +170,7 @@ each row.
 		statistical analysis.
 
 		Query 1 ('Alternate')
-		\lstinputlisting{queries/query1a.sql}
+		\lstinputlisting[breaklines=true]{queries/query1a.sql}
 
 		Performs the same cluster-wide query as Query 1, but over the table cdr\_alt,
 		which resides in the keyspace 'group3alt' instead of 'group3'.
@@ -259,7 +180,7 @@ each row.
 		or when query execution must be fast.
 
 		Query 1 ('Small')
-		\lstinputlisting{queries/query1s.sql}
+		\lstinputlisting[breaklines=true]{queries/query1s.sql}
 
 		Performs the same cluster-wide query as Query 1, but over the table smallcdr,
 		which resides in the keyspace 'group3alt' instead of 'group3'. This query
@@ -271,7 +192,7 @@ each row.
 		or when query execution must be even faster than Query 1 'Alternate'.
 
 	\item Query 2
-		\lstinputlisting{queries/query2.sql}
+		\lstinputlisting[breaklines=true]{queries/query2.sql}
 
 		Satisfies two requirements: cluster-wide and range query. Retrieves the number of
 		cdr entries for cities with IDs strictly greater than 5000 and strictly less than
@@ -285,7 +206,7 @@ each row.
 		sample of all cities is required.
 
 	\item Query 3
-		\lstinputlisting{queries/query3.sql}
+		\lstinputlisting[breaklines=true]{queries/query3.sql}
 
 		Satsifies two requirements: cluster-wide and range query. Counts the number of cdr
 		entries such that DUP\_SEQ\_NUM is strictly greater than 30000 and strictly less than
@@ -304,7 +225,7 @@ each row.
 		certain types of calls compared to people who do not?".
 
 	\item Query 4
-		\lstinputlisting{queries/query4.sql}
+		\lstinputlisting[breaklines=true]{queries/query4.sql}
 
 		Satisfies two requirements: group-by and order-by clause, and cluster-wide query.
 
@@ -336,12 +257,12 @@ each row.
 		'buckets' as well, such as calculating arithmetic averages, etc.
 
 	\item Query 5
-		\lstinputlisting{queries/query5.sql}
+		\lstinputlisting[breaklines=true]{queries/query5.sql}
 
 		Satisfies the group-by and order-by clause requirements. 
 		'CLUSTERING ORDER BY (MONTH\_DAY)' ensures that the GROUP\_BY\_MONTHs entries are ordered
 		by MONTH\_DAY, and GROUP BY functionality is acheived via aggregating the COUNT type
-		column 'COUNTER' into MONTH\_DAY groupings. The resulting COUNTER column typically
+		column `COUNTER' into MONTH\_DAY groupings. The resulting COUNTER column typically
 		contains values which are quite close in value, but with some differences between
 		them due to the pseudorandom generation and distribution of data.
 
@@ -423,11 +344,9 @@ Apache Software Foundation (10 March 2014), "Cassandra Query Language (CQL) v3.1
 \url{http://cassandra.apache.org/doc/cql3/CQL.html}
 Accessed: 10 March 2014.
 
-
 Apache Software Foundation (15 November 2013), "UUID".
 \url{http://wiki.apache.org/cassandra/UUID}
 Accessed: 13 March 2014.
-
 
 DataStax Documentation (2014), "Cassandra Storage Basics".
 \url{http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/manage_dml_intro_c.html}
@@ -453,7 +372,6 @@ DataStax Documentation (2014), "The Write Path to Compaction".
 \url{http://www.datastax.com/documentation/cassandra/2.0/cassandra/dml/dml_write_path_c.html}
 Accessed 7 March, 2014.
 
-
 Fowler, M. (9 January 2012), "NosqlDefinition".
 \url{http://martinfowler.com/bliki/NosqlDefinition.html}
 Accessed: 13 March 2014.
@@ -466,7 +384,6 @@ Fowler, M. (7 January 2013), "Schemaless Data Structures".
 \url{http://martinfowler.com/tags/noSQL.html}
 Accessed: 14 March 2014.
 
-
 Grinev, M. (9 July 2010), "A Quick Introduction to the Cassandra Data Model".
 \url{http://maxgrinev.com/2010/07/09/a-quick-introduction-to-the-cassandra-data-model/}
 Accessed: 10 March 2014.
@@ -474,7 +391,6 @@ Accessed: 10 March 2014.
 Grinev, M. (12 July 2010), "Do You Really Need SQL to Do It All in Cassandra?".
 \url{ http://maxgrinev.com/2010/07/12/do-you-really-need-sql-to-do-it-all-in-cassandra/}
 Accessed: 10 March 2014.
-
 
 McFadin, P. (13 November 2012), "Cassandra Data Modeling Talk".
 \url{http://www.slideshare.net/patrickmcfadin/data-modeling-talk}
